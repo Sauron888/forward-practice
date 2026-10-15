@@ -1,0 +1,771 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<style>:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>ฝึกสอบ Forward</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500&family=IBM+Plex+Sans+Thai:wght@500;600;700&family=Noto+Sans+Thai:wght@400;500;600&display=swap">
+<style>
+/* Layout: top bar + one working column; quiz = question card with a sticky question palette beside it */
+:root{
+  --bg:#FFF5D5;--card:#FFFDF5;--ink:#14203A;--muted:#5A6679;--line:#E6DAB0;
+  --red:#C3002F;--accent:#F2A73C;--accent-text:#8A5300;--accent-ink:#14203A;--accent-soft:#FDEBCB;
+  --gold:#FFD13F;--btn:#F2A73C;--btn-ink:#14203A;--ok:#1B7A4B;--ok-soft:#DFF2E7;--bad:#B93A0E;--bad-soft:#FCE7DC;
+  --warn:#8A5A00;--warn-soft:#FFF1BF;
+  --f-head:'IBM Plex Sans Thai','Noto Sans Thai',system-ui,sans-serif;
+  --f-body:'Noto Sans Thai','IBM Plex Sans Thai',system-ui,sans-serif;
+  --f-mono:'IBM Plex Mono',ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#2E2A1E;--card:#3B3627;--ink:#E7EBF3;--muted:#9AA6BB;--line:#574E35;
+  --accent:#F2A73C;--accent-text:#F2A73C;--accent-ink:#14203A;--accent-soft:#4A3A18;
+  --gold:#FFD13F;--ok:#5BD08F;--ok-soft:#14301F;--bad:#FF9A6B;--bad-soft:#3A2016;
+  --warn:#FFD13F;--warn-soft:#3A3000;color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#2E2A1E;--card:#3B3627;--ink:#E7EBF3;--muted:#9AA6BB;--line:#574E35;
+  --accent:#F2A73C;--accent-text:#F2A73C;--accent-ink:#14203A;--accent-soft:#4A3A18;
+  --gold:#FFD13F;--ok:#5BD08F;--ok-soft:#14301F;--bad:#FF9A6B;--bad-soft:#3A2016;
+  --warn:#FFD13F;--warn-soft:#3A3000;color-scheme:dark}
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.7;padding-block:0 48px}
+h1,h2,h3{font-family:var(--f-head);line-height:1.35;margin:0;text-wrap:balance}
+p{margin:0}
+button{font:inherit;color:inherit;cursor:pointer}
+:focus-visible{outline:3px solid var(--gold);outline-offset:2px;border-radius:6px}
+.wrap{max-width:1080px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.ic{width:1.25em;height:1.25em;flex:none;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;vertical-align:-.25em}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+
+/* top bar */
+.top{background:var(--card);border-bottom:3px solid var(--gold);position:sticky;top:env(safe-area-inset-top,0px);z-index:5}
+.top .wrap{display:flex;align-items:center;gap:12px;min-height:56px;flex-wrap:wrap;padding-block:8px}
+.brand{display:flex;align-items:center;gap:10px;font-family:var(--f-head);font-weight:700;font-size:18px}
+.brand .mark{width:30px;height:30px;border-radius:8px;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center}
+.top .sp{flex:1}
+.timer{font-family:var(--f-mono);font-weight:500;font-size:18px;display:inline-flex;align-items:center;gap:8px;padding:4px 12px;border:1px solid var(--line);border-radius:8px;font-variant-numeric:tabular-nums}
+.timer.warn{background:var(--warn-soft);border-color:var(--gold);color:var(--warn)}
+.stepper{display:flex;gap:6px;flex-wrap:wrap}
+.step{display:inline-flex;align-items:center;gap:6px;font-size:14px;padding:2px 10px;border-radius:999px;border:1px solid var(--line);color:var(--muted)}
+.step.cur{border-color:var(--accent);color:var(--accent-text);font-weight:600}
+.step.done{background:var(--bg)}
+
+/* buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:8px 18px;border-radius:10px;border:1px solid var(--line);background:var(--card);font-weight:500}
+.btn:hover{border-color:var(--muted)}
+.btn.pri{background:var(--btn);border-color:var(--btn);color:var(--btn-ink);font-weight:600}
+.btn.pri:hover{filter:brightness(1.06)}
+.btn.pri.start{background:var(--red);border-color:var(--red);color:#FFFFFF}
+.btn[disabled]{opacity:.45;cursor:not-allowed}
+.btn.sm{min-height:36px;padding:4px 12px;font-size:14px}
+
+/* home */
+.hero{padding-block:28px 8px}
+.hero h1{font-size:clamp(26px,4vw,36px)}
+.hero p{color:var(--muted);margin-top:6px;max-width:60ch}
+.home{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:24px;align-items:start;margin-top:20px}
+@media (max-width:900px){.home{grid-template-columns:minmax(0,1fr)}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px}
+.stack{display:flex;flex-direction:column;gap:16px;min-width:0}
+.lbl{font-size:13px;font-weight:600;letter-spacing:.04em;color:var(--muted);margin-bottom:10px;text-transform:uppercase}
+.subjects{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+@media (max-width:560px){.subjects{grid-template-columns:minmax(0,1fr)}}
+.subj{text-align:left;display:flex;flex-direction:column;gap:6px;padding:14px;border-radius:12px;border:1.5px solid var(--line);background:var(--card);min-width:0}
+.subj .row{display:flex;gap:10px;align-items:center}
+.subj .ico{width:38px;height:38px;border-radius:10px;background:var(--bg);display:grid;place-items:center;color:var(--accent-text);flex:none}
+.subj b{font-family:var(--f-head);font-size:16px;line-height:1.35}
+.subj small{color:var(--muted);font-size:13px;line-height:1.5}
+.subj .en{font-size:12px;color:var(--muted);line-height:1.4}
+.subj[aria-checked="true"]{border-color:var(--accent);background:var(--accent-soft)}
+.subj[aria-checked="true"] .ico{background:var(--accent);color:var(--accent-ink)}
+.opts{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.seg button{border:0;background:var(--card);padding:8px 16px;min-height:40px}
+.seg button[aria-pressed="true"]{background:var(--btn);color:var(--btn-ink);font-weight:600}
+select{font:inherit;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:10px;min-height:40px;padding:4px 10px}
+.chk{display:flex;gap:10px;align-items:flex-start}
+.chk input{width:20px;height:20px;margin-top:4px;accent-color:var(--accent)}
+.note{font-size:14px;color:var(--muted)}
+.team{display:flex;gap:12px;padding-block:10px;border-top:1px solid var(--line)}
+.team:first-of-type{border-top:0;padding-top:0}
+.team .ico{width:34px;height:34px;border-radius:9px;background:var(--bg);display:grid;place-items:center;color:var(--accent-text);flex:none}
+.team b{display:block;font-family:var(--f-head);font-size:15px;line-height:1.4}
+.team span{font-size:13px;color:var(--muted);line-height:1.5;display:block}
+.hist{width:100%;border-collapse:collapse;font-size:14px;font-variant-numeric:tabular-nums}
+.hist td{padding:6px 0;border-top:1px solid var(--line)}
+.hist tr:first-child td{border-top:0}
+.hist td:last-child{text-align:right;font-weight:600}
+
+/* prep */
+.prep{max-width:640px;margin:48px auto 0}
+.prep h2{font-size:22px;margin-bottom:4px}
+.prow{display:flex;gap:12px;padding:12px 0;border-top:1px solid var(--line);align-items:flex-start}
+.prow:first-of-type{border-top:0}
+.prow .st{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;flex:none;border:1.5px solid var(--line);color:var(--muted)}
+.prow.done .st{background:var(--ok);border-color:var(--ok);color:var(--card)}
+.prow.run .st{border-color:var(--accent);border-top-color:transparent;animation:spin 1s linear infinite}
+.prow b{font-family:var(--f-head)}
+.prow span{display:block;font-size:14px;color:var(--muted)}
+@keyframes spin{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){.prow.run .st{animation:none;border-top-color:var(--accent)}}
+
+/* quiz */
+.qwrap{display:grid;grid-template-columns:minmax(0,1fr) 250px;gap:20px;margin-top:20px;align-items:start}
+@media (max-width:860px){.qwrap{grid-template-columns:minmax(0,1fr)}.pal{order:-1}}
+.qcard{padding:24px}
+.meta{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px;align-items:center}
+.chip{font-size:12.5px;padding:2px 10px;border-radius:999px;background:var(--bg);border:1px solid var(--line);color:var(--muted);line-height:1.6}
+.chip.ai{background:var(--accent-soft);border-color:transparent;color:var(--accent-text)}
+.qno{font-family:var(--f-head);font-weight:700;font-size:15px;color:var(--accent-text);margin-right:4px}
+.ctx{background:var(--bg);border-left:3px solid var(--line);border-radius:6px;padding:12px 16px;margin-bottom:16px;white-space:pre-line;font-size:15.5px}
+.stem{font-size:18px;font-weight:500;margin-bottom:16px;line-height:1.65}
+.chart{margin:0 0 16px;max-width:540px}
+.chart svg{width:100%;height:auto;display:block}
+.ch-bar{fill:var(--accent)}.ch-grid{stroke:var(--line);stroke-width:1}.ch-axis{stroke:var(--muted);stroke-width:1.2}
+.ch-t{fill:var(--muted);font-size:12px;font-family:var(--f-body)}.ch-v{fill:var(--ink);font-size:13px;font-weight:600;font-family:var(--f-mono)}
+.opt{display:flex;gap:12px;align-items:flex-start;width:100%;text-align:left;padding:12px 14px;border-radius:12px;border:1.5px solid var(--line);background:var(--card);margin-top:10px;min-height:48px}
+.opt:hover{border-color:var(--muted)}
+.opt .ltr{width:28px;height:28px;border-radius:50%;border:1.5px solid var(--line);display:grid;place-items:center;font-weight:600;font-size:14px;flex:none;font-family:var(--f-head)}
+.opt .otxt{padding-top:1px;min-width:0;overflow-wrap:anywhere}
+.opt.sel{border-color:var(--accent);background:var(--accent-soft)}
+.opt.sel .ltr{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.qfoot{display:flex;gap:10px;margin-top:22px;flex-wrap:wrap;align-items:center}
+.qfoot .sp{flex:1}
+.pal{position:sticky;top:calc(72px + env(safe-area-inset-top,0px))}
+.grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+.gq{position:relative;aspect-ratio:1;min-height:40px;border-radius:9px;border:1.5px solid var(--line);background:var(--card);font-weight:600;font-variant-numeric:tabular-nums}
+.gq.ans{background:var(--ink);color:var(--card);border-color:var(--ink)}
+.gq.cur{outline:3px solid var(--gold);outline-offset:1px}
+.gq.flag::after{content:"";position:absolute;top:3px;right:3px;width:9px;height:9px;border-radius:50%;background:var(--accent);border:1.5px solid var(--card)}
+.legend{display:flex;gap:12px;flex-wrap:wrap;font-size:12.5px;color:var(--muted);margin:12px 0}
+.confirm{border:1.5px solid var(--gold);background:var(--warn-soft);border-radius:12px;padding:14px;margin-top:12px;font-size:14.5px}
+.confirm .row{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+
+/* between + result */
+.mid{max-width:620px;margin:48px auto 0;text-align:center}
+.mid h2{font-size:24px;margin:10px 0 6px}
+.mid .card{text-align:left;margin-top:20px}
+.score{display:flex;gap:24px;flex-wrap:wrap;align-items:center}
+.big{font-family:var(--f-head);font-weight:700;font-size:56px;line-height:1;font-variant-numeric:tabular-nums}
+.big small{font-size:24px;color:var(--muted);font-weight:500}
+.tabs{display:flex;gap:8px;flex-wrap:wrap;margin-top:20px}
+.tabs button{padding:6px 16px;border-radius:999px;border:1px solid var(--line);background:var(--card);min-height:40px}
+.tabs button[aria-pressed="true"]{background:var(--ink);color:var(--card);border-color:var(--ink)}
+.tbl{width:100%;border-collapse:collapse;font-size:14.5px;font-variant-numeric:tabular-nums}
+.tbl th{text-align:left;font-weight:600;color:var(--muted);font-size:13px;padding:6px 8px 6px 0}
+.tbl td{padding:8px 8px 8px 0;border-top:1px solid var(--line);vertical-align:middle}
+.bar{height:8px;border-radius:4px;background:var(--bg);overflow:hidden;min-width:60px}
+.bar i{display:block;height:100%;background:var(--ok)}
+.scroll{overflow-x:auto}
+.rq{margin-top:16px;padding:20px}
+.rq h3{font-size:16px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.tag{display:inline-flex;align-items:center;gap:6px;padding:2px 10px;border-radius:999px;font-size:13px;font-weight:600;font-family:var(--f-body)}
+.tag.ok{background:var(--ok-soft);color:var(--ok)}.tag.bad{background:var(--bad-soft);color:var(--bad)}.tag.na{background:var(--warn-soft);color:var(--warn)}
+.ro{display:flex;gap:10px;padding:10px 12px;border-radius:10px;border:1.5px solid var(--line);margin-top:8px}
+.ro.ok{border-color:var(--ok);background:var(--ok-soft)}
+.ro.bad{border-color:var(--bad);background:var(--bad-soft)}
+.ro .ltr{width:26px;height:26px;border-radius:50%;border:1.5px solid currentColor;display:grid;place-items:center;font-size:13px;font-weight:600;flex:none}
+.ro p{font-size:15px;margin:0}
+.ro .why{font-size:14px;color:var(--muted);margin-top:2px}
+.ro.ok .why,.ro.bad .why{color:var(--ink)}
+.ro .flag{font-size:12.5px;font-weight:600;display:inline-flex;gap:4px;align-items:center;margin-left:6px}
+.row2{display:flex;gap:10px;flex-wrap:wrap;margin-top:20px}
+.hrow{display:flex;justify-content:space-between;align-items:center;gap:12px;width:100%;text-align:left;padding:8px 12px;border:1px solid var(--line);border-radius:10px;background:var(--card);margin-top:8px;font-size:14.5px;min-height:48px}
+button.hrow:hover{border-color:var(--muted)}
+.hrow small{display:block;color:var(--muted);font-size:12.5px;line-height:1.4}
+.hrow b{font-family:var(--f-head);font-variant-numeric:tabular-nums;white-space:nowrap}
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+<defs>
+<symbol id="i-calc" viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M8 7h8M9 12h.01M12 12h.01M15 12h.01M9 16h.01M12 16h.01M15 16h.01"/></symbol>
+<symbol id="i-news" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M8 9h8M8 13h8M8 17h5"/></symbol>
+<symbol id="i-lang" viewBox="0 0 24 24"><path d="M3 5h9M7.5 3v2M5 5c.5 4 3 7 6 8M10 5c-.5 4-3 7-6 8M13 20l4-10 4 10M14.5 17h5"/></symbol>
+<symbol id="i-layers" viewBox="0 0 24 24"><path d="M12 3l9 5-9 5-9-5 9-5zM3 13l9 5 9-5M3 17l9 5 9-5"/></symbol>
+<symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+<symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></symbol>
+<symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol>
+<symbol id="i-right" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
+<symbol id="i-left" viewBox="0 0 24 24"><path d="M19 12H5M11 6l-6 6 6 6"/></symbol>
+<symbol id="i-flag" viewBox="0 0 24 24"><path d="M6 21V4M6 4h11l-2 4 2 4H6"/></symbol>
+<symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></symbol>
+<symbol id="i-pencil" viewBox="0 0 24 24"><path d="M4 20l1-4L16 5l3 3L8 19l-4 1zM14 7l3 3"/></symbol>
+<symbol id="i-book" viewBox="0 0 24 24"><path d="M5 4h13v16H7a2 2 0 0 1-2-2V4zM5 18a2 2 0 0 1 2-2h11"/></symbol>
+<symbol id="i-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/></symbol>
+<symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6l8-3zM9 12l2 2 4-4"/></symbol>
+<symbol id="i-hist" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7L3 8M3 3v5h5M12 7v5l3 2"/></symbol>
+<symbol id="i-play" viewBox="0 0 24 24"><path d="M7 4l13 8-13 8V4z"/></symbol>
+<symbol id="i-redo" viewBox="0 0 24 24"><path d="M20 11a8 8 0 0 0-14-4L4 9M4 4v5h5M4 13a8 8 0 0 0 14 4l2-2M20 20v-5h-5"/></symbol>
+<symbol id="i-home" viewBox="0 0 24 24"><path d="M4 11l8-7 8 7v9H4v-9zM10 20v-6h4v6"/></symbol>
+<symbol id="i-pen" viewBox="0 0 24 24"><path d="M5 19h14M7 15l9-9 3 3-9 9H7v-3z"/></symbol>
+</defs>
+</svg>
+
+<header class="top"><div class="wrap" id="topbar"></div></header>
+<main class="wrap" id="app" aria-live="polite"></main>
+
+<script id="core">
+const $=s=>document.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const rnd=(a,b)=>a+Math.floor(Math.random()*(b-a+1));
+const pick=a=>a[rnd(0,a.length-1)];
+const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=rnd(0,i);[a[i],a[j]]=[a[j],a[i]]}return a};
+const r2=x=>Math.round(x*100)/100;
+const fmt=n=>Number(r2(n)).toLocaleString('en-US',{maximumFractionDigits:2});
+const LT=['ก','ข','ค','ง'];
+
+/* ---------- chart ---------- */
+function barSvg(labels,vals,unit){
+  const W=520,H=250,L=46,R=12,T=18,B=44,max=Math.max(...vals);
+  const step=[10,20,25,50,100,200].find(s=>max/s<=5)||250,top=Math.ceil(max/step)*step;
+  const pw=W-L-R,ph=H-T-B,bw=pw/vals.length*.56,y=v=>T+ph-v/top*ph;
+  let s=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="แผนภูมิแท่ง ${esc(labels.map((l,i)=>l+' '+vals[i]).join(', '))} ${esc(unit)}">`;
+  for(let v=0;v<=top;v+=step){s+=`<line class="${v?'ch-grid':'ch-axis'}" x1="${L}" x2="${W-R}" y1="${y(v)}" y2="${y(v)}"/><text class="ch-t" x="${L-6}" y="${y(v)+4}" text-anchor="end">${v}</text>`}
+  vals.forEach((v,i)=>{const cx=L+pw/vals.length*(i+.5);
+    s+=`<rect class="ch-bar" x="${cx-bw/2}" y="${y(v)}" width="${bw}" height="${T+ph-y(v)}" rx="3"/><text class="ch-v" x="${cx}" y="${y(v)-5}" text-anchor="middle">${v}</text><text class="ch-t" x="${cx}" y="${H-24}" text-anchor="middle">${esc(labels[i])}</text>`});
+  s+=`<text class="ch-t" x="${W-R}" y="${H-5}" text-anchor="end">หน่วย: ${esc(unit)}</text></svg>`;
+  return s;
+}
+
+/* ---------- question builders ---------- */
+function mk(o){
+  const opts=shuffle([{...o.right,ok:1},...o.wrong]);
+  return {id:o.id,subj:'quant',grp:o.id,skill:o.skill,level:o.level,src:'variant',ctx:'',stem:o.stem,chart:o.chart||'',
+    choices:opts.map(x=>String(x.v)),ans:opts.findIndex(x=>x.ok),why:opts.map(x=>x.why)};
+}
+function B(id,subj,grp,skill,level,ctx,stem,ok,wr){
+  return {id,subj,grp:grp||id,skill,level,src:'bank',ctx:ctx||'',stem,chart:'',
+    choices:[ok[0],...wr.map(x=>x[0])],ans:0,why:[ok[1],...wr.map(x=>x[1])]};
+}
+function reshuffle(q){
+  const ix=shuffle([0,1,2,3]);
+  return {...q,choices:ix.map(i=>q.choices[i]),why:ix.map(i=>q.why[i]),ans:ix.indexOf(q.ans)};
+}
+
+/* ---------- quantitative: number-varying templates ---------- */
+const GENS=[
+function gPrice(){const a=pick([400,500,800,1200,2000]),p=pick([10,20,25,30]),q=pick([10,15,20,25]);if(p===q)return null;
+  const up=a*(1+p/100),f=up*(1-q/100);
+  return mk({id:'g-price',skill:'ร้อยละและราคา',level:2,
+  stem:`ร้านค้าปรับราคาสินค้าชิ้นหนึ่งจากเดิม ${fmt(a)} บาท โดยขึ้นราคา ${p}% ในเดือนแรก และลดราคา ${q}% จากราคาใหม่ในเดือนถัดมา ราคาสินค้าหลังการปรับครั้งที่สองเป็นเท่าใด`,
+  right:{v:fmt(f)+' บาท',why:`ถูกต้อง ราคาหลังขึ้น = ${fmt(a)} × ${fmt(1+p/100)} = ${fmt(up)} บาท แล้วลด ${q}% จากราคาใหม่ = ${fmt(up)} × ${fmt(1-q/100)} = ${fmt(f)} บาท`},
+  wrong:[{v:fmt(a*(1+(p-q)/100))+' บาท',why:`ผิด เพราะนำ ${p}% กับ ${q}% มาลบกันตรงๆ แต่ ${q}% คิดจากราคาใหม่ ซึ่งเป็นฐานคนละค่ากับราคาเดิม`},
+         {v:fmt(up-q)+' บาท',why:`ผิด เพราะนำ ${q} มาลบเป็นจำนวนบาท แต่โจทย์ให้ลดเป็นร้อยละ`},
+         {v:fmt(a*(1-q/100))+' บาท',why:`ผิด เพราะลดจากราคาเดิมโดยไม่ได้นำการขึ้นราคา ${p}% มาคิด`}]});},
+function gMargin(){const R=pick([120000,150000,200000,240000]),cr=pick([60,65,70,75,80]),C=R*cr/100,m=100-cr,mu=(R-C)/C*100,w3=(R-C)/(R+C)*100;
+  return mk({id:'g-margin',skill:'กำไรและต้นทุน',level:1,
+  stem:`บริษัทแห่งหนึ่งมีรายได้จากการขาย ${fmt(R)} บาท และมีต้นทุนขาย ${fmt(C)} บาท อัตรากำไรขั้นต้น (คิดจากรายได้) เป็นกี่เปอร์เซ็นต์`,
+  right:{v:fmt(m)+'%',why:`ถูกต้อง กำไรขั้นต้น = ${fmt(R)} − ${fmt(C)} = ${fmt(R-C)} บาท อัตรากำไร = ${fmt(R-C)} ÷ ${fmt(R)} × 100 = ${fmt(m)}%`},
+  wrong:[{v:fmt(mu)+'%',why:`ผิด เพราะหารกำไรด้วยต้นทุน (เป็นอัตรากำไรส่วนเพิ่มจากต้นทุน หรือ markup) แต่โจทย์ให้คิดจากรายได้`},
+         {v:fmt(cr)+'%',why:`ผิด ค่านี้คือสัดส่วนต้นทุนต่อรายได้ ไม่ใช่อัตรากำไร`},
+         {v:fmt(w3)+'%',why:`ผิด เพราะหารด้วยผลรวมของรายได้และต้นทุน ซึ่งไม่ใช่นิยามของอัตรากำไรขั้นต้น`}]});},
+function gWeighted(){const n1=pick([20,30,40,50]),p1=pick([100,120,150]),n2=pick([60,70,80,100]),p2=pick([200,250,300]),tot=n1*p1+n2*p2,av=tot/(n1+n2);
+  return mk({id:'g-weighted',skill:'สถิติพื้นฐาน',level:2,
+  stem:`ร้านขายสินค้าสองประเภท ประเภท A ขายได้ ${n1} ชิ้น ชิ้นละ ${p1} บาท ประเภท B ขายได้ ${n2} ชิ้น ชิ้นละ ${p2} บาท ราคาขายเฉลี่ยต่อชิ้นของสินค้าทั้งหมดเป็นเท่าใด`,
+  right:{v:fmt(av)+' บาท',why:`ถูกต้อง ต้องถ่วงน้ำหนักด้วยจำนวนชิ้น รายได้รวม = ${fmt(n1*p1)} + ${fmt(n2*p2)} = ${fmt(tot)} บาท หารด้วยจำนวนชิ้นรวม ${n1+n2} ได้ ${fmt(av)} บาท`},
+  wrong:[{v:fmt((p1+p2)/2)+' บาท',why:`ผิด เพราะเฉลี่ยราคา ${p1} กับ ${p2} ตรงๆ โดยไม่คำนึงว่าขายแต่ละประเภทได้จำนวนไม่เท่ากัน`},
+         {v:fmt(tot/2)+' บาท',why:`ผิด เพราะหารรายได้รวมด้วย 2 (จำนวนประเภท) แทนที่จะหารด้วยจำนวนชิ้น`},
+         {v:fmt(tot)+' บาท',why:`ผิด ค่านี้คือรายได้รวม ไม่ใช่ราคาเฉลี่ยต่อชิ้น`}]});},
+function gCompound(){const P=pick([10000,20000,50000]),r=pick([4,5,6,8]),A=P*Math.pow(1+r/100,2);
+  return mk({id:'g-compound',skill:'การเงินเบื้องต้น',level:2,
+  stem:`ฝากเงิน ${fmt(P)} บาท ดอกเบี้ยทบต้นปีละ ${r}% เมื่อครบ 2 ปี จะมียอดเงินรวมเท่าใด`,
+  right:{v:fmt(A)+' บาท',why:`ถูกต้อง ยอดเงินรวม = ${fmt(P)} × (1 + ${r/100})² = ${fmt(A)} บาท ดอกเบี้ยของปีที่สองคิดจากยอดที่รวมดอกเบี้ยปีแรกแล้ว`},
+  wrong:[{v:fmt(P*(1+2*r/100))+' บาท',why:`ผิด เพราะคิดดอกเบี้ยแบบง่าย (ไม่ทบต้น) ทั้งที่โจทย์ระบุว่าทบต้น`},
+         {v:fmt(A-P)+' บาท',why:`ผิด ค่านี้คือดอกเบี้ยที่ได้รับ แต่โจทย์ถามยอดเงินรวมซึ่งต้องรวมเงินต้นด้วย`},
+         {v:fmt(P*(1+r/100))+' บาท',why:`ผิด ค่านี้คือยอดเงินรวมเมื่อครบ 1 ปี ไม่ใช่ 2 ปี`}]});},
+function gBreak(){const c=pick([20,25,40,50]),u=pick([200,300,400,500,800]),F=c*u,v=pick([30,40,60,80]),p=v+c;
+  return mk({id:'g-break',skill:'กำไรและต้นทุน',level:3,
+  stem:`โรงงานแห่งหนึ่งมีต้นทุนคงที่ ${fmt(F)} บาท ต้นทุนแปรผัน ${v} บาทต่อชิ้น และขายในราคา ${p} บาทต่อชิ้น ต้องขายอย่างน้อยกี่ชิ้นจึงจะถึงจุดคุ้มทุน`,
+  right:{v:fmt(u)+' ชิ้น',why:`ถูกต้อง กำไรส่วนเกินต่อชิ้น = ${p} − ${v} = ${c} บาท จุดคุ้มทุน = ต้นทุนคงที่ ÷ กำไรส่วนเกินต่อชิ้น = ${fmt(F)} ÷ ${c} = ${fmt(u)} ชิ้น`},
+  wrong:[{v:fmt(Math.round(F/p))+' ชิ้น',why:`ผิด เพราะหารต้นทุนคงที่ด้วยราคาขายเต็ม โดยไม่หักต้นทุนแปรผันต่อชิ้น`},
+         {v:fmt(Math.round(F/v))+' ชิ้น',why:`ผิด เพราะหารต้นทุนคงที่ด้วยต้นทุนแปรผันต่อชิ้น ซึ่งไม่ใช่ส่วนที่เหลือไว้ชดเชยต้นทุนคงที่`},
+         {v:fmt(Math.round(F/(p+v)))+' ชิ้น',why:`ผิด เพราะนำราคาขายมาบวกกับต้นทุนแปรผัน ควรนำมาลบกัน`}]});},
+function gMedian(){const d=shuffle([12,15,18,21,24,27,30,33,36,40,45,52,58]).slice(0,7),s=d.slice().sort((a,b)=>a-b),mean=d.reduce((a,b)=>a+b,0)/7,rg=s[6]-s[0];
+  return mk({id:'g-median',skill:'สถิติพื้นฐาน',level:1,
+  stem:`คะแนนสอบของนักศึกษา 7 คนเป็นดังนี้ ${d.join(', ')} มัธยฐานของข้อมูลชุดนี้คือเท่าใด`,
+  right:{v:fmt(s[3]),why:`ถูกต้อง เรียงจากน้อยไปมาก: ${s.join(', ')} ข้อมูลมี 7 ค่า ค่ากลางคือตัวที่ 4 = ${s[3]}`},
+  wrong:[{v:fmt(mean),why:`ผิด ค่านี้คือค่าเฉลี่ย (ผลรวมหารด้วย 7) ไม่ใช่มัธยฐาน`},
+         {v:fmt(d[3]),why:`ผิด เพราะนำตัวที่ 4 ของข้อมูลที่ยังไม่เรียงลำดับมาตอบ ต้องเรียงข้อมูลก่อนหาค่ากลาง`},
+         {v:fmt(rg),why:`ผิด ค่านี้คือพิสัย (ค่าสูงสุด − ค่าต่ำสุด) ไม่ใช่มัธยฐาน`}]});},
+function gRatio(){const [a,b,c]=pick([[2,3,5],[1,2,3],[3,4,5],[2,2,1]]),sum=a+b+c,k=pick([20000,30000,40000]),T=k*sum;
+  return mk({id:'g-ratio',skill:'อัตราส่วน',level:1,
+  stem:`หุ้นส่วน 3 คน คือ A, B และ C ลงทุนในสัดส่วน ${a}:${b}:${c} และมีกำไรรวม ${fmt(T)} บาท หุ้นส่วน B ได้รับส่วนแบ่งกำไรกี่บาท`,
+  right:{v:fmt(k*b)+' บาท',why:`ถูกต้อง ส่วนทั้งหมด = ${a}+${b}+${c} = ${sum} ส่วน หนึ่งส่วน = ${fmt(T)} ÷ ${sum} = ${fmt(k)} บาท B ได้ ${b} ส่วน = ${fmt(k*b)} บาท`},
+  wrong:[{v:fmt(T/3)+' บาท',why:`ผิด เพราะแบ่งเท่าๆ กันสามคน ทั้งที่โจทย์กำหนดสัดส่วนการลงทุนไม่เท่ากัน`},
+         {v:fmt(k*a)+' บาท',why:`ผิด ค่านี้คือส่วนแบ่งของ A (${a} ส่วน) ไม่ใช่ของ B`},
+         {v:fmt(T*b/(a+c))+' บาท',why:`ผิด เพราะใช้ผลรวมของ A กับ C เป็นตัวหาร ต้องใช้ผลรวมของทุกส่วนคือ ${sum}`}]});},
+function gDiscount(){const P=pick([1000,2000,3000,5000]),d=pick([10,20,30]),n=P*(1-d/100),pay=n*1.07;
+  return mk({id:'g-discount',skill:'ร้อยละและราคา',level:2,
+  stem:`สินค้าราคา ${fmt(P)} บาท ลดราคา ${d}% แล้วต้องเสียภาษีมูลค่าเพิ่ม 7% จากราคาหลังลด ผู้ซื้อต้องจ่ายเงินทั้งหมดเท่าใด`,
+  right:{v:fmt(pay)+' บาท',why:`ถูกต้อง ราคาหลังลด = ${fmt(P)} × ${fmt(1-d/100)} = ${fmt(n)} บาท บวก VAT 7% = ${fmt(n)} × 1.07 = ${fmt(pay)} บาท`},
+  wrong:[{v:fmt(n)+' บาท',why:`ผิด เพราะลืมบวกภาษีมูลค่าเพิ่ม 7%`},
+         {v:fmt(n+P*0.07)+' บาท',why:`ผิด เพราะคิด VAT จากราคาเต็ม แต่โจทย์ให้คิดจากราคาหลังลด`},
+         {v:fmt(n*0.93)+' บาท',why:`ผิด เพราะนำ VAT มาหักออกเหมือนเป็นส่วนลด ทั้งที่ VAT เป็นส่วนที่ต้องจ่ายเพิ่ม`}]});},
+function gChartGrowth(){const v=[rnd(8,16)*5,rnd(8,16)*5,rnd(8,16)*5,rnd(8,16)*5],g=[null,0,1,2].map(i=>i===null?null:(v[i+1]-v[i])/v[i]*100);
+  const vals=g.slice(1),mx=Math.max(...vals);if(vals.filter(x=>Math.abs(x-mx)<1).length>1)return null;
+  const best=g.indexOf(mx),L=i=>`ไตรมาส ${i+1}`;
+  const why=[0,1,2,3].map(i=>{if(i===0)return 'ผิด เพราะไตรมาส 1 เป็นไตรมาสแรกในแผนภูมิ ไม่มีไตรมาสก่อนหน้าให้เปรียบเทียบ';
+    const t=`ยอดขายเปลี่ยนจาก ${v[i-1]} เป็น ${v[i]} ล้านบาท = ${fmt(g[i])}%`;
+    return i===best?`ถูกต้อง ${t} ซึ่งสูงที่สุดในสามไตรมาสที่เปรียบเทียบได้ (คิดเป็นร้อยละของยอดไตรมาสก่อนหน้า)`:`ผิด ${t} ซึ่งต่ำกว่าไตรมาส ${best+1} ที่ได้ ${fmt(mx)}%`});
+  return {id:'g-chartgrowth',subj:'quant',grp:'g-chartgrowth',skill:'อ่านกราฟและแผนภูมิ',level:3,src:'variant',ctx:'',
+    stem:'จากแผนภูมิ ยอดขายของบริษัทในไตรมาสใดเพิ่มขึ้นจากไตรมาสก่อนหน้าเป็นร้อยละสูงที่สุด',
+    chart:barSvg([0,1,2,3].map(L),v,'ล้านบาท'),choices:[0,1,2,3].map(L),ans:best,why};},
+function gChartMean(){const v=[rnd(6,22)*5,rnd(6,22)*5,rnd(6,22)*5,rnd(6,22)*5],sum=v.reduce((a,b)=>a+b,0),m=sum/4,mid=(Math.max(...v)+Math.min(...v))/2;
+  return mk({id:'g-chartmean',skill:'อ่านกราฟและแผนภูมิ',level:1,
+  chart:barSvg(['ไตรมาส 1','ไตรมาส 2','ไตรมาส 3','ไตรมาส 4'],v,'ล้านบาท'),
+  stem:'จากแผนภูมิ ยอดขายเฉลี่ยต่อไตรมาสของบริษัทเป็นเท่าใด',
+  right:{v:fmt(m)+' ล้านบาท',why:`ถูกต้อง ยอดขายรวม = ${v.join(' + ')} = ${sum} ล้านบาท หารด้วย 4 ไตรมาส = ${fmt(m)} ล้านบาท`},
+  wrong:[{v:fmt(sum)+' ล้านบาท',why:`ผิด ค่านี้คือยอดขายรวมของปี ยังไม่ได้หารด้วยจำนวนไตรมาส`},
+         {v:fmt(sum/3)+' ล้านบาท',why:`ผิด เพราะหารด้วย 3 แต่แผนภูมิมี 4 ไตรมาส`},
+         {v:fmt(mid)+' ล้านบาท',why:`ผิด ค่านี้คือค่ากึ่งกลางของยอดสูงสุดกับต่ำสุด ซึ่งไม่ใช่ค่าเฉลี่ยของทุกไตรมาส`}]});},
+function gFx(){const u=pick([2000,4000,5000,10000]),r0=pick([33,34,35,36]),d=pick([0.5,1,1.5,2]),ch=u*d;
+  return mk({id:'g-fx',skill:'การเงินเบื้องต้น',level:3,
+  stem:`ผู้ส่งออกไทยขายสินค้าได้ ${fmt(u)} ดอลลาร์สหรัฐ ขณะที่อัตราแลกเปลี่ยนคือ ${fmt(r0)} บาทต่อดอลลาร์ ต่อมาเงินบาทอ่อนค่าเป็น ${fmt(r0+d)} บาทต่อดอลลาร์ รายได้เป็นเงินบาทของคำสั่งซื้อนี้เปลี่ยนแปลงอย่างไร`,
+  right:{v:`เพิ่มขึ้น ${fmt(ch)} บาท`,why:`ถูกต้อง รายได้เดิม = ${fmt(u*r0)} บาท รายได้ใหม่ = ${fmt(u*(r0+d))} บาท เพิ่มขึ้น ${fmt(ch)} บาท เพราะบาทอ่อนค่าทำให้ดอลลาร์เดิมแลกเงินบาทได้มากขึ้น`},
+  wrong:[{v:`ลดลง ${fmt(ch)} บาท`,why:`ผิด ทิศทางกลับกัน บาทอ่อนค่า (บาทต่อดอลลาร์เพิ่ม) ผู้ส่งออกได้เงินบาทมากขึ้น`},
+         {v:`เพิ่มขึ้น ${fmt(ch/r0)} บาท`,why:`ผิด เพราะหารส่วนต่างด้วยอัตราแลกเปลี่ยนเดิม ซึ่งเป็นการแปลงหน่วยผิดทิศ`},
+         {v:`เพิ่มขึ้น ${fmt(u*(r0+d))} บาท`,why:`ผิด ค่านี้คือรายได้ใหม่ทั้งหมด ไม่ใช่ส่วนที่เปลี่ยนแปลง`}]});}
+];
+function makeVariant(i){for(let t=0;t<40;t++){const q=GENS[i]();if(q&&new Set(q.choices).size===4)return q}return null}
+
+/* ---------- qualitative bank (simulated business-news situations) ---------- */
+const QP1=`ร้านค้าชุมชนแห่งหนึ่งในจังหวัดลำปางเริ่มขายผ้าทอผ่านแพลตฟอร์มออนไลน์เมื่อต้นปี ยอดขายรายเดือนเพิ่มจาก 80,000 บาทเป็น 130,000 บาทภายในหกเดือน ประธานกลุ่มระบุว่าลูกค้าต่างจังหวัดเป็นกลุ่มที่เติบโตเร็วที่สุด อย่างไรก็ตาม ต้นทุนค่าขนส่งเพิ่มขึ้นเกือบเท่าตัวเพราะต้องส่งชิ้นเล็กจำนวนมาก นักวิชาการด้านการตลาดให้ความเห็นว่า กลุ่มควรรวมคำสั่งซื้อและเจรจาราคาขนส่งรายเดือน ซึ่งน่าจะเป็นทางออกที่ดีที่สุด ขณะที่สมาชิกบางส่วนกังวลว่าการขายออนไลน์จะทำให้ลายผ้าถูกลอกเลียนได้ง่าย`;
+const QP2=`รัฐบาลประกาศปรับขึ้นค่าไฟฟ้าสำหรับภาคธุรกิจขนาดเล็กอีกร้อยละ 8 มีผลตั้งแต่เดือนหน้า สมาคมผู้ประกอบการ SME ระบุว่า ร้านอาหารและโรงงานขนาดเล็กจะได้รับผลกระทบมากที่สุด เพราะค่าไฟคิดเป็นสัดส่วนสูงของต้นทุน ฝ่ายรัฐให้เหตุผลว่าต้นทุนเชื้อเพลิงในตลาดโลกสูงขึ้น และการตรึงราคาต่อไปจะทำให้ภาระหนี้ของการไฟฟ้าสะสมเพิ่มขึ้น ผู้เชี่ยวชาญด้านพลังงานคนหนึ่งเห็นว่าการปรับครั้งนี้ไม่สมเหตุสมผล เพราะรัฐควรทบทวนค่าพลังงานสำรองก่อน ส่วนเจ้าของร้านอาหารรายหนึ่งกล่าวว่าจะปรับราคาอาหารขึ้นร้อยละ 5 เพื่อรักษากำไร`;
+const QP3=`ในไตรมาสที่ผ่านมา มีนักท่องเที่ยวต่างชาติเดินทางเข้าประเทศหนึ่ง 9.2 ล้านคน เพิ่มขึ้นร้อยละ 12 จากช่วงเดียวกันของปีก่อน แต่รายได้จากการท่องเที่ยวเพิ่มเพียงร้อยละ 4 เนื่องจากนักท่องเที่ยวกลุ่มระยะใกล้ ซึ่งพักสั้นและใช้จ่ายต่อหัวต่ำ มีสัดส่วนมากขึ้น ผู้อำนวยการสมาคมโรงแรมกล่าวว่าการแข่งขันด้านราคาจะรุนแรงขึ้นในช่วงไฮซีซัน หน่วยงานด้านการท่องเที่ยวระบุว่าจะเร่งโปรโมตตลาดระยะไกลซึ่งใช้จ่ายสูงกว่า แต่ยังไม่เปิดเผยงบประมาณ`;
+const QP4=`ธนาคารกลางของประเทศสมมติแห่งหนึ่งปรับลดอัตราดอกเบี้ยนโยบายลงร้อยละ 0.25 เหลือร้อยละ 2.00 โดยระบุว่าเงินเฟ้อต่ำกว่าเป้าหมายต่อเนื่องสามเดือนและเศรษฐกิจขยายตัวชะลอลง นักเศรษฐศาสตร์ของธนาคารพาณิชย์แห่งหนึ่งมองว่าการลดดอกเบี้ยจะช่วยกระตุ้นการลงทุนภาคเอกชนได้จำกัด เพราะปัญหาหลักคือความเชื่อมั่นของผู้บริโภค ไม่ใช่ต้นทุนการกู้ยืม ขณะที่สมาคมอสังหาริมทรัพย์ยินดีกับการตัดสินใจครั้งนี้ และคาดว่ายอดขายบ้านจะดีขึ้นในครึ่งปีหลัง`;
+const QUAL=[
+B('ql1a','qual','p1','จับใจความสำคัญ',1,QP1,'ใจความสำคัญของข้อความนี้คือข้อใด',
+ ['การขายออนไลน์ช่วยเพิ่มยอดขายของร้านค้าชุมชน แต่นำมาซึ่งต้นทุนและความเสี่ยงใหม่','ถูกต้อง ข้อความเล่าทั้งผลดี (ยอดขายเพิ่ม) และปัญหา (ค่าขนส่ง การลอกเลียนลาย)'],
+ [['ร้านค้าชุมชนไม่ควรขายสินค้าออนไลน์เพราะมีต้นทุนและความเสี่ยงสูงกว่าผลดีที่ได้รับ','ผิด ข้อความไม่ได้สรุปว่าควรเลิก และยอดขายเพิ่มขึ้นชัดเจน'],['ลูกค้าต่างจังหวัดเป็นกลุ่มเดียวที่ซื้อผ้าทอ จึงทำให้ร้านมียอดขายสูงขึ้นมาก','ผิด ข้อความบอกว่าเป็นกลุ่มที่โตเร็วที่สุด ไม่ได้บอกว่าเป็นกลุ่มเดียว'],['ค่าขนส่งที่เพิ่มขึ้นเป็นสาเหตุหลักที่ทำให้ยอดขายรายเดือนของร้านเติบโตอย่างรวดเร็ว','ผิด ค่าขนส่งเป็นผลที่ตามมาจากการส่งสินค้ามากขึ้น ไม่ใช่สาเหตุของยอดขาย']]),
+B('ql1b','qual','p1','แยกข้อเท็จจริง/ความเห็น',2,QP1,'ข้อใดเป็นความคิดเห็น ไม่ใช่ข้อเท็จจริง',
+ ['การรวมคำสั่งซื้อและเจรจาราคาขนส่งน่าจะเป็นทางออกที่ดีที่สุด','ถูกต้อง คำว่า "น่าจะ" และ "ดีที่สุด" เป็นการประเมินของนักวิชาการ ตรวจสอบเป็นจริงหรือเท็จโดยตรงไม่ได้'],
+ [['ยอดขายรายเดือนเพิ่มจาก 80,000 บาทเป็น 130,000 บาท','ผิด เป็นตัวเลขที่ตรวจสอบได้ จึงเป็นข้อเท็จจริง'],['ต้นทุนค่าขนส่งเพิ่มขึ้นเกือบเท่าตัว','ผิด เป็นข้อมูลต้นทุนที่ตรวจสอบได้ จึงเป็นข้อเท็จจริง'],['ร้านเริ่มขายผ้าทอออนไลน์เมื่อต้นปี','ผิด เป็นเหตุการณ์ที่เกิดขึ้นจริงและตรวจสอบได้ จึงเป็นข้อเท็จจริง']]),
+B('ql1c','qual','p1','เชื่อมโยงข้อมูล',2,QP1,'ยอดขายรายเดือนของร้านเพิ่มขึ้นกี่เปอร์เซ็นต์',
+ ['62.5%','ถูกต้อง ยอดขายเพิ่ม 130,000 − 80,000 = 50,000 บาท คิดเทียบยอดเดิม 50,000 ÷ 80,000 × 100 = 62.5%'],
+ [['50%','ผิด ไม่ตรงกับผลการคำนวณ 50,000 ÷ 80,000 = 0.625'],['38.5%','ผิด เพราะนำส่วนเพิ่มไปหารยอดใหม่ (130,000) แต่การเติบโตต้องเทียบกับยอดเดิม'],['162.5%','ผิด ค่านี้คือยอดใหม่เทียบกับยอดเดิม ยังไม่ได้หักส่วนที่เป็นฐานเดิม 100%']]),
+B('ql2a','qual','p2','จับใจความสำคัญ',1,QP2,'ข้อใดคือเหตุผลที่ภาครัฐให้ไว้ในการปรับขึ้นค่าไฟ',
+ ['ต้นทุนเชื้อเพลิงโลกสูงขึ้น และการตรึงราคาทำให้ภาระหนี้สะสม','ถูกต้อง เป็นเหตุผลที่ข้อความระบุว่ามาจากฝ่ายรัฐ'],
+ [['ผู้ประกอบการ SME มีกำไรสูงเกินไปจนควรมีส่วนรับภาระต้นทุนมากขึ้น','ผิด ข้อความไม่ได้กล่าวถึงเหตุผลนี้'],['ต้องการให้โรงงานและร้านอาหารลดปริมาณการใช้ไฟฟ้าลงอย่างเป็นรูปธรรม','ผิด ข้อความไม่ได้ให้เหตุผลด้านการลดการใช้ไฟ'],['ค่าพลังงานสำรองลดลงแล้ว ทำให้การไฟฟ้ามีรายได้เกินความจำเป็น','ผิด เรื่องค่าพลังงานสำรองเป็นข้อเสนอของผู้เชี่ยวชาญ ไม่ใช่เหตุผลของรัฐ']]),
+B('ql2b','qual','p2','แยกข้อเท็จจริง/ความเห็น',2,QP2,'ท่าทีของผู้เชี่ยวชาญด้านพลังงานต่อการปรับค่าไฟครั้งนี้คือข้อใด',
+ ['ไม่เห็นด้วย เพราะเห็นว่าควรทบทวนค่าพลังงานสำรองก่อน','ถูกต้อง ข้อความระบุว่าไม่สมเหตุสมผลและเสนอให้ทบทวนค่าพลังงานสำรองก่อน'],
+ [['เห็นด้วยโดยสมบูรณ์ เพราะต้นทุนเชื้อเพลิงโลกสูงขึ้นจริง','ผิด ข้อความใช้คำว่า "ไม่สมเหตุสมผล"'],['เป็นกลาง ไม่แสดงความเห็นต่อการปรับค่าไฟครั้งนี้','ผิด ผู้เชี่ยวชาญแสดงความเห็นชัดเจน'],['เห็นว่าควรปรับขึ้นมากกว่านี้เพื่อลดภาระหนี้ของการไฟฟ้า','ผิด ข้อความไม่ได้ระบุเช่นนั้น']]),
+B('ql2c','qual','p2','เชื่อมโยงข้อมูล',3,QP2,'จากข้อมูลในข้อความ ผลที่น่าจะตามมามากที่สุดคือข้อใด',
+ ['ราคาสินค้าและบริการบางประเภทมีแนวโน้มสูงขึ้น','ถูกต้อง ต้นทุนค่าไฟสูงขึ้น และมีผู้ประกอบการระบุว่าจะปรับราคาเพื่อรักษากำไร'],
+ [['ต้นทุนการผลิตของ SME ลดลงและกำไรเพิ่มขึ้นทันที','ผิด ค่าไฟขึ้นย่อมทำให้ต้นทุนเพิ่ม ไม่ใช่ลด'],['หนี้ของการไฟฟ้าหมดไปทันทีหลังการปรับขึ้นราคา','ผิด ข้อความบอกเพียงว่าการตรึงราคาทำให้หนี้สะสมเพิ่ม ไม่ได้บอกว่าหนี้จะหมดทันที'],['โรงงานขนาดเล็กใช้ไฟฟ้ามากขึ้นเพราะค่าไฟถูกลง','ผิด ไม่มีข้อมูลสนับสนุน และต้นทุนที่สูงขึ้นมักทำให้ใช้น้อยลง']]),
+B('ql3a','qual','p3','เชื่อมโยงข้อมูล',2,QP3,'ข้อสรุปใดสอดคล้องกับข้อมูลในข้อความมากที่สุด',
+ ['รายได้เฉลี่ยต่อนักท่องเที่ยวหนึ่งคนมีแนวโน้มลดลง','ถูกต้อง จำนวนคนเพิ่มร้อยละ 12 แต่รายได้เพิ่มเพียงร้อยละ 4 แสดงว่ารายได้ต่อหัวลดลง'],
+ [['รายได้เพิ่มเร็วกว่าจำนวนนักท่องเที่ยว','ผิด ข้อมูลระบุว่าจำนวนคนเพิ่มร้อยละ 12 รายได้เพิ่มร้อยละ 4'],['สัดส่วนนักท่องเที่ยวระยะไกลเพิ่มขึ้น','ผิด ข้อความระบุว่ากลุ่มระยะใกล้มีสัดส่วนมากขึ้น'],['ประเทศนี้ขาดแคลนนักท่องเที่ยว','ผิด จำนวนนักท่องเที่ยวเพิ่มขึ้นถึง 9.2 ล้านคน']]),
+B('ql3b','qual','p3','จับใจความสำคัญ',1,QP3,'ข้อใดเป็นสาเหตุที่รายได้โตช้ากว่าจำนวนนักท่องเที่ยว',
+ ['นักท่องเที่ยวระยะใกล้ที่พักสั้นและใช้จ่ายต่อหัวต่ำมีสัดส่วนมากขึ้น','ถูกต้อง เป็นสาเหตุที่ข้อความระบุไว้โดยตรง'],
+ [['นักท่องเที่ยวระยะไกลที่ใช้จ่ายสูงมีจำนวนลดลงอย่างมาก','ผิด ข้อความไม่ได้ระบุว่าจำนวนลดลง เพียงบอกว่าจะเร่งโปรโมต'],['โรงแรมขึ้นราคาห้องพักมากเกินไปจนนักท่องเที่ยวใช้จ่ายน้อยลง','ผิด ข้อความกล่าวถึงการแข่งขันด้านราคาที่รุนแรงขึ้น ไม่ใช่การขึ้นราคา'],['จำนวนนักท่องเที่ยวต่างชาติลดลงจากช่วงเดียวกันของปีก่อน','ผิด ข้อความระบุว่าเพิ่มขึ้นร้อยละ 12']]),
+B('ql3c','qual','p3','แยกข้อเท็จจริง/ความเห็น',3,QP3,'ข้อใดที่ข้อความนี้ไม่ได้ให้ข้อมูล',
+ ['งบประมาณที่ใช้โปรโมตตลาดระยะไกล','ถูกต้อง ข้อความระบุชัดว่ายังไม่เปิดเผยงบประมาณ'],
+ [['จำนวนนักท่องเที่ยวต่างชาติในไตรมาสที่ผ่านมา','ผิด ข้อความระบุไว้ว่า 9.2 ล้านคน'],['อัตราการเพิ่มของรายได้จากการท่องเที่ยว','ผิด ข้อความระบุไว้ว่าร้อยละ 4'],['ความเห็นของผู้อำนวยการสมาคมโรงแรมเรื่องการแข่งขัน','ผิด ข้อความระบุไว้ว่าการแข่งขันด้านราคาจะรุนแรงขึ้น']]),
+B('ql4a','qual','p4','เชื่อมโยงข้อมูล',1,QP4,'ก่อนการปรับลดครั้งนี้ อัตราดอกเบี้ยนโยบายอยู่ที่ร้อยละเท่าใด',
+ ['2.25','ถูกต้อง ลดลง 0.25 เหลือ 2.00 ดังนั้นก่อนลดคือ 2.00 + 0.25 = 2.25'],
+ [['1.75','ผิด เพราะนำ 0.25 มาลบออกจาก 2.00 ซึ่งเป็นค่าหลังปรับแล้ว'],['2.00','ผิด ค่านี้คืออัตราหลังปรับลด'],['2.50','ผิด ไม่ตรงกับการคำนวณ 2.00 + 0.25']]),
+B('ql4b','qual','p4','แยกข้อเท็จจริง/ความเห็น',2,QP4,'ข้อใดเป็นข้อเท็จจริงตามข้อความ',
+ ['ธนาคารกลางปรับลดอัตราดอกเบี้ยนโยบายลงร้อยละ 0.25','ถูกต้อง เป็นเหตุการณ์ที่เกิดขึ้นแล้วและตรวจสอบได้'],
+ [['การลดดอกเบี้ยช่วยกระตุ้นการลงทุนได้จำกัด','ผิด เป็นการประเมินของนักเศรษฐศาสตร์'],['ยอดขายบ้านจะดีขึ้นในครึ่งปีหลัง','ผิด เป็นการคาดการณ์ของสมาคมอสังหาริมทรัพย์ ยังไม่เกิดขึ้น'],['ปัญหาหลักคือความเชื่อมั่นของผู้บริโภค','ผิด เป็นความเห็นของนักเศรษฐศาสตร์']]),
+B('ql4c','qual','p4','เชื่อมโยงข้อมูล',3,QP4,'ข้อใดเปรียบเทียบจุดยืนของนักเศรษฐศาสตร์กับสมาคมอสังหาริมทรัพย์ได้ถูกต้อง',
+ ['นักเศรษฐศาสตร์เห็นว่าผลกระตุ้นจำกัด ส่วนสมาคมคาดว่ายอดขายบ้านจะดีขึ้น','ถูกต้อง สรุปตรงกับความเห็นของทั้งสองฝ่ายในข้อความ'],
+ [['ทั้งสองฝ่ายคัดค้านการลดดอกเบี้ย','ผิด สมาคมอสังหาริมทรัพย์ยินดีกับการตัดสินใจ'],['ทั้งสองฝ่ายเชื่อว่าต้นทุนการกู้ยืมคือปัญหาหลัก','ผิด นักเศรษฐศาสตร์เห็นว่าปัญหาหลักคือความเชื่อมั่น'],['นักเศรษฐศาสตร์เห็นด้วยกับสมาคมว่าผลดีจะเกิดทันที','ผิด นักเศรษฐศาสตร์ระบุว่าผลจำกัด']])
+];
+
+/* ---------- business English bank ---------- */
+const EM1=`Subject: Rescheduled Client Meeting
+
+Dear team,
+
+I am writing to inform you that the client meeting with Orion Foods has been moved from Tuesday, 10 June to Thursday, 12 June at 2:00 p.m. because of the client's travel schedule. Please update your calendars and prepare the revised sales forecast by Wednesday noon. Mr. Anan will present the forecast, and Ms. Pim will handle questions about pricing. If you have any conflicts, let me know by tomorrow.
+
+Best regards,
+Kanya`;
+const EM2=`Subject: Delayed Order #4821
+
+To Whom It May Concern,
+
+I placed an order for 200 office chairs on 3 March, and the confirmation stated delivery within 10 business days. As of today, 24 March, we have received only 120 chairs. This delay has forced us to postpone the opening of our new branch. I would appreciate a prompt update on the remaining chairs and an explanation of the delay. Unless we receive a response within two business days, we will have to consider canceling the balance of the order.
+
+Sincerely,
+Somchai Wattana
+Procurement Manager, BrightWorks Co.`;
+const AR1=`Many companies that adopted remote work during the pandemic are now asking employees to return to the office at least three days a week. Supporters of the policy argue that face-to-face collaboration speeds up decision-making and helps new employees learn the company culture. Critics, however, point to surveys showing that workers who commute less report higher satisfaction and, in some cases, higher output. A growing number of firms have therefore chosen a hybrid model, allowing teams to decide which days they work together. Analysts expect this flexible approach to become the standard for knowledge-based industries.`;
+const ENG=[
+B('en-v1','eng','en-v1','คำศัพท์ธุรกิจ',1,'','The company plans to ____ its operations to three new countries next year.',
+ ['expand','ถูกต้อง expand แปลว่า ขยาย เช่น ขยายการดำเนินงาน ใช้กับ operations ได้ตรงความหมาย'],
+ [['expend','ผิด expend แปลว่า ใช้จ่าย (เงิน เวลา แรง) ไม่ใช่การขยาย'],['expect','ผิด expect แปลว่า คาดหวัง และไม่เข้ากับโครงสร้างประโยค ____ its operations to'],['expire','ผิด expire แปลว่า หมดอายุ ไม่สื่อความหมายเรื่องการขยายธุรกิจ']]),
+B('en-v2','eng','en-v2','คำศัพท์ธุรกิจ',1,'','Please find the ____ report attached; it summarizes sales for the third quarter.',
+ ['quarterly','ถูกต้อง quarterly แปลว่า รายไตรมาส สอดคล้องกับการสรุปยอดขายของไตรมาสที่ 3'],
+ [['daily','ผิด daily แปลว่า รายวัน ไม่ตรงกับ third quarter'],['annual','ผิด annual แปลว่า รายปี ครอบคลุมทั้งปี ไม่ใช่เฉพาะไตรมาส'],['weekly','ผิด weekly แปลว่า รายสัปดาห์ ช่วงเวลาสั้นกว่าไตรมาสมาก']]),
+B('en-v3','eng','en-v3','คำศัพท์ธุรกิจ',2,'','We need to ____ the budget before the board meeting on Friday.',
+ ['finalize','ถูกต้อง finalize แปลว่า ทำให้เป็นฉบับสมบูรณ์ ใช้กับงบประมาณก่อนการประชุมได้เหมาะสม'],
+ [['finale','ผิด finale เป็นคำนาม แปลว่า ตอนจบ ใช้เป็นกริยาไม่ได้'],['finalist','ผิด finalist เป็นคำนาม แปลว่า ผู้เข้ารอบสุดท้าย'],['finely','ผิด finely เป็นคำวิเศษณ์ แปลว่า อย่างละเอียด ต้องการกริยาในช่องว่าง']]),
+B('en-v4','eng','en-v4','คำศัพท์ธุรกิจ',2,'','The new tax policy will take ____ on January 1.',
+ ['effect','ถูกต้อง take effect เป็นสำนวน แปลว่า มีผลบังคับใช้'],
+ [['affect','ผิด affect เป็นกริยา แปลว่า ส่งผลกระทบ และไม่ใช้ในสำนวน take ... on'],['effort','ผิด effort แปลว่า ความพยายาม ไม่เข้ากับ take ... on January 1'],['affection','ผิด affection แปลว่า ความรักใคร่ ไม่เกี่ยวกับบริบทนโยบาย']]),
+B('en-v5','eng','en-v5','คำศัพท์ธุรกิจ',2,'','The manager asked us to prioritize urgent tasks. What does "prioritize" mean?',
+ ['treat as more important and do first','ถูกต้อง prioritize แปลว่า จัดลำดับความสำคัญ คือทำสิ่งที่สำคัญหรือเร่งด่วนก่อน'],
+ [['ignore until later without checking','ผิด ตรงข้ามกับความหมาย เพราะ prioritize คือให้ความสำคัญก่อน'],['give the work to another company','ผิด ความหมายนี้คือ outsource ไม่ใช่ prioritize'],['cancel permanently','ผิด ความหมายนี้คือ cancel ไม่ใช่ prioritize']]),
+B('en-v6','eng','en-v6','คำศัพท์ธุรกิจ',1,'','Our largest ____ provides us with raw materials at a discount.',
+ ['supplier','ถูกต้อง supplier คือผู้จัดหาวัตถุดิบหรือสินค้าให้ธุรกิจ'],
+ [['customer','ผิด customer คือผู้ซื้อ ไม่ใช่ผู้ที่ส่งวัตถุดิบให้เรา'],['competitor','ผิด competitor คือคู่แข่ง ซึ่งโดยปกติไม่ขายวัตถุดิบให้ในราคาพิเศษ'],['shareholder','ผิด shareholder คือผู้ถือหุ้น ไม่ได้ทำหน้าที่จัดหาวัตถุดิบ']]),
+B('en-v7','eng','en-v7','คำศัพท์ธุรกิจ',3,'','Despite the economic slowdown, the firm managed to ____ a profit of 12 million baht.',
+ ['post','ถูกต้อง post a profit เป็นสำนวนทางธุรกิจ แปลว่า รายงานกำไร'],
+ [['pose','ผิด pose แปลว่า ตั้งท่า หรือสร้างปัญหา (pose a threat) ไม่ใช้กับ profit'],['postpone','ผิด postpone แปลว่า เลื่อนออกไป ไม่ใช้กับ profit'],['posture','ผิด posture เป็นคำนาม แปลว่า ท่าทาง']]),
+B('en-e1a','eng','em1','อ่านอีเมล',1,EM1,'What is the main purpose of this email?',
+ ['To announce a change in the meeting date and time','ถูกต้อง อีเมลแจ้งว่าการประชุมถูกย้ายจากวันอังคารไปวันพฤหัสบดี'],
+ [['To cancel the meeting with Orion Foods','ผิด การประชุมไม่ได้ถูกยกเลิก เพียงเลื่อนเวลา'],['To ask the team for a sales forecast template','ผิด อีเมลขอให้เตรียมประมาณการยอดขายฉบับปรับปรุง ไม่ได้ขอแบบฟอร์ม'],['To introduce a new client','ผิด Orion Foods เป็นลูกค้าที่มีอยู่แล้วและไม่ได้ถูกแนะนำใหม่']]),
+B('en-e1b','eng','em1','อ่านอีเมล',2,EM1,'Who will answer questions about pricing at the meeting?',
+ ['Ms. Pim','ถูกต้อง อีเมลระบุว่า Ms. Pim handle questions about pricing'],
+ [['Mr. Anan','ผิด Mr. Anan เป็นผู้นำเสนอประมาณการยอดขาย ไม่ใช่ผู้ตอบเรื่องราคา'],['Kanya','ผิด Kanya เป็นผู้เขียนอีเมล ไม่ได้ระบุว่ารับผิดชอบเรื่องราคา'],['A representative of Orion Foods','ผิด อีเมลไม่ได้ระบุว่าตัวแทนลูกค้าจะตอบเรื่องราคา']]),
+B('en-e1c','eng','em1','อ่านอีเมล',2,EM1,'Why was the meeting moved?',
+ ["Because of the client's travel schedule",'ถูกต้อง อีเมลระบุเหตุผลคือ the client\'s travel schedule'],
+ [['Because the forecast was not ready','ผิด อีเมลไม่ได้ระบุว่าประมาณการไม่พร้อม'],['Because Mr. Anan was sick','ผิด ไม่มีข้อมูลนี้ในอีเมล'],['Because the pricing changed','ผิด ไม่มีการกล่าวถึงการเปลี่ยนราคา']]),
+B('en-e2a','eng','em2','อ่านอีเมล',1,EM2,'What is the main purpose of this email?',
+ ['To complain about a late delivery and ask for an update','ถูกต้อง ผู้เขียนแจ้งปัญหาการส่งล่าช้าและขอคำอธิบายพร้อมความคืบหน้า'],
+ [['To place a new order for office chairs','ผิด เป็นการติดตามคำสั่งซื้อเดิม ไม่ใช่สั่งใหม่'],['To thank the supplier for fast service','ผิด เนื้อหาเป็นการร้องเรียนเรื่องความล่าช้า'],['To announce the opening of a new branch','ผิด ผู้เขียนกล่าวว่าต้องเลื่อนการเปิดสาขา']]),
+B('en-e2b','eng','em2','อ่านอีเมล',2,EM2,'How many chairs has the writer NOT yet received?',
+ ['80','ถูกต้อง สั่ง 200 ตัว ได้รับ 120 ตัว ยังขาดอีก 200 − 120 = 80 ตัว'],
+ [['120','ผิด 120 คือจำนวนที่ได้รับแล้ว'],['200','ผิด 200 คือจำนวนที่สั่งทั้งหมด'],['10','ผิด 10 คือจำนวนวันทำการที่ระบุในใบยืนยัน ไม่ใช่จำนวนเก้าอี้']]),
+B('en-e2c','eng','em2','อ่านอีเมล',3,EM2,'What might the writer do if there is no reply within two business days?',
+ ['Consider canceling the rest of the order','ถูกต้อง อีเมลระบุว่าจะพิจารณายกเลิกส่วนที่เหลือของคำสั่งซื้อ'],
+ [['Order more chairs from the same company','ผิด ตรงข้ามกับเนื้อหาของอีเมล'],['Open the new branch immediately','ผิด ผู้เขียนบอกว่าต้องเลื่อนการเปิดสาขาเพราะความล่าช้า'],['Return the 120 chairs already received','ผิด ไม่มีข้อมูลเรื่องการคืนสินค้าที่ได้รับแล้ว']]),
+B('en-a1a','eng','ar1','อ่านบทความ',1,AR1,'What is the main idea of the passage?',
+ ['Companies are debating how to balance office and remote work, and hybrid models are becoming popular','ถูกต้อง บทความเสนอทั้งข้อโต้แย้งสองฝ่ายและแนวโน้มการทำงานแบบผสม'],
+ [['Remote work has completely disappeared because every company ended it','ผิด บทความบอกว่ามีบริษัทเลือกโมเดลแบบผสม ไม่ได้บอกว่าหายไป'],['All employees prefer working in the office more than at home','ผิด ผู้ที่เดินทางน้อยกว่ารายงานความพึงพอใจสูงกว่า'],['Hybrid work is only suitable for small firms with few employees','ผิด บทความระบุว่าอาจเป็นมาตรฐานของอุตสาหกรรมที่ใช้ความรู้ ไม่ได้จำกัดที่ขนาดบริษัท']]),
+B('en-a1b','eng','ar1','อ่านบทความ',2,AR1,'Which is an argument made by supporters of returning to the office?',
+ ['Face-to-face collaboration speeds up decision-making','ถูกต้อง เป็นข้อโต้แย้งที่บทความระบุว่ามาจากผู้สนับสนุนนโยบาย'],
+ [['Commuting increases employee satisfaction','ผิด ข้อมูลเรื่องความพึงพอใจเป็นข้อโต้แย้งของผู้วิจารณ์ และกล่าวถึงผู้ที่เดินทางน้อยลง'],['Remote workers always produce less','ผิด บทความระบุว่าบางกรณีผลผลิตสูงกว่า'],['Offices are cheaper than home internet','ผิด ไม่มีข้อมูลนี้ในบทความ']]),
+B('en-a1c','eng','ar1','อ่านบทความ',2,AR1,'In the last sentence, the word "flexible" is closest in meaning to:',
+ ['adaptable','ถูกต้อง flexible แปลว่า ยืดหยุ่น ปรับให้เข้ากับสถานการณ์ได้ ใกล้เคียงกับ adaptable'],
+ [['rigid','ผิด rigid แปลว่า ตายตัว ตรงข้ามกับ flexible'],['expensive','ผิด expensive แปลว่า แพง ไม่เกี่ยวกับความหมาย'],['temporary','ผิด temporary แปลว่า ชั่วคราว ไม่ใช่ความหมายของ flexible']])
+];
+const BANK=[...QUAL,...ENG];
+
+/* ---------- editor team: structural checks ---------- */
+function editorCheck(q){
+  const bad=[];
+  if(!q||typeof q.stem!=='string'||q.stem.trim().length<8)bad.push('stem');
+  if(!Array.isArray(q.choices)||q.choices.length!==4||q.choices.some(c=>typeof c!=='string'||!c.trim()))return[...bad,'choices'];
+  if(new Set(q.choices.map(c=>c.trim().toLowerCase())).size!==4)bad.push('duplicate');
+  if(!Number.isInteger(q.ans)||q.ans<0||q.ans>3)bad.push('answer');
+  if(!Array.isArray(q.why)||q.why.length!==4||q.why.some(w=>typeof w!=='string'||w.trim().length<6))bad.push('why');
+  if(q.choices.some(c=>/ทุกข้อ|ไม่มีข้อใด|all of the above|none of the above/i.test(c)))bad.push('allnone');
+  if(Number.isInteger(q.ans)&&q.ans>=0&&q.ans<4){
+    const L=q.choices.map(c=>c.length),o=L.filter((_,i)=>i!==q.ans),av=o.reduce((a,b)=>a+b,0)/3;
+    if(L[q.ans]>40&&L[q.ans]>av*1.8)bad.push('cue');
+  }
+  return bad;
+}
+function blueprint(qs){
+  const sk={},lv={1:0,2:0,3:0};
+  qs.forEach(q=>{sk[q.skill]=(sk[q.skill]||0)+1;lv[q.level]=(lv[q.level]||0)+1});
+  return {sk,lv};
+}
+</script>
+
+<script id="app-js">
+const SUBJ={
+ quant:{th:'สมรรถนะด้านการวิเคราะห์เชิงปริมาณทางธุรกิจ',en:'Business Quantitative Analysis Competency',short:'เชิงปริมาณ',icon:'calc',desc:'คิดคำนวณ คณิตศาสตร์ สถิติพื้นฐาน อ่านกราฟและแผนภูมิ'},
+ qual:{th:'สมรรถนะด้านการวิเคราะห์เชิงคุณภาพทางธุรกิจ',en:'Business Qualitative Analysis Competency',short:'เชิงคุณภาพ',icon:'news',desc:'จับใจความ เชื่อมโยงข้อมูล แยกข้อเท็จจริงกับความคิดเห็น'},
+ eng:{th:'สมรรถนะด้านการสื่อสารภาษาอังกฤษทางธุรกิจ',en:'Business English Communication Competency',short:'ภาษาอังกฤษธุรกิจ',icon:'lang',desc:'คำศัพท์ธุรกิจ อีเมลและบทความภาษาอังกฤษ'},
+ all:{th:'รวมทั้ง 3 วิชา',en:'Full mock exam',short:'รวม 3 วิชา',icon:'layers',desc:'ทำตามลำดับ วิชาละ 40 นาที หมดเวลาแล้วกลับไปแก้ไม่ได้'}
+};
+const ORDER=['quant','qual','eng'];
+const TEAMS=[
+ {ic:'pencil',n:'ทีมวิชาการ',d:'คิดข้อสอบใหม่ นำข้อสอบเดิมมาให้ทำ และเปลี่ยนตัวเลขโดยคงวิธีคิดเดิม'},
+ {ic:'book',n:'ทีมผู้เชี่ยวชาญเนื้อหา',d:'ดูแลความถูกต้องของเนื้อหา เฉลย และเหตุผลของทุกตัวเลือกในสามวิชา'},
+ {ic:'target',n:'ทีมนักวัดและประเมินผล',d:'ออกแบบผังข้อสอบ ดูระดับความยากง่าย และสรุปผลตามทักษะ'},
+ {ic:'shield',n:'ทีมบรรณาธิการข้อสอบ',d:'ตรวจภาษา ความชัดเจนของโจทย์ ตัวเลือก และข้อบกพร่องทางเทคนิค'}
+];
+const LV=['','ง่าย','ปานกลาง','ยาก'];
+const SRC={bank:'ข้อสอบจากคลัง',variant:'ปรับตัวเลขใหม่',ai:'ทีมวิชาการคิดใหม่'};
+const ic=(n,c='')=>`<svg class="ic ${c}" aria-hidden="true"><use href="#i-${n}"/></svg>`;
+const mmss=s=>{s=Math.max(0,Math.round(s));return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0')};
+const nl=s=>esc(s);
+
+/* storage */
+const KEY='ibmp-practice-v1';
+let H={seen:{},stats:{},attempts:[],aiStems:[]};
+try{const x=JSON.parse(localStorage.getItem(KEY));if(x&&typeof x==='object')H={...H,...x}}catch(e){}
+const saveH=()=>{for(;;){try{localStorage.setItem(KEY,JSON.stringify(H));return}catch(e){if(H.attempts.length>1)H.attempts.shift();else return}}};
+
+/* sample (Claude) capability */
+let SAMPLE=null;
+(async()=>{try{const r=await fetch('/api/generate');const j=await r.json();SAMPLE=j&&j.configured?{remote:true}:null}catch(e){SAMPLE=null}if(S&&S.view==='home')render()})();
+
+const S={view:'home',cfg:{subj:'quant',timed:false,mins:20,ai:true},run:null,prep:null,rtab:0,rfilter:'all',confirm:false,quit:false};
+let timerId=null;
+
+/* ---------- building a set ---------- */
+function rank(pool,n){
+  const now=Date.now();
+  return pool.map(x=>{const s=H.seen[x.id]||{n:0,t:0};return {x,k:s.n+(now-s.t<72*36e5?.5:0)+Math.random()*.4}}).sort((a,b)=>a.k-b.k).slice(0,n).map(o=>o.x);
+}
+function pickBase(subj,n){
+  if(subj==='quant'){
+    const pool=GENS.map((_,i)=>({id:GENS[i].name,i}));
+    const ids=['gPrice','gMargin','gWeighted','gCompound','gBreak','gMedian','gRatio','gDiscount','gChartGrowth','gChartMean','gFx'];
+    const map={gPrice:'g-price',gMargin:'g-margin',gWeighted:'g-weighted',gCompound:'g-compound',gBreak:'g-break',gMedian:'g-median',gRatio:'g-ratio',gDiscount:'g-discount',gChartGrowth:'g-chartgrowth',gChartMean:'g-chartmean',gFx:'g-fx'};
+    const p=pool.map(o=>({id:map[o.id],i:o.i}));
+    return rank(p,n).map(o=>makeVariant(o.i)).filter(Boolean);
+  }
+  const pool=BANK.filter(q=>q.subj===subj);
+  const chosen=rank(pool,n).map(reshuffle);
+  const groups=[];
+  chosen.forEach(q=>{let g=groups.find(x=>x.k===q.grp);if(!g){g={k:q.grp,items:[]};groups.push(g)}g.items.push(q)});
+  return shuffle(groups).flatMap(g=>g.items);
+}
+function aiPrompt(subj,n){
+  const base={
+   quant:'สร้างโจทย์วิเคราะห์เชิงปริมาณทางธุรกิจ ระดับมัธยมปลาย ต้องคิดคำนวณด้วยมือได้ ใช้ตัวเลขกลมๆ มีคำตอบเดียวที่ถูกต้อง ให้คำนวณซ้ำสองรอบก่อนเลือกคำตอบ ห้ามต้องใช้รูปภาพประกอบ ถ้ามีตารางให้เขียนเป็นข้อความในโจทย์',
+   qual:'สร้างโจทย์วิเคราะห์เชิงคุณภาพทางธุรกิจ โดยเขียนข้อความสั้นแนวข่าวธุรกิจหรือเศรษฐกิจ 90-140 คำ (เป็นสถานการณ์สมมติ ห้ามอ้างบริษัทหรือบุคคลจริง) ใส่ในช่อง ctx แล้วถามเรื่องการจับใจความ เชื่อมโยงข้อมูล หรือแยกข้อเท็จจริงกับความคิดเห็น ถ้าสร้างหลายข้อจากข้อความเดียว ให้ ctx เหมือนกันทุกตัวอักษร',
+   eng:'Create Business English Communication items: business vocabulary in context, or a short business email or article excerpt (60-120 words, put it in "ctx") followed by comprehension questions. The stem and choices must be in English. The "why" explanations must be in Thai. If several items share one passage, repeat the identical ctx.'
+  }[subj];
+  const avoid=H.aiStems.slice(-8).map(s=>'- '+s).join('\n');
+  return `${base}
+
+จำนวน ${n} ข้อ แต่ละข้อมี 4 ตัวเลือก มีข้อถูกเพียงข้อเดียว ตัวเลือกยาวใกล้เคียงกัน ห้ามใช้ "ทุกข้อ" หรือ "ไม่มีข้อใดถูก" ห้ามให้คำถามมีข้อมูลชี้นำคำตอบ
+ในช่อง why ให้เขียนภาษาไทยอธิบายตัวเลือกแต่ละข้อตามลำดับเดียวกับ choices ข้อถูกขึ้นต้นด้วย "ถูกต้อง" ข้อผิดขึ้นต้นด้วย "ผิด" พร้อมเหตุผล
+${avoid?'หลีกเลี่ยงโจทย์ที่คล้ายกับรายการนี้:\n'+avoid+'\n':''}
+ตอบเป็น JSON array เท่านั้น แต่ละรายการมีฟิลด์: skill (ชื่อทักษะภาษาไทยสั้นๆ), level (1 ง่าย 2 ปานกลาง 3 ยาก), ctx (ข้อความประกอบ หรือ ""), stem, choices (array 4 ข้อ), ans (ดัชนี 0-3 ของข้อถูก), why (array 4 ข้อความ)`;
+}
+async function genAI(subj,n){
+  if(!SAMPLE||n<=0)return {items:[],dropped:0,failed:false};
+  try{
+    const resp=await fetch('/api/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({subj,n,avoid:H.aiStems.slice(-8)})});
+    if(!resp.ok)throw new Error('http '+resp.status);
+    const raw=await resp.json();
+    const arr=Array.isArray(raw)?raw:(Array.isArray(raw?.items)?raw.items:[]);
+    const out=[];let dropped=0;
+    arr.slice(0,n+2).forEach((x,i)=>{
+      const q={id:'ai-'+Date.now().toString(36)+i,subj,grp:'',skill:String(x.skill||'โจทย์ใหม่').slice(0,30),level:Math.min(3,Math.max(1,parseInt(x.level)||2)),src:'ai',
+        ctx:String(x.ctx||''),stem:x.stem,chart:'',choices:Array.isArray(x.choices)?x.choices.map(String):[],ans:Number(x.ans),why:Array.isArray(x.why)?x.why.map(String):[]};
+      q.grp=q.ctx?'ai:'+q.ctx.slice(0,40):q.id;
+      if(editorCheck(q).length)dropped++;else if(out.length<n)out.push(reshuffle(q));
+    });
+    out.forEach(q=>{H.aiStems.push(String(q.stem).slice(0,60))});H.aiStems=H.aiStems.slice(-24);
+    const g=[];out.forEach(q=>{let a=g.find(x=>x.k===q.grp);if(!a){a={k:q.grp,items:[]};g.push(a)}a.items.push(q)});
+    return {items:g.flatMap(a=>a.items),dropped,failed:false};
+  }catch(e){return {items:[],dropped:0,failed:true}}
+}
+async function buildSet(subj,useAI){
+  const want=useAI&&SAMPLE?3:0;
+  const ai=await genAI(subj,want);
+  const base=pickBase(subj,10-ai.items.length);
+  return {qs:[...base,...ai.items],ai:ai.items.length,dropped:ai.dropped,failed:ai.failed,asked:want};
+}
+
+/* ---------- run control ---------- */
+async function startRun(){
+  const c=S.cfg,subjects=c.subj==='all'?ORDER:[c.subj];
+  S.view='prep';S.quit=false;S.confirm=false;S.hist=0;
+  S.prep=TEAMS.map((t,i)=>({...t,state:i===0?'run':'wait',note:i===0?(c.ai&&SAMPLE?'กำลังเลือกข้อสอบจากคลัง และให้ทีมคิดโจทย์ใหม่':'กำลังเลือกข้อสอบจากคลัง'):''}));
+  render();
+  const sets=await Promise.all(subjects.map(s=>buildSet(s,c.ai)));
+  const all=sets.flatMap(s=>s.qs),bp=blueprint(all);
+  const ai=sets.reduce((a,s)=>a+s.ai,0),dropped=sets.reduce((a,s)=>a+s.dropped,0),failed=sets.some(s=>s.failed);
+  const notes=[
+    `เลือกโจทย์ ${all.length} ข้อ: ปรับตัวเลขใหม่/จากคลัง ${all.length-ai} ข้อ, คิดใหม่ ${ai} ข้อ${failed?' (คิดข้อใหม่ไม่สำเร็จ ใช้ข้อจากคลังแทน)':''}`,
+    `ตรวจแล้วว่าทุกข้อมีเฉลยและคำอธิบายครบทั้ง 4 ตัวเลือก`,
+    `ผังข้อสอบ: ${Object.keys(bp.sk).length} ทักษะ, ง่าย ${bp.lv[1]} ปานกลาง ${bp.lv[2]} ยาก ${bp.lv[3]}`,
+    `ผ่านการตรวจโครงสร้างโจทย์ ${all.length} ข้อ${dropped?`, ตัดออก ${dropped} ข้อที่มีข้อบกพร่อง`:''}`];
+  for(let i=0;i<4;i++){
+    S.prep[i].state='done';S.prep[i].note=notes[i];if(i<3)S.prep[i+1].state='run';
+    render();await new Promise(r=>setTimeout(r,i===3?450:380));
+  }
+  S.run={mode:c.subj==='all'?'all':'single',sid:Date.now(),cur:0,
+    stages:subjects.map((s,i)=>({subj:s,qs:sets[i].qs,ans:sets[i].qs.map(()=>-1),flag:sets[i].qs.map(()=>false),qi:0,done:false,start:0,deadline:0,used:0,auto:false}))};
+  beginStage(0);
+}
+function beginStage(i){
+  const R=S.run,st=R.stages[i],c=S.cfg;R.cur=i;st.start=Date.now();
+  const mins=R.mode==='all'?40:(c.timed?c.mins:0);
+  st.deadline=mins?st.start+mins*60000:0;
+  S.view='quiz';S.confirm=false;S.quit=false;render();window.scrollTo(0,0);
+}
+function finishStage(auto){
+  const R=S.run,st=R.stages[R.cur];if(st.done)return;
+  st.done=true;st.auto=!!auto;st.used=Math.round((Math.min(Date.now(),st.deadline||Date.now())-st.start)/1000);
+  const now=Date.now();
+  st.qs.forEach((q,i)=>{const s=H.seen[q.id]||{n:0,t:0};H.seen[q.id]={n:s.n+1,t:now};
+    const a=H.stats[q.id]||{n:0,c:0};H.stats[q.id]={n:a.n+1,c:a.c+(st.ans[i]===q.ans?1:0)}});
+  H.attempts.push({s:st.subj,d:now,sc:st.qs.filter((q,i)=>st.ans[i]===q.ans).length,tot:st.qs.length,sec:st.used,m:R.mode,sid:R.sid,det:{qs:st.qs.map(slim),ans:st.ans.slice(),auto:st.auto}});
+  H.attempts=H.attempts.slice(-60);saveH();
+  S.confirm=false;S.rtab=0;S.rfilter='all';
+  if(R.cur<R.stages.length-1)S.view='between';else S.view='result';
+  render();window.scrollTo(0,0);
+}
+const score=st=>st.qs.filter((q,i)=>st.ans[i]===q.ans).length;
+
+/* ---------- history ---------- */
+const HN={quant:'การวิเคราะห์เชิงปริมาณ',qual:'การวิเคราะห์เชิงคุณภาพ',eng:'การสื่อสารภาษาอังกฤษ'};
+const slim=q=>({id:q.id,subj:q.subj,skill:q.skill,level:q.level,src:q.src,ctx:q.ctx,stem:q.stem,chart:q.chart,choices:q.choices,ans:q.ans,why:q.why});
+function histRows(){
+  const out=[],seen=new Set();
+  for(let i=H.attempts.length-1;i>=0&&out.length<8;i--){
+    const a=H.attempts[i];
+    if(a.m==='all'&&a.sid){
+      if(seen.has(a.sid))continue;seen.add(a.sid);
+      const g=H.attempts.filter(x=>x.sid===a.sid&&x.m==='all');
+      out.push({v:'s:'+a.sid,d:a.d,t:'รวม '+g.length+' วิชา',sc:g.reduce((s,x)=>s+x.sc,0),tot:g.reduce((s,x)=>s+x.tot,0),sec:g.reduce((s,x)=>s+x.sec,0),ok:g.every(x=>x.det)});
+    }else out.push({v:'i:'+i,d:a.d,t:HN[a.s],sc:a.sc,tot:a.tot,sec:a.sec,ok:!!a.det});
+  }
+  return out;
+}
+function openHist(v){
+  let es;
+  if(v[0]==='s'){const sid=+v.slice(2);es=H.attempts.filter(a=>a.sid===sid&&a.m==='all'&&a.det)}
+  else es=[H.attempts[+v.slice(2)]].filter(a=>a&&a.det);
+  if(!es.length)return;
+  es.sort((a,b)=>ORDER.indexOf(a.s)-ORDER.indexOf(b.s));
+  S.run={mode:es[0].m==='all'?'all':'single',sid:es[0].sid||0,cur:0,
+    stages:es.map(a=>({subj:a.s,qs:a.det.qs,ans:a.det.ans,flag:a.det.ans.map(()=>false),qi:0,done:true,start:0,deadline:0,used:a.sec,auto:!!a.det.auto}))};
+  S.hist=es[0].d;S.view='result';S.rtab=0;S.rfilter='all';render();window.scrollTo(0,0);
+}
+
+/* ---------- views ---------- */
+function topbar(){
+  const R=S.run,v=S.view;
+  let h=`<div class="brand"><span class="mark">${ic('pen')}</span>ฝึกสอบ Forward</div>`;
+  if(v==='quiz'){
+    const st=R.stages[R.cur];
+    if(R.mode==='all')h+=`<div class="stepper">${R.stages.map((s,i)=>`<span class="step ${i===R.cur?'cur':''} ${s.done?'done':''}">${s.done?ic('lock'):''}${SUBJ[s.subj].short}</span>`).join('')}</div>`;
+    else h+=`<span class="chip">${SUBJ[st.subj].short}</span>`;
+    h+=`<div class="sp"></div><div class="timer" id="timer" role="timer">${ic('clock')}<span id="tv"></span></div><button class="btn sm" data-a="quit">ออก</button>`;
+  }
+  return h;
+}
+function vHome(){
+  const c=S.cfg,all=c.subj==='all',n=H.attempts.length,rec=H.attempts.slice(-5).reverse();
+  const fmtD=t=>new Date(t).toLocaleDateString('th-TH',{day:'numeric',month:'short'});
+  return `<section class="hero"><h1>ฝึกทำข้อสอบ Forward</h1><p>ชุดละ 10 ข้อ ทำเสร็จแล้วดูเฉลยพร้อมเหตุผลของทุกตัวเลือก ระบบเลือกข้อที่คุณทำมาน้อยที่สุดก่อน</p></section>
+  <div class="home"><div class="stack">
+   <div class="card"><div class="lbl">1. เลือกวิชา</div>
+    <div class="subjects" role="radiogroup" aria-label="เลือกวิชา">${['quant','qual','eng','all'].map(k=>`<button class="subj" role="radio" aria-checked="${c.subj===k}" data-a="subj" data-v="${k}"><span class="row"><span class="ico">${ic(SUBJ[k].icon)}</span><b>${SUBJ[k].th}</b></span><span class="en">${SUBJ[k].en}</span><small>${SUBJ[k].desc}</small></button>`).join('')}</div></div>
+   <div class="card"><div class="lbl">2. ตั้งค่าการทำข้อสอบ</div>
+    ${all?`<p>${ic('clock')} จับเวลาวิชาละ 40 นาที ตามลำดับ เชิงปริมาณ → เชิงคุณภาพ → ภาษาอังกฤษ เมื่อหมดเวลาหรือกดส่งแล้ว จะกลับไปแก้วิชานั้นไม่ได้ และจะดูเฉลยได้เมื่อจบครบทั้ง 3 วิชา</p>`:
+    `<div class="opts"><div class="seg" role="group" aria-label="จับเวลา"><button data-a="timed" data-v="0" aria-pressed="${!c.timed}">ไม่จับเวลา</button><button data-a="timed" data-v="1" aria-pressed="${c.timed}">จับเวลา</button></div>
+    ${c.timed?`<label>เวลา <select id="mins" data-a="mins">${[10,15,20,30,40].map(m=>`<option value="${m}" ${c.mins===m?'selected':''}>${m} นาที</option>`).join('')}</select></label>`:''}</div>`}
+    <div class="chk" style="margin-top:16px"><input type="checkbox" id="ai" data-a="ai" ${c.ai&&SAMPLE?'checked':''} ${SAMPLE?'':'disabled'}><label for="ai">ให้ทีมวิชาการคิดโจทย์ใหม่ ${all?'วิชาละ ':''}3 ข้อ ด้วย Gemini<br><span class="note">${SAMPLE?'ที่เหลือเป็นข้อจากคลังและข้อที่ปรับตัวเลขใหม่':'ยังไม่ได้เชื่อมต่อ Gemini ระบบจะใช้ข้อจากคลังและข้อที่ปรับตัวเลขใหม่'}</span></label></div>
+    <div class="row2"><button class="btn pri start" data-a="start">${ic('play')}เริ่มทำข้อสอบ</button></div></div>
+  </div><aside class="stack">
+   <div class="card"><div class="lbl">${ic('hist')} ประวัติการทำ</div>${(()=>{const rows=histRows();return rows.length?rows.map(r=>{const inner=`<span>${r.t}<small>${new Date(r.d).toLocaleString('th-TH',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})} · ใช้เวลา ${mmss(r.sec)}</small></span><b>${r.sc}/${r.tot}</b>`;return r.ok?`<button class="hrow" data-a="hist" data-v="${r.v}">${inner}</button>`:`<div class="hrow">${inner}</div>`}).join('')+`<p class="note" style="margin-top:10px">กดที่รายการเพื่อดูคำตอบของคุณและเฉลยรายข้อ ทำมาแล้ว ${n} ชุด</p>`:'<p class="note">ยังไม่มีประวัติ ทำชุดแรกเพื่อเริ่มบันทึกผล ระบบเก็บคำตอบและเฉลยไว้ให้เปิดดูย้อนหลัง ข้อมูลเก็บในเบราว์เซอร์นี้เท่านั้น</p>'})()}</div>
+   <div class="card"><div class="lbl">ทีมงานเบื้องหลัง</div>${TEAMS.map(t=>`<div class="team"><span class="ico">${ic(t.ic)}</span><div><b>${t.n}</b><span>${t.d}</span></div></div>`).join('')}</div>
+  </aside></div>`;
+}
+function vPrep(){
+  return `<section class="prep card"><h2>กำลังจัดชุดข้อสอบ</h2><p class="note" style="margin-bottom:12px">${S.cfg.subj==='all'?'3 วิชา วิชาละ 10 ข้อ':SUBJ[S.cfg.subj].th+' 10 ข้อ'}</p>
+  ${S.prep.map(p=>`<div class="prow ${p.state}"><span class="st">${p.state==='done'?ic('check'):''}</span><div><b>${p.n}</b><span>${esc(p.note||p.d)}</span></div></div>`).join('')}</section>`;
+}
+function vQuiz(){
+  const R=S.run,st=R.stages[R.cur],i=st.qi,q=st.qs[i],n=st.qs.length;
+  const un=st.ans.filter(a=>a<0).length,fl=st.flag.filter(Boolean).length,last=i===n-1;
+  return `<div class="qwrap"><section class="card qcard" aria-label="ข้อ ${i+1}">
+   <div class="meta"><span class="qno">ข้อ ${i+1}/${n}</span><span class="chip">${esc(q.skill)}</span><span class="chip">ระดับ${LV[q.level]}</span><span class="chip ${q.src==='ai'?'ai':''}">${SRC[q.src]}</span></div>
+   ${q.ctx?`<div class="ctx">${nl(q.ctx)}</div>`:''}${q.chart?`<figure class="chart">${q.chart}</figure>`:''}
+   <div class="stem">${nl(q.stem)}</div>
+   <div role="group" aria-label="ตัวเลือก">${q.choices.map((c,k)=>`<button class="opt ${st.ans[i]===k?'sel':''}" data-a="pick" data-v="${k}" aria-pressed="${st.ans[i]===k}"><span class="ltr">${LT[k]}</span><span class="otxt">${nl(c)}</span></button>`).join('')}</div>
+   <div class="qfoot"><button class="btn" data-a="prev" ${i===0?'disabled':''}>${ic('left')}ก่อนหน้า</button>
+    <button class="btn" data-a="flag" aria-pressed="${st.flag[i]}">${ic('flag')}${st.flag[i]?'เอาธงออก':'ปักธง'}</button><span class="sp"></span>
+    ${last?`<button class="btn pri" data-a="ask">ส่งคำตอบ</button>`:`<button class="btn pri" data-a="next">ถัดไป${ic('right')}</button>`}</div>
+  </section>
+  <aside class="card pal"><div class="lbl">รายการข้อ</div><div class="grid">${st.qs.map((_,k)=>`<button class="gq ${st.ans[k]>=0?'ans':''} ${k===i?'cur':''} ${st.flag[k]?'flag':''}" data-a="go" data-v="${k}" aria-label="ข้อ ${k+1}${st.ans[k]>=0?' ตอบแล้ว':''}${st.flag[k]?' ปักธง':''}">${k+1}</button>`).join('')}</div>
+   <div class="legend"><span>ดำ = ตอบแล้ว</span><span>จุดส้ม = ปักธง</span></div>
+   <button class="btn pri" style="width:100%" data-a="ask">ส่ง${R.mode==='all'?'วิชานี้':'ข้อสอบ'}</button>
+   ${S.confirm?`<div class="confirm" role="alertdialog" aria-label="ยืนยันการส่ง"><b>ส่งเลยไหม</b><br>ยังไม่ได้ตอบ ${un} ข้อ · ปักธง ${fl} ข้อ${R.mode==='all'?`<br>ส่งแล้วจะกลับมาแก้วิชานี้ไม่ได้`:''}<div class="row"><button class="btn sm" data-a="cancel">กลับไปตรวจ</button><button class="btn sm pri" data-a="submit">ส่งเลย</button></div></div>`:''}
+   ${S.quit?`<div class="confirm" role="alertdialog" aria-label="ยืนยันการออก"><b>ออกจากข้อสอบ</b><br>คำตอบในชุดนี้จะไม่ถูกบันทึก${R.mode==='all'?' และเริ่มใหม่ต้องจัดชุดใหม่ทั้งหมด':''}<div class="row"><button class="btn sm" data-a="cancel">ทำต่อ</button><button class="btn sm pri" data-a="leave">ออก</button></div></div>`:''}
+  </aside></div>`;
+}
+function vBetween(){
+  const R=S.run,done=R.stages[R.cur],next=R.stages[R.cur+1];
+  return `<section class="mid"><span class="tag ok">${ic('check')}ส่ง${SUBJ[done.subj].short}แล้ว${done.auto?' (หมดเวลา)':''}</span><h2>พร้อมเริ่มวิชาถัดไป</h2>
+  <p class="note">เฉลยจะเปิดเมื่อทำครบทั้ง 3 วิชา</p>
+  <div class="card"><div class="row" style="display:flex;gap:12px;align-items:center"><span class="ico" style="width:42px;height:42px;border-radius:10px;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;flex:none">${ic(SUBJ[next.subj].icon)}</span><div><b>${SUBJ[next.subj].th}</b><br><span class="note">${next.qs.length} ข้อ · 40 นาที</span></div></div>
+  <p class="note" style="margin-top:12px">เวลาจะเริ่มนับเมื่อกดปุ่มด้านล่าง และเมื่อเริ่มแล้วจะกลับไปแก้วิชาก่อนหน้าไม่ได้</p>
+  <div class="row2"><button class="btn pri" data-a="nextstage">เริ่มวิชา${SUBJ[next.subj].short}${ic('right')}</button></div></div></section>`;
+}
+function vResult(){
+  const R=S.run,st=R.stages[S.rtab],tot=R.stages.reduce((a,s)=>a+score(s),0),cnt=R.stages.reduce((a,s)=>a+s.qs.length,0);
+  const sc=score(st),bp=blueprint(st.qs),sk=Object.keys(bp.sk);
+  const rows=sk.map(k=>{const idx=st.qs.map((q,i)=>q.skill===k?i:-1).filter(i=>i>=0),ok=idx.filter(i=>st.ans[i]===st.qs[i].ans).length;
+    return `<tr><td>${esc(k)}</td><td>${idx.length}</td><td>${ok}</td><td style="width:35%"><div class="bar"><i style="width:${ok/idx.length*100}%"></i></div></td></tr>`}).join('');
+  const list=st.qs.map((q,i)=>({q,i})).filter(({q,i})=>S.rfilter==='all'||st.ans[i]!==q.ans);
+  const stt=q=>H.stats[q.id];
+  return `<section style="padding-top:24px">
+   <div class="card"><div class="score"><div><div class="lbl">${R.mode==='all'?'คะแนนรวม '+R.stages.length+' วิชา':'คะแนน'}${S.hist?' · ดูย้อนหลัง '+new Date(S.hist).toLocaleString('th-TH',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}):''}</div><div class="big">${R.mode==='all'?tot:sc}<small>/${R.mode==='all'?cnt:st.qs.length}</small></div></div>
+   <div><b>${SUBJ[st.subj].th}</b><br><span class="note">${R.mode==='all'?`วิชานี้ ${sc}/${st.qs.length} · `:''}ใช้เวลา ${mmss(st.used)}${st.auto?' (หมดเวลา)':''}</span></div></div>
+   <div class="row2">${S.hist?'':`<button class="btn pri" data-a="again">${ic('redo')}ทำชุดใหม่</button>`}<button class="btn" data-a="leave">${ic('home')}หน้าแรก</button></div></div>
+   ${R.mode==='all'?`<div class="tabs">${R.stages.map((s,i)=>`<button data-a="rtab" data-v="${i}" aria-pressed="${i===S.rtab}">${SUBJ[s.subj].short} ${score(s)}/${s.qs.length}</button>`).join('')}</div>`:''}
+   <div class="card" style="margin-top:16px"><div class="lbl">${ic('target')} สรุปตามทักษะ (ผังข้อสอบของชุดนี้)</div>
+    <div class="scroll"><table class="tbl"><thead><tr><th>ทักษะ</th><th>ข้อ</th><th>ถูก</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>
+    <p class="note" style="margin-top:10px">ระดับความยากของชุด: ง่าย ${bp.lv[1]} · ปานกลาง ${bp.lv[2]} · ยาก ${bp.lv[3]} ข้อ ค่าความยากจากสถิติจริงของแต่ละข้อ (สัดส่วนผู้ตอบถูก) จะนับจากประวัติของคุณเท่านั้น ส่วนอำนาจจำแนกต้องใช้ข้อมูลผู้สอบหลายคน จึงยังคำนวณไม่ได้ในแอปนี้</p></div>
+   <div class="tabs" style="margin-top:20px"><button data-a="rfilter" data-v="all" aria-pressed="${S.rfilter==='all'}">ทุกข้อ</button><button data-a="rfilter" data-v="wrong" aria-pressed="${S.rfilter==='wrong'}">เฉพาะข้อที่ผิดหรือไม่ได้ตอบ</button></div>
+   ${list.length?list.map(({q,i})=>{
+     const a=st.ans[i],ok=a===q.ans,s=stt(q);
+     return `<article class="card rq"><h3><span class="qno">ข้อ ${i+1}</span>${a<0?`<span class="tag na">ไม่ได้ตอบ</span>`:ok?`<span class="tag ok">${ic('check')}ถูก</span>`:`<span class="tag bad">${ic('x')}ผิด</span>`}<span class="chip">${esc(q.skill)}</span><span class="chip">ระดับ${LV[q.level]}</span><span class="chip ${q.src==='ai'?'ai':''}">${SRC[q.src]}</span></h3>
+     ${q.ctx?`<div class="ctx" style="margin-top:12px">${nl(q.ctx)}</div>`:''}${q.chart?`<figure class="chart" style="margin-top:12px">${q.chart}</figure>`:''}
+     <div class="stem" style="margin-top:12px;font-size:17px">${nl(q.stem)}</div>
+     ${q.choices.map((c,k)=>{const isA=k===q.ans,isU=k===a&&!isA;
+       return `<div class="ro ${isA?'ok':isU?'bad':''}"><span class="ltr">${LT[k]}</span><div><p>${nl(c)}${isA?`<span class="flag" style="color:var(--ok)">${ic('check')}เฉลย</span>`:''}${isU?`<span class="flag" style="color:var(--bad)">${ic('x')}คำตอบของคุณ</span>`:''}</p><p class="why">${nl(q.why[k])}</p></div></div>`}).join('')}
+     ${s&&s.n>1?`<p class="note" style="margin-top:10px">ประวัติของคุณ: ตอบถูก ${s.c} จาก ${s.n} ครั้งที่เจอข้อนี้</p>`:''}</article>`}).join(''):'<p class="note" style="margin-top:16px">ไม่มีข้อที่ผิด</p>'}
+  </section>`;
+}
+function render(){
+  clearInterval(timerId);
+  $('#topbar').innerHTML=topbar();
+  $('#app').innerHTML=({home:vHome,prep:vPrep,quiz:vQuiz,between:vBetween,result:vResult})[S.view]();
+  if(S.view==='quiz'){const st=S.run.stages[S.run.cur];
+    const tick=()=>{const el=$('#tv'),box=$('#timer');if(!el)return;
+      if(st.deadline){const left=(st.deadline-Date.now())/1000;if(left<=0){clearInterval(timerId);finishStage(true);return}el.textContent=mmss(left);box.classList.toggle('warn',left<300)}
+      else el.textContent=mmss((Date.now()-st.start)/1000)};
+    tick();timerId=setInterval(tick,1000)}
+}
+
+/* ---------- events ---------- */
+document.addEventListener('click',e=>{
+  const b=e.target.closest('[data-a]');if(!b)return;
+  const a=b.dataset.a,v=b.dataset.v,R=S.run,st=R&&R.stages[R.cur];
+  switch(a){
+    case'subj':S.cfg.subj=v;render();break;
+    case'timed':S.cfg.timed=v==='1';render();break;
+    case'start':startRun();break;
+    case'pick':st.ans[st.qi]=+v;render();break;
+    case'prev':st.qi=Math.max(0,st.qi-1);S.confirm=false;render();window.scrollTo(0,0);break;
+    case'next':st.qi=Math.min(st.qs.length-1,st.qi+1);render();window.scrollTo(0,0);break;
+    case'go':st.qi=+v;render();window.scrollTo(0,0);break;
+    case'flag':st.flag[st.qi]=!st.flag[st.qi];render();break;
+    case'ask':S.confirm=true;S.quit=false;render();break;
+    case'quit':S.quit=true;S.confirm=false;render();break;
+    case'cancel':S.confirm=false;S.quit=false;render();break;
+    case'submit':finishStage(false);break;
+    case'nextstage':beginStage(R.cur+1);break;
+    case'leave':S.view='home';S.run=null;S.hist=0;S.confirm=false;S.quit=false;render();window.scrollTo(0,0);break;
+    case'again':startRun();break;
+    case'hist':openHist(v);break;
+    case'rtab':S.rtab=+v;render();break;
+    case'rfilter':S.rfilter=v;render();break;
+  }
+});
+document.addEventListener('change',e=>{
+  const t=e.target;
+  if(t.id==='mins'){S.cfg.mins=+t.value}
+  if(t.id==='ai'){S.cfg.ai=t.checked}
+});
+document.addEventListener('keydown',e=>{
+  if(S.view!=='quiz'||e.target.closest('select,input'))return;
+  const st=S.run.stages[S.run.cur];
+  if(e.key>='1'&&e.key<='4'){st.ans[st.qi]=+e.key-1;render()}
+  else if(e.key==='ArrowRight'&&st.qi<st.qs.length-1){st.qi++;render();window.scrollTo(0,0)}
+  else if(e.key==='ArrowLeft'&&st.qi>0){st.qi--;render();window.scrollTo(0,0)}
+});
+render();
+</script>
+
+</body>
+</html>
