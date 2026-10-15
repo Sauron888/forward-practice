@@ -176,6 +176,33 @@ select{font:inherit;color:var(--ink);background:var(--card);border:1px solid var
 button.hrow:hover{border-color:var(--muted)}
 .hrow small{display:block;color:var(--muted);font-size:12.5px;line-height:1.4}
 .hrow b{font-family:var(--f-head);font-variant-numeric:tabular-nums;white-space:nowrap}
+/* tools: calculator + scratchpad (quantitative only) */
+body.hastools{padding-block:0 104px}
+.tl{position:fixed;z-index:30;right:max(16px,env(safe-area-inset-right,0px));bottom:calc(16px + env(safe-area-inset-bottom,0px));display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+.tb{display:inline-flex;align-items:center;gap:8px;min-height:46px;padding:8px 16px;border-radius:999px;border:1px solid var(--line);background:var(--card);box-shadow:0 4px 14px rgba(20,32,58,.16);font-weight:500}
+.tb[aria-pressed="true"]{background:var(--btn);border-color:var(--btn);color:var(--btn-ink);font-weight:600}
+.tp{position:fixed;z-index:30;right:max(16px,env(safe-area-inset-right,0px));bottom:calc(76px + env(safe-area-inset-bottom,0px));width:min(320px,calc(100vw - 32px));max-height:calc(100vh - 110px);max-height:calc(100dvh - 110px);overflow-y:auto;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px;box-shadow:0 12px 32px rgba(20,32,58,.22)}
+.tp:focus-visible{outline:none;border-color:var(--accent)}
+.th{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px}
+.th b{font-family:var(--f-head);font-size:15px;line-height:1.4}
+.th .acts{display:flex;gap:6px;align-items:center}
+.tx{width:36px;height:36px;display:grid;place-items:center;border-radius:8px;border:1px solid var(--line);background:var(--card)}
+.cd{background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:8px 12px;margin-bottom:10px;text-align:right;min-height:78px;display:flex;flex-direction:column;justify-content:flex-end;min-width:0}
+.ce{font-family:var(--f-mono);font-size:14px;line-height:1.5;color:var(--muted);min-height:21px;overflow-x:auto;white-space:nowrap}
+.cr{font-family:var(--f-mono);font-size:28px;line-height:1.3;overflow-x:auto;white-space:nowrap;font-variant-numeric:tabular-nums}
+.ck{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+.ky{min-height:46px;border-radius:10px;border:1px solid var(--line);background:var(--card);font-family:var(--f-mono);font-size:18px;font-weight:500;padding:0}
+.ky.op{background:var(--bg)}
+.ky.fn{background:var(--accent-soft);font-family:var(--f-body);font-size:15px}
+.ky.eq{background:var(--btn);border-color:var(--btn);color:var(--btn-ink);font-weight:700}
+.ky:hover{border-color:var(--muted)}
+.ky:active{filter:brightness(.94)}
+.tp .note{margin-top:8px;font-size:12.5px;line-height:1.5}
+.th{cursor:grab;touch-action:none;user-select:none;-webkit-user-select:none}
+.th button{cursor:pointer}
+.tp button,.tb{-webkit-tap-highlight-color:transparent}
+@media (max-width:860px){body.toolopen{padding-block:0 470px}}
+.pad{display:block;width:100%;min-height:240px;resize:vertical;border:1px solid var(--line);border-radius:10px;background-color:var(--card);color:var(--ink);font:16px/28px var(--f-body);padding:0 12px;background-image:repeating-linear-gradient(to bottom,transparent 0,transparent 27px,var(--line) 27px,var(--line) 28px);background-attachment:local}
 </style>
 </head>
 <body>
@@ -207,6 +234,7 @@ button.hrow:hover{border-color:var(--muted)}
 
 <header class="top"><div class="wrap" id="topbar"></div></header>
 <main class="wrap" id="app" aria-live="polite"></main>
+<div id="tools"></div>
 
 <script id="core">
 const $=s=>document.querySelector(s);
@@ -564,7 +592,7 @@ async function buildSet(subj,useAI){
 /* ---------- run control ---------- */
 async function startRun(){
   const c=S.cfg,subjects=c.subj==='all'?ORDER:[c.subj];
-  S.view='prep';S.quit=false;S.confirm=false;S.hist=0;
+  S.view='prep';S.quit=false;S.confirm=false;S.hist=0;S.tool='';S.calc=newCalc();toolsSig='';
   S.prep=TEAMS.map((t,i)=>({...t,state:i===0?'run':'wait',note:i===0?(c.ai&&SAMPLE?'กำลังเลือกข้อสอบจากคลัง และให้ทีมคิดโจทย์ใหม่':'กำลังเลือกข้อสอบจากคลัง'):''}));
   render();
   const sets=await Promise.all(subjects.map(s=>buildSet(s,c.ai)));
@@ -725,7 +753,197 @@ function render(){
       if(st.deadline){const left=(st.deadline-Date.now())/1000;if(left<=0){clearInterval(timerId);finishStage(true);return}el.textContent=mmss(left);box.classList.toggle('warn',left<300)}
       else el.textContent=mmss((Date.now()-st.start)/1000)};
     tick();timerId=setInterval(tick,1000)}
+  renderTools();
 }
+
+/* ---------- tools: calculator + scratchpad (quantitative only) ---------- */
+const CALC_OPS=['+','−','×','÷','^'];
+const CALC_KEYS=[['C','ล้าง','fn'],['⌫','ลบ','fn'],['(','(','op'],[')',')','op'],
+ ['√','√','op'],['²','x²','op'],['^','xʸ','op'],['÷','÷','op'],
+ ['7'],['8'],['9'],['×','×','op'],['4'],['5'],['6'],['−','−','op'],['1'],['2'],['3'],['+','+','op'],
+ ['0'],['.'],['%','%','op'],['=','=','eq']];
+const CALC_LBL={'C':'ล้างทั้งหมด','⌫':'ลบตัวสุดท้าย','√':'รากที่สอง','²':'ยกกำลังสอง','^':'ยกกำลัง','−':'ลบ','×':'คูณ','÷':'หาร','+':'บวก','=':'เท่ากับ','%':'เปอร์เซ็นต์','.':'จุดทศนิยม','(':'เปิดวงเล็บ',')':'ปิดวงเล็บ'};
+const newCalc=()=>({expr:'',eq:false,shown:'',num:0,val:'',err:false});
+S.tool='';S.calc=newCalc();S.toolPos=null;
+let toolsSig='';
+const TOOLS_ON=()=>S.view==='quiz'&&!!S.run&&S.run.stages[S.run.cur].subj==='quant';
+
+function calcEval(src){
+  try{
+    let s=String(src).replace(/\s+/g,'').replace(/[+\-−×÷*\/^]+$/,'');
+    if(!s)return{ok:true,empty:true,v:0};
+    let d=0;for(const ch of s){if(ch==='(')d++;else if(ch===')'){d--;if(d<0)return{ok:false}}}
+    s+=')'.repeat(d);
+    const t=[],re=/(\d+\.?\d*(?:e[+-]?\d+)?|\.\d+(?:e[+-]?\d+)?)|([+\-−×÷*\/^()%²√])/iy;
+    let i=0;
+    while(i<s.length){re.lastIndex=i;const m=re.exec(s);if(!m)return{ok:false};
+      if(m[1]!==undefined)t.push({n:parseFloat(m[1])});
+      else{const o=m[2];t.push({o:o==='-'?'−':o==='*'?'×':o==='/'?'÷':o})}
+      i=re.lastIndex}
+    let p=0;
+    const isO=c=>t[p]&&t[p].o===c;
+    const expr=()=>{let a=term();
+      while(isO('+')||isO('−')){const sub=t[p++].o==='−',b=term(),bv=b.pct?a.v*b.v:b.v;a={v:sub?a.v-bv:a.v+bv,pct:false}}
+      return a};
+    const term=()=>{let a=unary();
+      for(;;){const x=t[p];if(!x)break;
+        if(x.o==='×'||x.o==='÷'){p++;const b=unary();if(x.o==='÷'&&b.v===0)throw 0;a={v:x.o==='×'?a.v*b.v:a.v/b.v,pct:false}}
+        else if(x.n!==undefined||x.o==='('||x.o==='√'){const b=unary();a={v:a.v*b.v,pct:false}}
+        else break}
+      return a};
+    const unary=()=>{if(isO('−')){p++;const a=unary();return{v:-a.v,pct:false}}if(isO('+')){p++;return unary()}return power()};
+    const power=()=>{const a=postfix();if(isO('^')){p++;const b=unary();return{v:Math.pow(a.v,b.v),pct:false}}return a};
+    const postfix=()=>{let a=primary();
+      while(isO('%')||isO('²')){const o=t[p++].o;a=o==='%'?{v:a.v/100,pct:true}:{v:a.v*a.v,pct:false}}
+      return a};
+    const primary=()=>{const x=t[p];if(!x)throw 0;
+      if(x.n!==undefined){p++;return{v:x.n,pct:false}}
+      if(x.o==='('){p++;const a=expr();if(!isO(')'))throw 0;p++;return{v:a.v,pct:false}}
+      if(x.o==='√'){p++;const a=primary();if(a.v<0)throw 0;return{v:Math.sqrt(a.v),pct:false}}
+      throw 0};
+    const r=expr();
+    if(p<t.length||!Number.isFinite(r.v))return{ok:false};
+    return{ok:true,v:r.v};
+  }catch(e){return{ok:false}}
+}
+function fmtNum(v){
+  const r=Number(v.toPrecision(12));if(r===0)return'0';
+  const a=Math.abs(r);if(a>=1e15||a<1e-9)return String(r).replace('e+','e');
+  return r.toLocaleString('en-US',{maximumFractionDigits:10});
+}
+function rawNum(v){const s=String(Number(v.toPrecision(12)));return s[0]==='-'?'−'+s.slice(1):s}
+
+function calcKey(k){
+  const C=S.calc;C.err=false;
+  const isDig=/^[0-9]$/.test(k),isOp=CALC_OPS.includes(k);
+  if(k==='C'){Object.assign(C,newCalc())}
+  else if(k==='⌫'){
+    if(C.eq)Object.assign(C,newCalc());
+    else C.expr=C.expr.endsWith('√(')?C.expr.slice(0,-2):C.expr.slice(0,-1);
+  }else if(k==='='){
+    if(!C.eq&&C.expr!==''){const r=calcEval(C.expr);
+      if(r.empty){}else if(!r.ok){C.err=true}else{C.shown=C.expr;C.num=r.v;C.val=rawNum(r.v);C.eq=true}}
+  }else{
+    if(C.eq){C.expr=(isOp||k==='%'||k==='²')?C.val:'';C.eq=false}
+    const e=C.expr,last=e.slice(-1);
+    const open=(e.match(/\(/g)||[]).length-(e.match(/\)/g)||[]).length;
+    if(isDig){C.expr=e+k}
+    else if(k==='.'){const chunk=e.match(/[0-9.]*$/)[0];if(!chunk.includes('.'))C.expr=e+(chunk===''?'0.':'.')}
+    else if(isOp){
+      if(e===''){if(k==='−')C.expr='−'}
+      else if(k==='−'&&'×÷^('.includes(last)){C.expr=e+k}
+      else{let s=e;while(s&&CALC_OPS.includes(s.slice(-1)))s=s.slice(0,-1);
+        if(s===''||s.slice(-1)==='(')C.expr=k==='−'?s+'−':s;else C.expr=s+k}
+    }
+    else if(k==='('){C.expr=e+'('}
+    else if(k===')'){if(open>0&&last!==''&&last!=='('&&!CALC_OPS.includes(last))C.expr=e+')'}
+    else if(k==='%'||k==='²'){if(/[0-9)%²]$/.test(e))C.expr=e+k}
+    else if(k==='√'){C.expr=e+'√('}
+  }
+  paintCalc();
+}
+function paintCalc(){
+  const a=$('#cexp'),b=$('#cres');if(!a||!b)return;
+  const C=S.calc;
+  if(C.eq){a.textContent=C.shown+' =';b.textContent=fmtNum(C.num)}
+  else{
+    b.textContent=C.expr||'0';
+    if(C.err)a.textContent='คำนวณไม่ได้ ตรวจสอบนิพจน์อีกครั้ง';
+    else{const r=calcEval(C.expr);a.textContent=(C.expr&&r.ok&&!r.empty&&!/^−?[0-9.]*$/.test(C.expr))?'= '+fmtNum(r.v):''}
+  }
+  b.scrollLeft=b.scrollWidth;
+}
+function calcHtml(){
+  return `<section class="tp" id="calcp" role="dialog" aria-label="เครื่องคิดเลข" tabindex="-1">
+   <div class="th"><b title="ลากเพื่อย้ายตำแหน่ง">เครื่องคิดเลข</b><button class="tx" data-t="close" aria-label="ปิดเครื่องคิดเลข">${ic('x')}</button></div>
+   <div class="cd"><div class="ce" id="cexp"></div><div class="cr" id="cres">0</div></div>
+   <div class="ck">${CALC_KEYS.map(k=>`<button class="ky ${k[2]||''}" data-k="${k[0]}" aria-label="${CALC_LBL[k[0]]||k[0]}">${k[1]||k[0]}</button>`).join('')}</div>
+   <p class="note">พิมพ์ตัวเลขและเครื่องหมายจากคีย์บอร์ดได้ เช่น 200 + 10% = 220 และ 1000 × (1 + 5%)^2</p></section>`;
+}
+function padHtml(st){
+  const txt=(st.notes&&st.notes[st.qi])||'';
+  return `<section class="tp" id="padp" role="dialog" aria-label="สมุดทด" tabindex="-1">
+   <div class="th"><b title="ลากเพื่อย้ายตำแหน่ง">สมุดทด · ข้อ ${st.qi+1}</b><span class="acts"><button class="btn sm" data-t="clearpad">ล้างข้อนี้</button><button class="tx" data-t="close" aria-label="ปิดสมุดทด">${ic('x')}</button></span></div>
+   <textarea class="pad" id="padt" spellcheck="false" aria-label="สมุดทดของข้อ ${st.qi+1}" placeholder="จดตัวเลขและวิธีคิดตรงนี้">
+${esc(txt)}</textarea>
+   <p class="note">จดแยกตามข้อ ย้ายไปข้ออื่นแล้วกลับมาข้อความยังอยู่ และจะหายเมื่อจบชุดนี้</p></section>`;
+}
+function renderTools(){
+  const el=$('#tools');if(!el)return;
+  const on=TOOLS_ON();
+  if(document.body){document.body.classList.toggle('hastools',on);document.body.classList.toggle('toolopen',on&&!!S.tool)}
+  const st=on?S.run.stages[S.run.cur]:null;
+  const sig=on?[S.run.sid,S.run.cur,st.qi,S.tool].join('|'):'';
+  if(sig===toolsSig)return;
+  toolsSig=sig;
+  if(!on){el.innerHTML='';return}
+  const t=S.tool;
+  el.innerHTML=`<div class="tl" role="group" aria-label="เครื่องมือช่วยคิด">
+   <button class="tb" data-t="calc" aria-pressed="${t==='calc'}">${ic('calc')}เครื่องคิดเลข</button>
+   <button class="tb" data-t="pad" aria-pressed="${t==='pad'}">${ic('pen')}สมุดทด</button></div>`+(t==='calc'?calcHtml():t==='pad'?padHtml(st):'');
+  applyPos();
+  if(t==='calc')paintCalc();
+}
+function applyPos(){
+  const pn=document.querySelector('#tools .tp');if(!pn||!S.toolPos)return;
+  const w=pn.offsetWidth,hh=pn.offsetHeight;
+  const x=Math.min(Math.max(0,S.toolPos.x),Math.max(0,innerWidth-w)),y=Math.min(Math.max(0,S.toolPos.y),Math.max(0,innerHeight-hh));
+  S.toolPos={x,y};
+  pn.style.left=x+'px';pn.style.top=y+'px';pn.style.right='auto';pn.style.bottom='auto';
+}
+let drag=null;
+document.addEventListener('pointerdown',e=>{
+  const hd=e.target.closest&&e.target.closest('#tools .th');
+  if(!hd||e.target.closest('button'))return;
+  const pn=hd.closest('.tp'),r=pn.getBoundingClientRect();
+  drag={pn,dx:e.clientX-r.left,dy:e.clientY-r.top};
+  if(hd.setPointerCapture)try{hd.setPointerCapture(e.pointerId)}catch(err){}
+  e.preventDefault();
+});
+document.addEventListener('pointermove',e=>{
+  if(!drag)return;
+  S.toolPos={x:e.clientX-drag.dx,y:e.clientY-drag.dy};applyPos();
+});
+document.addEventListener('pointerup',()=>{drag=null});
+document.addEventListener('pointercancel',()=>{drag=null});
+window.addEventListener&&window.addEventListener('resize',applyPos);
+function setTool(t,focus){
+  const prev=S.tool;S.tool=t;toolsSig='';renderTools();
+  const f=t==='calc'?$('#calcp'):t==='pad'?$('#padt'):document.querySelector('#tools [data-t="'+(focus||prev)+'"]');
+  if(f&&f.focus)f.focus({preventScroll:true});
+}
+document.addEventListener('click',e=>{
+  const kb=e.target.closest('#tools [data-k]');
+  if(kb){calcKey(kb.dataset.k);const pn=$('#calcp');if(pn)pn.focus({preventScroll:true});return}
+  const tb=e.target.closest('#tools [data-t]');if(!tb)return;
+  const t=tb.dataset.t;
+  if(t==='calc'||t==='pad')setTool(S.tool===t?'':t,t);
+  else if(t==='close')setTool('',S.tool);
+  else if(t==='clearpad'&&TOOLS_ON()){const st=S.run.stages[S.run.cur];if(st.notes)st.notes[st.qi]='';const ta=$('#padt');if(ta){ta.value='';ta.focus()}}
+});
+document.addEventListener('input',e=>{
+  if(e.target.id==='padt'&&TOOLS_ON()){const st=S.run.stages[S.run.cur];(st.notes=st.notes||{})[st.qi]=e.target.value}
+});
+document.addEventListener('keydown',e=>{
+  if(!e.target.closest||e.ctrlKey||e.metaKey||e.altKey)return;
+  if(e.key==='Escape'&&e.target.closest('#tools')&&S.tool){e.preventDefault();setTool('',S.tool);return}
+  if(!e.target.closest('#calcp')||e.target.closest('.th'))return;
+  const key=e.key;let k=null;
+  if(/^[0-9]$/.test(key))k=key;
+  else if(key==='.'||key===',')k='.';
+  else if(key==='+')k='+';
+  else if(key==='-')k='−';
+  else if(key==='*'||key==='x'||key==='X')k='×';
+  else if(key==='/')k='÷';
+  else if(key==='^')k='^';
+  else if(key==='('||key===')'||key==='%')k=key;
+  else if(key==='Enter'||key==='=')k='=';
+  else if(key==='Backspace')k='⌫';
+  else if(key==='Delete'||key==='c'||key==='C')k='C';
+  if(k===null)return;
+  if(key==='Enter'&&e.target.matches('[data-k]'))return;
+  e.preventDefault();calcKey(k);
+});
 
 /* ---------- events ---------- */
 document.addEventListener('click',e=>{
@@ -758,7 +976,7 @@ document.addEventListener('change',e=>{
   if(t.id==='ai'){S.cfg.ai=t.checked}
 });
 document.addEventListener('keydown',e=>{
-  if(S.view!=='quiz'||e.target.closest('select,input'))return;
+  if(S.view!=='quiz'||e.target.closest('select,input,textarea,#tools'))return;
   const st=S.run.stages[S.run.cur];
   if(e.key>='1'&&e.key<='4'){st.ans[st.qi]=+e.key-1;render()}
   else if(e.key==='ArrowRight'&&st.qi<st.qs.length-1){st.qi++;render();window.scrollTo(0,0)}
