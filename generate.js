@@ -181,7 +181,7 @@ module.exports = async function handler(req, res) {
   body = body || {};
   const subj = body.subj;
   const n = Number(body.n);
-  if (!SUBJECTS.includes(subj) || !Number.isInteger(n) || n < 1 || n > 3) {
+  if (!SUBJECTS.includes(subj) || !Number.isInteger(n) || n < 1 || n > 5) {
     return res.status(400).json({ error: 'bad_request' });
   }
   const avoid = (Array.isArray(body.avoid) ? body.avoid : [])

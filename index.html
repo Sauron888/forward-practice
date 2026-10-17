@@ -203,6 +203,51 @@ body.hastools{padding-block:0 104px}
 .tp button,.tb{-webkit-tap-highlight-color:transparent}
 @media (max-width:860px){body.toolopen{padding-block:0 470px}}
 .pad{display:block;width:100%;min-height:240px;resize:vertical;border:1px solid var(--line);border-radius:10px;background-color:var(--card);color:var(--ink);font:16px/28px var(--f-body);padding:0 12px;background-image:repeating-linear-gradient(to bottom,transparent 0,transparent 27px,var(--line) 27px,var(--line) 28px);background-attachment:local}
+
+/* ===== draft 3: exam mode, tool restyle, mobile ===== */
+.ch-bar{fill:#F2A73C}.ch-bar2{fill:var(--ink);opacity:.78}
+.qt{border-collapse:collapse;font-size:14.5px;margin-bottom:4px;min-width:60%}
+.qt th,.qt td{border:1px solid var(--line);padding:6px 12px;text-align:left}
+.qt th{background:var(--bg);font-weight:600}
+.qt td{font-variant-numeric:tabular-nums}
+.qcap{font-size:14px;color:var(--muted);margin-bottom:6px}
+.chart{overflow-x:auto}
+/* exam mode = quiz page only: paper black and white, colour only in charts */
+body.exam{--bg:#FFFFFF;--card:#FFFFFF;--ink:#000000;--muted:#444444;--line:#8C8C8C;--accent:#000000;--accent-text:#000000;--accent-ink:#FFFFFF;--accent-soft:#EDEDED;--gold:#000000;--btn:#000000;--btn-ink:#FFFFFF;--warn:#000000;--warn-soft:#EDEDED;color-scheme:light}
+body.exam .top{border-bottom:2px solid #000}
+body.exam .chip.ai{background:#000;color:#fff;border-color:#000}
+body.exam .opt.sel{border-width:2px}
+body.exam .timer.warn{font-weight:700;border-width:2px}
+/* tools */
+.tx{background:#C3002F;border-color:#8F0022;color:#fff}
+.tx:hover{background:#A50027}
+.tp.calc{background:#202125;border:1px solid #0b0b0c;border-radius:14px 14px 24px 24px;color:#e9e9e9;padding:12px 12px 16px;box-shadow:0 14px 34px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,255,255,.08)}
+.tp.calc .th b{color:#cfcfd2}
+.tp.calc .cd{background:linear-gradient(#c4cfb3,#aebb9c);border:3px solid #0b0b0c;border-radius:6px;box-shadow:inset 0 3px 8px rgba(0,0,0,.35);color:#18200f}
+.tp.calc .ce{color:#4b5a3d}.tp.calc .cr{color:#18200f}
+.tp.calc .ky{background:linear-gradient(#fbfbf9,#d6d6d1);color:#15161a;border:1px solid #858589;border-bottom:3px solid #6e6e72;border-radius:7px;font-weight:600}
+.tp.calc .ky.op{background:linear-gradient(#5d6066,#3c3e43);color:#f3f3f3;border-color:#111;border-bottom-color:#050506}
+.tp.calc .ky.fn{background:linear-gradient(#e2545a,#b3222a);color:#fff;border-color:#6d1015;border-bottom-color:#4e0a0e;font-family:var(--f-body)}
+.tp.calc .ky.eq{background:linear-gradient(#f7b84e,#e08f1a);color:#1a1205;border-color:#8a5a0a;border-bottom-color:#6a4306}
+.tp.calc .ky:active{transform:translateY(1px);border-bottom-width:2px}
+.tp.calc .note{color:#9b9ba1}
+.tp.padp{background:#FFFBEA;border-color:#E2D5A2;color:#2a2a26}
+.tp.padp .th b{color:#2a2a26}
+.tp.padp .note{color:#76725f}
+.tp.padp .btn.sm{background:#FFFDF3;border-color:#E2D5A2;color:#2a2a26}
+.tp.padp .pad{background-color:#FFFBEA;color:#222;border-color:#E2D5A2;background-image:repeating-linear-gradient(to bottom,transparent 0,transparent 27px,#E7DCAE 27px,#E7DCAE 28px)}
+.palp .lbl{display:none}
+.tb.palb{display:none}
+@media (max-width:860px){
+ .qwrap{grid-template-columns:minmax(0,1fr)}
+ .pal{display:none}
+ .tl-t{display:none}
+ .tb{width:52px;height:52px;padding:0;justify-content:center;border-radius:50%}
+ .tb .ic{width:24px;height:24px}
+ .tb.palb{display:inline-flex}
+ .qcard{padding:16px}
+ .stem{font-size:17px}
+}
 </style>
 </head>
 <body>
@@ -227,6 +272,7 @@ body.hastools{padding-block:0 104px}
 <symbol id="i-hist" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7L3 8M3 3v5h5M12 7v5l3 2"/></symbol>
 <symbol id="i-play" viewBox="0 0 24 24"><path d="M7 4l13 8-13 8V4z"/></symbol>
 <symbol id="i-redo" viewBox="0 0 24 24"><path d="M20 11a8 8 0 0 0-14-4L4 9M4 4v5h5M4 13a8 8 0 0 0 14 4l2-2M20 20v-5h-5"/></symbol>
+<symbol id="i-grid" viewBox="0 0 24 24"><rect x="4" y="4" width="6" height="6" rx="1"/><rect x="14" y="4" width="6" height="6" rx="1"/><rect x="4" y="14" width="6" height="6" rx="1"/><rect x="14" y="14" width="6" height="6" rx="1"/></symbol>
 <symbol id="i-home" viewBox="0 0 24 24"><path d="M4 11l8-7 8 7v9H4v-9zM10 20v-6h4v6"/></symbol>
 <symbol id="i-pen" viewBox="0 0 24 24"><path d="M5 19h14M7 15l9-9 3 3-9 9H7v-3z"/></symbol>
 </defs>
@@ -512,7 +558,8 @@ const TEAMS=[
  {ic:'shield',n:'ทีมบรรณาธิการข้อสอบ',d:'ตรวจภาษา ความชัดเจนของโจทย์ ตัวเลือก และข้อบกพร่องทางเทคนิค'}
 ];
 const LV=['','ง่าย','ปานกลาง','ยาก'];
-const SRC={bank:'ข้อสอบจากคลัง',variant:'ปรับตัวเลขใหม่',ai:'ทีมวิชาการคิดใหม่'};
+const BANK_YR=2569,AI_YR=new Date().getFullYear()+543;
+const SRC={bank:`ชุดฝึก ปี ${BANK_YR}`,variant:`ชุดฝึก ปี ${BANK_YR} · เปลี่ยนตัวเลข`,ai:`AI คิดใหม่ · ปี ${AI_YR}`};
 const ic=(n,c='')=>`<svg class="ic ${c}" aria-hidden="true"><use href="#i-${n}"/></svg>`;
 const mmss=s=>{s=Math.max(0,Math.round(s));return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0')};
 const nl=s=>esc(s);
@@ -583,7 +630,7 @@ async function genAI(subj,n){
   }catch(e){return {items:[],dropped:0,failed:true}}
 }
 async function buildSet(subj,useAI){
-  const want=useAI&&SAMPLE?3:0;
+  const want=useAI&&SAMPLE?5:0;
   const ai=await genAI(subj,want);
   const base=pickBase(subj,10-ai.items.length);
   return {qs:[...base,...ai.items],ai:ai.items.length,dropped:ai.dropped,failed:ai.failed,asked:want};
@@ -612,7 +659,7 @@ async function startRun(){
   beginStage(0);
 }
 function beginStage(i){
-  const R=S.run,st=R.stages[i],c=S.cfg;R.cur=i;st.start=Date.now();
+  const R=S.run,st=R.stages[i],c=S.cfg;R.cur=i;S.tool='';st.start=Date.now();
   const mins=R.mode==='all'?40:(c.timed?c.mins:0);
   st.deadline=mins?st.start+mins*60000:0;
   S.view='quiz';S.confirm=false;S.quit=false;render();window.scrollTo(0,0);
@@ -680,7 +727,7 @@ function vHome(){
     ${all?`<p>${ic('clock')} จับเวลาวิชาละ 40 นาที ตามลำดับ เชิงปริมาณ → เชิงคุณภาพ → ภาษาอังกฤษ เมื่อหมดเวลาหรือกดส่งแล้ว จะกลับไปแก้วิชานั้นไม่ได้ และจะดูเฉลยได้เมื่อจบครบทั้ง 3 วิชา</p>`:
     `<div class="opts"><div class="seg" role="group" aria-label="จับเวลา"><button data-a="timed" data-v="0" aria-pressed="${!c.timed}">ไม่จับเวลา</button><button data-a="timed" data-v="1" aria-pressed="${c.timed}">จับเวลา</button></div>
     ${c.timed?`<label>เวลา <select id="mins" data-a="mins">${[10,15,20,30,40].map(m=>`<option value="${m}" ${c.mins===m?'selected':''}>${m} นาที</option>`).join('')}</select></label>`:''}</div>`}
-    <div class="chk" style="margin-top:16px"><input type="checkbox" id="ai" data-a="ai" ${c.ai&&SAMPLE?'checked':''} ${SAMPLE?'':'disabled'}><label for="ai">ให้ทีมวิชาการคิดโจทย์ใหม่ ${all?'วิชาละ ':''}3 ข้อ ด้วย Gemini<br><span class="note">${SAMPLE?'ที่เหลือเป็นข้อจากคลังและข้อที่ปรับตัวเลขใหม่':'ยังไม่ได้เชื่อมต่อ Gemini ระบบจะใช้ข้อจากคลังและข้อที่ปรับตัวเลขใหม่'}</span></label></div>
+    <div class="chk" style="margin-top:16px"><input type="checkbox" id="ai" data-a="ai" ${c.ai&&SAMPLE?'checked':''} ${SAMPLE?'':'disabled'}><label for="ai">ให้ทีมวิชาการคิดโจทย์ใหม่ ${all?'วิชาละ ':''}5 ข้อ ด้วย Gemini<br><span class="note">${SAMPLE?'ที่เหลือเป็นข้อจากคลังและข้อที่ปรับตัวเลขใหม่':'ยังไม่ได้เชื่อมต่อ Gemini ระบบจะใช้ข้อจากคลังและข้อที่ปรับตัวเลขใหม่'}</span></label></div>
     <div class="row2"><button class="btn pri start" data-a="start">${ic('play')}เริ่มทำข้อสอบ</button></div></div>
   </div><aside class="stack">
    <div class="card"><div class="lbl">${ic('hist')} ประวัติการทำ</div>${(()=>{const rows=histRows();return rows.length?rows.map(r=>{const inner=`<span>${r.t}<small>${new Date(r.d).toLocaleString('th-TH',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})} · ใช้เวลา ${mmss(r.sec)}</small></span><b>${r.sc}/${r.tot}</b>`;return r.ok?`<button class="hrow" data-a="hist" data-v="${r.v}">${inner}</button>`:`<div class="hrow">${inner}</div>`}).join('')+`<p class="note" style="margin-top:10px">กดที่รายการเพื่อดูคำตอบของคุณและเฉลยรายข้อ ทำมาแล้ว ${n} ชุด</p>`:'<p class="note">ยังไม่มีประวัติ ทำชุดแรกเพื่อเริ่มบันทึกผล ระบบเก็บคำตอบและเฉลยไว้ให้เปิดดูย้อนหลัง ข้อมูลเก็บในเบราว์เซอร์นี้เท่านั้น</p>'})()}</div>
@@ -691,6 +738,12 @@ function vPrep(){
   return `<section class="prep card"><h2>กำลังจัดชุดข้อสอบ</h2><p class="note" style="margin-bottom:12px">${S.cfg.subj==='all'?'3 วิชา วิชาละ 10 ข้อ':SUBJ[S.cfg.subj].th+' 10 ข้อ'}</p>
   ${S.prep.map(p=>`<div class="prow ${p.state}"><span class="st">${p.state==='done'?ic('check'):''}</span><div><b>${p.n}</b><span>${esc(p.note||p.d)}</span></div></div>`).join('')}</section>`;
 }
+function palInner(st,R,i,un,fl){return `<div class="lbl">รายการข้อ</div><div class="grid">${st.qs.map((_,k)=>`<button class="gq ${st.ans[k]>=0?'ans':''} ${k===i?'cur':''} ${st.flag[k]?'flag':''}" data-a="go" data-v="${k}" aria-label="ข้อ ${k+1}${st.ans[k]>=0?' ตอบแล้ว':''}${st.flag[k]?' ปักธง':''}">${k+1}</button>`).join('')}</div>
+   <div class="legend"><span>ดำ = ตอบแล้ว</span><span>จุดส้ม = ปักธง</span></div>
+   <button class="btn pri" style="width:100%" data-a="ask">ส่ง${R.mode==='all'?'วิชานี้':'ข้อสอบ'}</button>
+   ${S.confirm?`<div class="confirm" role="alertdialog" aria-label="ยืนยันการส่ง"><b>ส่งเลยไหม</b><br>ยังไม่ได้ตอบ ${un} ข้อ · ปักธง ${fl} ข้อ${R.mode==='all'?`<br>ส่งแล้วจะกลับมาแก้วิชานี้ไม่ได้`:''}<div class="row"><button class="btn sm" data-a="cancel">กลับไปตรวจ</button><button class="btn sm pri" data-a="submit">ส่งเลย</button></div></div>`:''}
+   ${S.quit?`<div class="confirm" role="alertdialog" aria-label="ยืนยันการออก"><b>ออกจากข้อสอบ</b><br>คำตอบในชุดนี้จะไม่ถูกบันทึก${R.mode==='all'?' และเริ่มใหม่ต้องจัดชุดใหม่ทั้งหมด':''}<div class="row"><button class="btn sm" data-a="cancel">ทำต่อ</button><button class="btn sm pri" data-a="leave">ออก</button></div></div>`:''}
+  `}
 function vQuiz(){
   const R=S.run,st=R.stages[R.cur],i=st.qi,q=st.qs[i],n=st.qs.length;
   const un=st.ans.filter(a=>a<0).length,fl=st.flag.filter(Boolean).length,last=i===n-1;
@@ -703,12 +756,7 @@ function vQuiz(){
     <button class="btn" data-a="flag" aria-pressed="${st.flag[i]}">${ic('flag')}${st.flag[i]?'เอาธงออก':'ปักธง'}</button><span class="sp"></span>
     ${last?`<button class="btn pri" data-a="ask">ส่งคำตอบ</button>`:`<button class="btn pri" data-a="next">ถัดไป${ic('right')}</button>`}</div>
   </section>
-  <aside class="card pal"><div class="lbl">รายการข้อ</div><div class="grid">${st.qs.map((_,k)=>`<button class="gq ${st.ans[k]>=0?'ans':''} ${k===i?'cur':''} ${st.flag[k]?'flag':''}" data-a="go" data-v="${k}" aria-label="ข้อ ${k+1}${st.ans[k]>=0?' ตอบแล้ว':''}${st.flag[k]?' ปักธง':''}">${k+1}</button>`).join('')}</div>
-   <div class="legend"><span>ดำ = ตอบแล้ว</span><span>จุดส้ม = ปักธง</span></div>
-   <button class="btn pri" style="width:100%" data-a="ask">ส่ง${R.mode==='all'?'วิชานี้':'ข้อสอบ'}</button>
-   ${S.confirm?`<div class="confirm" role="alertdialog" aria-label="ยืนยันการส่ง"><b>ส่งเลยไหม</b><br>ยังไม่ได้ตอบ ${un} ข้อ · ปักธง ${fl} ข้อ${R.mode==='all'?`<br>ส่งแล้วจะกลับมาแก้วิชานี้ไม่ได้`:''}<div class="row"><button class="btn sm" data-a="cancel">กลับไปตรวจ</button><button class="btn sm pri" data-a="submit">ส่งเลย</button></div></div>`:''}
-   ${S.quit?`<div class="confirm" role="alertdialog" aria-label="ยืนยันการออก"><b>ออกจากข้อสอบ</b><br>คำตอบในชุดนี้จะไม่ถูกบันทึก${R.mode==='all'?' และเริ่มใหม่ต้องจัดชุดใหม่ทั้งหมด':''}<div class="row"><button class="btn sm" data-a="cancel">ทำต่อ</button><button class="btn sm pri" data-a="leave">ออก</button></div></div>`:''}
-  </aside></div>`;
+  <aside class="card pal">${palInner(st,R,i,un,fl)}</aside></div>`;
 }
 function vBetween(){
   const R=S.run,done=R.stages[R.cur],next=R.stages[R.cur+1];
@@ -854,7 +902,7 @@ function paintCalc(){
   b.scrollLeft=b.scrollWidth;
 }
 function calcHtml(){
-  return `<section class="tp" id="calcp" role="dialog" aria-label="เครื่องคิดเลข" tabindex="-1">
+  return `<section class="tp calc" id="calcp" role="dialog" aria-label="เครื่องคิดเลข" tabindex="-1">
    <div class="th"><b title="ลากเพื่อย้ายตำแหน่ง">เครื่องคิดเลข</b><button class="tx" data-t="close" aria-label="ปิดเครื่องคิดเลข">${ic('x')}</button></div>
    <div class="cd"><div class="ce" id="cexp"></div><div class="cr" id="cres">0</div></div>
    <div class="ck">${CALC_KEYS.map(k=>`<button class="ky ${k[2]||''}" data-k="${k[0]}" aria-label="${CALC_LBL[k[0]]||k[0]}">${k[1]||k[0]}</button>`).join('')}</div>
@@ -862,27 +910,29 @@ function calcHtml(){
 }
 function padHtml(st){
   const txt=(st.notes&&st.notes[st.qi])||'';
-  return `<section class="tp" id="padp" role="dialog" aria-label="สมุดทด" tabindex="-1">
+  return `<section class="tp padp" id="padp" role="dialog" aria-label="สมุดทด" tabindex="-1">
    <div class="th"><b title="ลากเพื่อย้ายตำแหน่ง">สมุดทด · ข้อ ${st.qi+1}</b><span class="acts"><button class="btn sm" data-t="clearpad">ล้างข้อนี้</button><button class="tx" data-t="close" aria-label="ปิดสมุดทด">${ic('x')}</button></span></div>
    <textarea class="pad" id="padt" spellcheck="false" aria-label="สมุดทดของข้อ ${st.qi+1}" placeholder="จดตัวเลขและวิธีคิดตรงนี้">
 ${esc(txt)}</textarea>
    <p class="note">จดแยกตามข้อ ย้ายไปข้ออื่นแล้วกลับมาข้อความยังอยู่ และจะหายเมื่อจบชุดนี้</p></section>`;
 }
+const QUIZ_ON=()=>S.view==='quiz'&&!!S.run;
+const IS_MOB=()=>!!(window.matchMedia&&matchMedia('(max-width:860px)').matches);
 function renderTools(){
   const el=$('#tools');if(!el)return;
-  const on=TOOLS_ON();
-  if(document.body){document.body.classList.toggle('hastools',on);document.body.classList.toggle('toolopen',on&&!!S.tool)}
+  const on=QUIZ_ON(),q=TOOLS_ON();
+  if(document.body){document.body.classList.toggle('hastools',on);document.body.classList.toggle('toolopen',on&&!!S.tool);document.body.classList.toggle('exam',on)}
   const st=on?S.run.stages[S.run.cur]:null;
-  const sig=on?[S.run.sid,S.run.cur,st.qi,S.tool].join('|'):'';
+  const sig=on?[S.run.sid,S.run.cur,st.qi,S.tool,q,S.tool==='pal'?st.ans.join('')+st.flag.map(Number).join('')+S.confirm+S.quit:''].join('|'):'';
   if(sig===toolsSig)return;
   toolsSig=sig;
   if(!on){el.innerHTML='';return}
-  const t=S.tool;
-  el.innerHTML=`<div class="tl" role="group" aria-label="เครื่องมือช่วยคิด">
-   <button class="tb" data-t="calc" aria-pressed="${t==='calc'}">${ic('calc')}เครื่องคิดเลข</button>
-   <button class="tb" data-t="pad" aria-pressed="${t==='pad'}">${ic('pen')}สมุดทด</button></div>`+(t==='calc'?calcHtml():t==='pad'?padHtml(st):'');
+  const t=S.tool,R=S.run,i=st.qi,un=st.ans.filter(a=>a<0).length,fl=st.flag.filter(Boolean).length;
+  const btn=(k,ico,lbl,cls)=>`<button class="tb ${cls||''}" data-t="${k}" aria-pressed="${t===k}" aria-label="${lbl}" title="${lbl}">${ic(ico)}<span class="tl-t">${lbl}</span></button>`;
+  const pal=`<section class="tp palp" id="palp" role="dialog" aria-label="รายการข้อ" tabindex="-1"><div class="th"><b title="ลากเพื่อย้ายตำแหน่ง">รายการข้อ</b><button class="tx" data-t="close" aria-label="ปิดรายการข้อ">${ic('x')}</button></div>${palInner(st,R,i,un,fl)}</section>`;
+  el.innerHTML=`<div class="tl" role="group" aria-label="เครื่องมือช่วยคิด">${q?btn('calc','calc','เครื่องคิดเลข')+btn('pad','pen','สมุดทด'):''}${btn('pal','grid','รายการข้อ','palb')}</div>`+(t==='calc'&&q?calcHtml():t==='pad'&&q?padHtml(st):t==='pal'?pal:'');
   applyPos();
-  if(t==='calc')paintCalc();
+  if(t==='calc'&&q)paintCalc();
 }
 function applyPos(){
   const pn=document.querySelector('#tools .tp');if(!pn||!S.toolPos)return;
@@ -909,7 +959,7 @@ document.addEventListener('pointercancel',()=>{drag=null});
 window.addEventListener&&window.addEventListener('resize',applyPos);
 function setTool(t,focus){
   const prev=S.tool;S.tool=t;toolsSig='';renderTools();
-  const f=t==='calc'?$('#calcp'):t==='pad'?$('#padt'):document.querySelector('#tools [data-t="'+(focus||prev)+'"]');
+  const f=t==='calc'?$('#calcp'):t==='pad'?$('#padt'):t==='pal'?$('#palp'):document.querySelector('#tools [data-t="'+(focus||prev)+'"]');
   if(f&&f.focus)f.focus({preventScroll:true});
 }
 document.addEventListener('click',e=>{
@@ -917,7 +967,7 @@ document.addEventListener('click',e=>{
   if(kb){calcKey(kb.dataset.k);const pn=$('#calcp');if(pn)pn.focus({preventScroll:true});return}
   const tb=e.target.closest('#tools [data-t]');if(!tb)return;
   const t=tb.dataset.t;
-  if(t==='calc'||t==='pad')setTool(S.tool===t?'':t,t);
+  if(t==='calc'||t==='pad'||t==='pal')setTool(S.tool===t?'':t,t);
   else if(t==='close')setTool('',S.tool);
   else if(t==='clearpad'&&TOOLS_ON()){const st=S.run.stages[S.run.cur];if(st.notes)st.notes[st.qi]='';const ta=$('#padt');if(ta){ta.value='';ta.focus()}}
 });
@@ -956,10 +1006,10 @@ document.addEventListener('click',e=>{
     case'pick':st.ans[st.qi]=+v;render();break;
     case'prev':st.qi=Math.max(0,st.qi-1);S.confirm=false;render();window.scrollTo(0,0);break;
     case'next':st.qi=Math.min(st.qs.length-1,st.qi+1);render();window.scrollTo(0,0);break;
-    case'go':st.qi=+v;render();window.scrollTo(0,0);break;
+    case'go':st.qi=+v;if(S.tool==='pal')S.tool='';render();window.scrollTo(0,0);break;
     case'flag':st.flag[st.qi]=!st.flag[st.qi];render();break;
-    case'ask':S.confirm=true;S.quit=false;render();break;
-    case'quit':S.quit=true;S.confirm=false;render();break;
+    case'ask':S.confirm=true;S.quit=false;if(IS_MOB())S.tool='pal';render();break;
+    case'quit':S.quit=true;S.confirm=false;if(IS_MOB())S.tool='pal';render();break;
     case'cancel':S.confirm=false;S.quit=false;render();break;
     case'submit':finishStage(false);break;
     case'nextstage':beginStage(R.cur+1);break;
