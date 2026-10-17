@@ -45,11 +45,12 @@ const SCHEMA = {
   required: ['items']
 };
 
-function buildPrompt(subj, n, avoid) {
+const LVT = { '1': 'ระดับง่าย', '2': 'ระดับปานกลาง', '3': 'ระดับยาก เทียบข้อสอบวัดความสามารถจริงที่ต้องคิดหลายขั้นตอน มีตัวเลือกลวงที่น่าสับสน', mix: 'ผสมหลายระดับ เน้นข้อยาก (ราวครึ่งหนึ่ง) ที่ต้องคิดหลายขั้นตอน' };
+function buildPrompt(subj, n, avoid, lv) {
   const av = avoid.length ? 'หลีกเลี่ยงโจทย์ที่คล้ายกับรายการนี้:\n' + avoid.map((s) => '- ' + s).join('\n') + '\n' : '';
   return `${BASE[subj]}
 
-จำนวน ${n} ข้อ แต่ละข้อมี 4 ตัวเลือก มีข้อถูกเพียงข้อเดียว ตัวเลือกยาวใกล้เคียงกัน ห้ามใช้ "ทุกข้อ" หรือ "ไม่มีข้อใดถูก" ห้ามให้คำถามมีข้อมูลชี้นำคำตอบ
+จำนวน ${n} ข้อ ${LVT[lv] || ''} แต่ละข้อมี 4 ตัวเลือก มีข้อถูกเพียงข้อเดียว ตัวเลือกยาวใกล้เคียงกัน ห้ามใช้ "ทุกข้อ" หรือ "ไม่มีข้อใดถูก" ห้ามให้คำถามมีข้อมูลชี้นำคำตอบ
 ในช่อง why ให้เขียนภาษาไทยอธิบายตัวเลือกแต่ละข้อตามลำดับเดียวกับ choices ข้อถูกขึ้นต้นด้วย "ถูกต้อง" ข้อผิดขึ้นต้นด้วย "ผิด" พร้อมเหตุผล
 ${av}ตอบเป็น JSON object เท่านั้น รูปแบบ {"items":[...]} แต่ละรายการมีฟิลด์: skill (ชื่อทักษะภาษาไทยสั้นๆ), level (1 ง่าย 2 ปานกลาง 3 ยาก), ctx (ข้อความประกอบ หรือ ""), stem, choices (array 4 ข้อ), ans (ดัชนี 0-3 ของข้อถูก), why (array 4 ข้อความ)`;
 }
@@ -188,11 +189,12 @@ module.exports = async function handler(req, res) {
     .slice(0, 8)
     .map((s) => String(s).replace(/\s+/g, ' ').slice(0, 80));
 
+  const lv = ['1', '2', '3', 'mix'].includes(String(body.lv)) ? String(body.lv) : 'mix';
   const ip = String(req.headers['x-forwarded-for'] || req.socket?.remoteAddress || 'unknown').split(',')[0].trim();
   if (limited(ip)) return res.status(429).json({ error: 'rate_limited' });
 
   const model = process.env.GEMINI_MODEL || 'gemini-3.8-flash';
-  const prompt = buildPrompt(subj, n, avoid);
+  const prompt = buildPrompt(subj, n, avoid, lv);
   const ctl = new AbortController();
   const timer = setTimeout(() => ctl.abort(), 55000);
 

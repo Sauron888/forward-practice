@@ -248,6 +248,14 @@ body.exam .timer.warn{font-weight:700;border-width:2px}
  .qcard{padding:16px}
  .stem{font-size:17px}
 }
+.sm{margin-top:12px}.smh{display:flex;justify-content:space-between;gap:12px;font-size:15px;margin-bottom:4px}
+.smh b{font-family:var(--f-head);font-weight:600}.smh span{font-variant-numeric:tabular-nums;font-weight:600;white-space:nowrap}
+.rb i{background:#F2A73C}
+.rr{display:grid;grid-template-columns:minmax(110px,1.2fr) minmax(70px,1fr) 44px;gap:10px;align-items:center;padding:6px 0;border-top:1px solid var(--line);font-size:14.5px}
+.rr b{text-align:right;font-variant-numeric:tabular-nums}.rr small,.rs small{color:var(--muted)}
+.rs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-top:14px;font-size:14.5px}
+.rs ul{margin:6px 0 0;padding-left:18px}
+@media (max-width:560px){.rs{grid-template-columns:minmax(0,1fr)}}
 </style>
 </head>
 <body>
@@ -520,6 +528,179 @@ B('en-a1c','eng','ar1','อ่านบทความ',2,AR1,'In the last sente
  [['rigid','ผิด rigid แปลว่า ตายตัว ตรงข้ามกับ flexible'],['expensive','ผิด expensive แปลว่า แพง ไม่เกี่ยวกับความหมาย'],['temporary','ผิด temporary แปลว่า ชั่วคราว ไม่ใช่ความหมายของ flexible']])
 ];
 const BANK=[...QUAL,...ENG];
+/* ===== extra quantitative templates (harder; tables and two-series charts) ===== */
+const O=(v,why)=>({v,why});
+const tbl=(h,rows)=>`<table class="qt"><thead><tr>${h.map(x=>`<th>${esc(x)}</th>`).join('')}</tr></thead><tbody>${rows.map(r=>`<tr>${r.map(x=>`<td>${esc(x)}</td>`).join('')}</tr>`).join('')}</tbody></table>`;
+const cap=t=>`<div class="qcap">${esc(t)}</div>`;
+function bar2Svg(labels,A,Bv,nA,nB,unit){
+  const W=520,H=270,L=46,R=12,T=34,Bm=44,max=Math.max(...A,...Bv);
+  const step=[10,20,25,50,100,200].find(s=>max/s<=5)||250,top=Math.ceil(max/step)*step;
+  const pw=W-L-R,ph=H-T-Bm,gw=pw/labels.length,bw=gw*.3,y=v=>T+ph-v/top*ph;
+  let s=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="แผนภูมิแท่งเปรียบเทียบ ${esc(labels.map((l,i)=>l+' '+nA+' '+A[i]+' '+nB+' '+Bv[i]).join(', '))} ${esc(unit)}">`;
+  s+=`<rect class="ch-bar" x="${L}" y="8" width="12" height="12" rx="2"/><text class="ch-t" x="${L+18}" y="19">${esc(nA)}</text><rect class="ch-bar2" x="${L+100}" y="8" width="12" height="12" rx="2"/><text class="ch-t" x="${L+118}" y="19">${esc(nB)}</text>`;
+  for(let v=0;v<=top;v+=step){s+=`<line class="${v?'ch-grid':'ch-axis'}" x1="${L}" x2="${W-R}" y1="${y(v)}" y2="${y(v)}"/><text class="ch-t" x="${L-6}" y="${y(v)+4}" text-anchor="end">${v}</text>`}
+  labels.forEach((l,i)=>{const cx=L+gw*(i+.5);
+    [[A[i],-bw,'ch-bar'],[Bv[i],0,'ch-bar2']].forEach(([v,dx,c])=>{const x=cx+dx;
+      s+=`<rect class="${c}" x="${x}" y="${y(v)}" width="${bw}" height="${T+ph-y(v)}" rx="3"/><text class="ch-v" x="${x+bw/2}" y="${y(v)-4}" text-anchor="middle">${v}</text>`});
+    s+=`<text class="ch-t" x="${cx}" y="${H-24}" text-anchor="middle">${esc(l)}</text>`});
+  return s+`<text class="ch-t" x="${W-R}" y="${H-5}" text-anchor="end">หน่วย: ${esc(unit)}</text></svg>`;
+}
+
+function gGap(){const a=[0,1,2,3].map(()=>rnd(4,18)*5),b=[0,1,2,3].map(()=>rnd(4,18)*5),d=a.map((x,i)=>Math.abs(x-b[i])),mx=Math.max(...d);
+  if(d.filter(x=>x===mx).length>1||mx<10)return null;
+  const best=d.indexOf(mx),L=i=>'ไตรมาส '+(i+1);
+  return {id:'g-gap',subj:'quant',grp:'g-gap',skill:'อ่านกราฟและแผนภูมิ',level:2,src:'variant',ctx:'',
+    stem:'จากแผนภูมิ ไตรมาสใดที่ยอดขายของสินค้า A และสินค้า B แตกต่างกัน (ผลต่างเป็นค่าสัมบูรณ์) มากที่สุด',
+    chart:bar2Svg([0,1,2,3].map(L),a,b,'สินค้า A','สินค้า B','ล้านบาท'),choices:[0,1,2,3].map(L),ans:best,
+    why:[0,1,2,3].map(i=>(i===best?'ถูกต้อง ':'ผิด ')+`ผลต่างของ${L(i)} = |${a[i]} − ${b[i]}| = ${d[i]} ล้านบาท`+(i===best?' ซึ่งมากที่สุด':` ซึ่งน้อยกว่าไตรมาส ${best+1} ที่ต่างกัน ${mx} ล้านบาท`))};}
+function gShare(){const T=pick([800,1200,2000,2400]),s=pick([15,20,25,30]),g=pick([10,20,25]),x=rnd(2,5)*5,y=rnd(2,5)*5,z=100-s-x-y;if(z<5)return null;
+  const f=T*(1+g/100)*s/100;
+  return mk({id:'g-share',skill:'ร้อยละและราคา',level:2,
+  chart:cap(`ส่วนแบ่งตลาดปัจจุบัน (ตลาดรวมมูลค่า ${fmt(T)} ล้านบาท)`)+tbl(['บริษัท','ส่วนแบ่งตลาด (%)'],[['A',s],['B',x],['C',y],['D',z]]),
+  stem:`ปีหน้าตลาดรวมคาดว่าจะเติบโตร้อยละ ${g} และบริษัท A คาดว่าจะรักษาส่วนแบ่งตลาดไว้เท่าเดิม ยอดขายของบริษัท A ปีหน้าคาดว่าเป็นกี่ล้านบาท`,
+  right:O(fmt(f)+' ล้านบาท',`ถูกต้อง ตลาดรวมปีหน้า = ${fmt(T)} × ${fmt(1+g/100)} = ${fmt(T*(1+g/100))} ล้านบาท ส่วนแบ่งคงเดิม ${s}% จึงได้ ${fmt(T*(1+g/100))} × ${s}% = ${fmt(f)} ล้านบาท`),
+  wrong:[O(fmt(T*s/100)+' ล้านบาท',`ผิด ค่านี้คือยอดขายของ A ในปีนี้ ยังไม่ได้นำการเติบโตของตลาดมาคิด`),
+         O(fmt(T*(s+g)/100)+' ล้านบาท',`ผิด เพราะนำร้อยละการเติบโตของตลาดไปบวกกับส่วนแบ่งตลาด ทั้งที่โจทย์ให้ส่วนแบ่งคงเดิม`),
+         O(fmt(T*(1+g/100))+' ล้านบาท',`ผิด ค่านี้คือมูลค่าตลาดรวมปีหน้า ไม่ใช่ยอดขายเฉพาะบริษัท A`)]});}
+function gPayback(){const f=[0,1,2,3,4].map(()=>rnd(1,6)*40),c3=f[0]+f[1]+f[2],fr=pick([.25,.5,.75]),I=c3+f[3]*fr,pb=3+fr,avg=I/(f.reduce((a,b)=>a+b,0)/5);
+  return mk({id:'g-payback',skill:'การเงินเบื้องต้น',level:3,
+  chart:cap(`โครงการลงทุนเริ่มต้น ${fmt(I)} หมื่นบาท`)+tbl(['ปีที่','1','2','3','4','5'],[['กระแสเงินสดสุทธิ (หมื่นบาท)',...f]]),
+  stem:'ระยะเวลาคืนทุน (Payback Period) ของโครงการนี้ เป็นกี่ปี (สมมติว่ากระแสเงินสดเข้าสม่ำเสมอตลอดแต่ละปี)',
+  right:O(fmt(pb)+' ปี',`ถูกต้อง กระแสเงินสดสะสมสิ้นปีที่ 3 = ${fmt(c3)} ยังขาดอีก ${fmt(I)} − ${fmt(c3)} = ${fmt(I-c3)} หมื่นบาท ซึ่งต้องใช้ ${fmt(I-c3)} ÷ ${f[3]} = ${fr} ของปีที่ 4 รวมเป็น ${fmt(pb)} ปี`),
+  wrong:[O('3 ปี',`ผิด เพราะปัดเศษทิ้ง ณ สิ้นปีที่ 3 เงินสะสมยังไม่ถึง ${fmt(I)} หมื่นบาท`),
+         O('4 ปี',`ผิด เพราะปัดขึ้นเป็นปีเต็ม โจทย์ให้คิดเป็นเศษของปีตามกระแสเงินสดที่เข้าสม่ำเสมอ`),
+         O(fmt(avg)+' ปี',`ผิด เพราะนำเงินลงทุนหารด้วยกระแสเงินสดเฉลี่ยทั้ง 5 ปี วิธีนี้ไม่ได้คำนึงถึงลำดับเวลาของกระแสเงินสดแต่ละปี`)]});}
+function gCICompare(){const P=pick([100000,200000]),r=pick([5,10]),c=P*(Math.pow(1+r/100,3)-1),s=P*3*r/100,d=c-s,c2=P*(Math.pow(1+r/100,2)-1-2*r/100);
+  return mk({id:'g-cicompare',skill:'การเงินเบื้องต้น',level:3,
+  stem:`ฝากเงิน ${fmt(P)} บาท นาน 3 ปี อัตราดอกเบี้ยปีละ ${r}% ดอกเบี้ยแบบทบต้นเมื่อครบ 3 ปี จะมากกว่าดอกเบี้ยแบบง่ายกี่บาท`,
+  right:O(fmt(d)+' บาท',`ถูกต้อง ทบต้น: ${fmt(P)} × (1.${r<10?'0'+r:r}³ − 1) = ${fmt(c)} บาท แบบง่าย: ${fmt(P)} × ${r}% × 3 = ${fmt(s)} บาท ผลต่าง = ${fmt(d)} บาท`),
+  wrong:[O(fmt(c)+' บาท',`ผิด ค่านี้คือดอกเบี้ยแบบทบต้นทั้งหมด ไม่ใช่ส่วนที่มากกว่าแบบง่าย`),
+         O(fmt(s)+' บาท',`ผิด ค่านี้คือดอกเบี้ยแบบง่ายทั้งหมด`),
+         O(fmt(c2)+' บาท',`ผิด ค่านี้คือส่วนต่างเมื่อครบ 2 ปี ไม่ใช่ 3 ปี`)]});}
+function gCagr(){const r=pick([10,20,25,30,40]),R0=400,R2=R0*Math.pow(1+r/100,2),tot=(R2/R0-1)*100;
+  return mk({id:'g-cagr',skill:'ร้อยละและราคา',level:3,
+  stem:`รายได้ของบริษัทเพิ่มจาก ${fmt(R0)} ล้านบาท เป็น ${fmt(R2)} ล้านบาท ในเวลา 2 ปี โดยเติบโตด้วยอัตราร้อยละเท่ากันทุกปี อัตราการเติบโตต่อปีเป็นเท่าใด`,
+  right:O(r+'%',`ถูกต้อง ให้อัตราเติบโตต่อปีเป็น r จะได้ ${fmt(R0)} × (1 + r)² = ${fmt(R2)} ดังนั้น (1 + r)² = ${fmt(R2/R0)} และ 1 + r = ${fmt(1+r/100)} จึงได้ r = ${r}%`),
+  wrong:[O(fmt(tot/2)+'%',`ผิด เพราะนำอัตราเติบโตรวมสองปี (${fmt(tot)}%) มาหารสอง แต่การเติบโตรายปีเป็นแบบทบต้น`),
+         O(fmt(tot)+'%',`ผิด ค่านี้คืออัตราเติบโตรวมตลอด 2 ปี ไม่ใช่ต่อปี`),
+         O((r+5)+'%',`ผิด เมื่อตรวจสอบ ${fmt(R0)} × (1 + ${(r+5)/100})² ไม่เท่ากับ ${fmt(R2)}`)]});}
+function gFifo(){const p1=pick([10,12,14]),p2=p1+pick([2,4]),p3=p2+pick([2,4]),S=pick([150,250,300]),
+  fifo=100*p1+(S-100)*p2,lifo=100*p3+(S-100)*p2,tot=100*p1+200*p2+100*p3,avg=tot/400*S;
+  return mk({id:'g-fifo',skill:'กำไรและต้นทุน',level:3,
+  chart:tbl(['รายการ','จำนวน (หน่วย)','ราคาต่อหน่วย (บาท)'],[['สินค้ายกมา',100,p1],['ซื้อครั้งที่ 1',200,p2],['ซื้อครั้งที่ 2',100,p3]]),
+  stem:`บริษัทขายสินค้าไป ${S} หน่วย ต้นทุนขายตามวิธีเข้าก่อนออกก่อน (FIFO) เป็นเท่าใด`,
+  right:O(fmt(fifo)+' บาท',`ถูกต้อง FIFO ตัดสินค้าล็อตเก่าก่อน คือ 100 × ${p1} + ${S-100} × ${p2} = ${fmt(fifo)} บาท`),
+  wrong:[O(fmt(lifo)+' บาท',`ผิด เพราะตัดล็อตใหม่ก่อน (100 × ${p3} + ${S-100} × ${p2}) ซึ่งเป็นวิธีเข้าหลังออกก่อน (LIFO)`),
+         O(fmt(avg)+' บาท',`ผิด เพราะใช้ต้นทุนเฉลี่ยถ่วงน้ำหนัก ${fmt(tot)} ÷ 400 × ${S} ซึ่งเป็นอีกวิธีหนึ่ง`),
+         O(fmt(tot-fifo)+' บาท',`ผิด ค่านี้คือมูลค่าสินค้าคงเหลือปลายงวดตามวิธี FIFO ไม่ใช่ต้นทุนขาย`)]});}
+function gVariance(){const m=pick([40,50,60,70]),k=pick([2,3,4,5]),d=shuffle([-2,-1,0,1,2].map(x=>m+x*k)),pv=2*k*k,sv=pv*5/4;
+  return mk({id:'g-variance',skill:'สถิติพื้นฐาน',level:3,
+  stem:`ยอดขายรายวันของร้านค้า 5 วัน (หน่วย: พันบาท) เป็นดังนี้ ${d.join(', ')} ความแปรปรวนของข้อมูลชุดนี้ (ถือว่าเป็นข้อมูลทั้งหมด หารด้วย N) เป็นเท่าใด`,
+  right:O(fmt(pv),`ถูกต้อง ค่าเฉลี่ย = ${m} ส่วนเบี่ยงเบนยกกำลังสองคือ ${[-2,-1,0,1,2].map(x=>(x*k)**2).join(' + ')} = ${fmt(10*k*k)} หารด้วย 5 ได้ ${fmt(pv)}`),
+  wrong:[O(fmt(sv),`ผิด เพราะหารด้วย N − 1 = 4 ซึ่งเป็นความแปรปรวนของตัวอย่าง แต่โจทย์ให้ถือเป็นข้อมูลทั้งหมด`),
+         O(fmt(4*k),`ผิด ค่านี้คือพิสัย (ค่าสูงสุด − ค่าต่ำสุด) ไม่ใช่ความแปรปรวน`),
+         O(fmt(1.2*k),`ผิด ค่านี้คือค่าเบี่ยงเบนสัมบูรณ์เฉลี่ย ซึ่งไม่ได้ยกกำลังสองส่วนเบี่ยงเบน`)]});}
+function gProb(){const p=pick([20,30,40,50,60]),q=pick([20,30,40,50,60]),r=100-(100-p)*(100-q)/100;
+  return mk({id:'g-prob',skill:'ความน่าจะเป็น',level:3,
+  stem:`โครงการ A มีโอกาสสำเร็จร้อยละ ${p} และโครงการ B มีโอกาสสำเร็จร้อยละ ${q} โดยสองโครงการเป็นอิสระต่อกัน โอกาสที่อย่างน้อยหนึ่งโครงการสำเร็จเป็นร้อยละเท่าใด`,
+  right:O(fmt(r)+'%',`ถูกต้อง โอกาสที่ทั้งสองล้มเหลว = ${100-p}% × ${100-q}% = ${fmt((100-p)*(100-q)/100)}% ดังนั้นอย่างน้อยหนึ่งโครงการสำเร็จ = 100 − ${fmt((100-p)*(100-q)/100)} = ${fmt(r)}%`),
+  wrong:[O((p+q)+'%',`ผิด เพราะนำโอกาสมาบวกกันตรงๆ ซึ่งนับกรณีที่สำเร็จทั้งคู่ซ้ำสองครั้ง`),
+         O(fmt(p*q/100)+'%',`ผิด ค่านี้คือโอกาสที่สำเร็จทั้งสองโครงการ ไม่ใช่อย่างน้อยหนึ่งโครงการ`),
+         O(fmt((p+q)/2)+'%',`ผิด เพราะนำโอกาสมาหาค่าเฉลี่ย ซึ่งไม่ใช่วิธีหาโอกาสของเหตุการณ์ร่วม`)]});}
+function gEV(){const pr=pick([[30,50,20],[25,50,25],[20,50,30],[40,40,20]]),x1=pick([80,100,120]),x2=pick([20,30,40]),x3=pick([-20,-40,-60]),ev=(pr[0]*x1+pr[1]*x2+pr[2]*x3)/100;
+  return mk({id:'g-ev',skill:'ความน่าจะเป็น',level:2,
+  chart:tbl(['สถานการณ์เศรษฐกิจ','ความน่าจะเป็น (%)','กำไรสุทธิ (ล้านบาท)'],[['เติบโต',pr[0],x1],['ปกติ',pr[1],x2],['ถดถอย',pr[2],x3]]),
+  stem:'กำไรสุทธิที่คาดหวัง (Expected Value) ของโครงการนี้เป็นกี่ล้านบาท',
+  right:O(fmt(ev)+' ล้านบาท',`ถูกต้อง ค่าคาดหวัง = (${pr[0]}% × ${x1}) + (${pr[1]}% × ${x2}) + (${pr[2]}% × ${x3}) = ${fmt(ev)} ล้านบาท`),
+  wrong:[O(fmt((x1+x2+x3)/3)+' ล้านบาท',`ผิด เพราะเฉลี่ยกำไรทั้งสามกรณีโดยไม่ถ่วงน้ำหนักด้วยความน่าจะเป็น`),
+         O(fmt((pr[0]*x1+pr[1]*x2+pr[2]*Math.abs(x3))/100)+' ล้านบาท',`ผิด เพราะนำผลขาดทุนมาเป็นบวก ทั้งที่ต้องหักออก`),
+         O(fmt(x2)+' ล้านบาท',`ผิด เพราะใช้กำไรของสถานการณ์ปกติอย่างเดียว ไม่ได้รวมอีกสองสถานการณ์`)]});}
+function gMarginPrice(){const m=pick([20,25,40,50]),k=pick([2,3,4,5,6,8]),C=(100-m)*k,P=100*k;
+  return mk({id:'g-marginprice',skill:'กำไรและต้นทุน',level:3,
+  stem:`สินค้ามีต้นทุน ${fmt(C)} บาท ผู้ขายต้องการอัตรากำไรขั้นต้น ${m}% ของราคาขาย ต้องตั้งราคาขายเท่าใด`,
+  right:O(fmt(P)+' บาท',`ถูกต้อง กำไรขั้นต้นคิดจากราคาขาย ต้นทุนจึงเป็น ${100-m}% ของราคาขาย ราคาขาย = ${fmt(C)} ÷ ${fmt((100-m)/100)} = ${fmt(P)} บาท`),
+  wrong:[O(fmt(C*(1+m/100))+' บาท',`ผิด เพราะบวก ${m}% เข้ากับต้นทุน (markup on cost) แต่โจทย์ให้คิดกำไรจากราคาขาย`),
+         O(fmt(C/(1+m/100))+' บาท',`ผิด เพราะหารด้วย 1 + ${m}% ซึ่งทำให้ราคาต่ำกว่าต้นทุนที่ต้องคืนทุนกับกำไร`),
+         O(fmt(C+m)+' บาท',`ผิด เพราะนำ ${m} มาบวกเป็นจำนวนบาท แต่ ${m} คือร้อยละ`)]});}
+function gSuccDisc(){const a=pick([10,20,30,40]),b=pick([10,20,25,30,40]),r=100-(100-a)*(100-b)/100;
+  return mk({id:'g-succdisc',skill:'ร้อยละและราคา',level:2,
+  stem:`ร้านค้าให้ส่วนลด ${a}% แล้วให้ส่วนลดเพิ่มอีก ${b}% จากราคาหลังลดครั้งแรก เทียบเท่าการลดราคาครั้งเดียวกี่เปอร์เซ็นต์`,
+  right:O(fmt(r)+'%',`ถูกต้อง ราคาที่เหลือ = ${100-a}% × ${100-b}% = ${fmt((100-a)*(100-b)/100)}% ของราคาเดิม จึงลดไป ${fmt(r)}%`),
+  wrong:[O((a+b)+'%',`ผิด เพราะนำส่วนลดมาบวกกัน แต่ส่วนลดครั้งที่สองคิดจากราคาหลังลดแล้ว`),
+         O(fmt((a+b)/2)+'%',`ผิด เพราะนำส่วนลดมาเฉลี่ยกัน ซึ่งไม่ใช่การลดซ้อนกัน`),
+         O(fmt(a*b/100)+'%',`ผิด ค่านี้คือผลคูณของสองอัตรา ไม่ใช่ส่วนลดรวม`)]});}
+function gWork(){const [a,b]=pick([[6,3],[12,4],[10,15],[20,30],[8,24],[15,10]]),t=a*b/(a+b);
+  return mk({id:'g-work',skill:'อัตราส่วน',level:2,
+  stem:`เครื่องจักร A ผลิตงานชุดหนึ่งได้เสร็จใน ${a} ชั่วโมงเมื่อเดินเครื่องลำพัง ส่วนเครื่องจักร B ใช้เวลา ${b} ชั่วโมง ถ้าเดินเครื่องทั้งสองพร้อมกัน งานชุดนี้จะเสร็จภายในกี่ชั่วโมง`,
+  right:O(fmt(t)+' ชั่วโมง',`ถูกต้อง อัตราทำงานรวมต่อชั่วโมง = 1/${a} + 1/${b} = ${fmt(1/a+1/b)} ของงานทั้งหมด จึงใช้เวลา 1 ÷ ${fmt(1/a+1/b)} = ${fmt(t)} ชั่วโมง`),
+  wrong:[O(fmt((a+b)/2)+' ชั่วโมง',`ผิด เพราะนำเวลามาเฉลี่ยกัน ทั้งที่การทำงานร่วมกันต้องเร็วกว่าเครื่องที่เร็วที่สุด`),
+         O((a+b)+' ชั่วโมง',`ผิด เพราะนำเวลามาบวกกัน เหมือนทำต่อเนื่องทีละเครื่อง`),
+         O(Math.abs(a-b)+' ชั่วโมง',`ผิด ค่านี้คือผลต่างของเวลา ไม่เกี่ยวกับเวลาที่ใช้เมื่อทำงานร่วมกัน`)]});}
+function gAvgAdd(){const m=pick([60,65,70,75,80]),d=pick([1,2,3]),s=m+10*d;if(s>100)return null;
+  return mk({id:'g-avgadd',skill:'สถิติพื้นฐาน',level:2,
+  stem:`คะแนนเฉลี่ยของนักศึกษา 9 คนเท่ากับ ${m} คะแนน เมื่อมีนักศึกษาอีก 1 คนเข้าสอบ คะแนนเฉลี่ยของทั้ง 10 คนเพิ่มเป็น ${m+d} คะแนน นักศึกษาคนที่เข้าสอบเพิ่มได้กี่คะแนน`,
+  right:O(fmt(s)+' คะแนน',`ถูกต้อง คะแนนรวม 10 คน = 10 × ${m+d} = ${10*(m+d)} คะแนนรวม 9 คน = 9 × ${m} = ${9*m} ผลต่าง = ${s} คะแนน`),
+  wrong:[O((m+d)+' คะแนน',`ผิด ค่านี้คือค่าเฉลี่ยใหม่ของทั้งกลุ่ม ไม่ใช่คะแนนของคนที่เพิ่มเข้ามา`),
+         O((m+d*2)+' คะแนน',`ผิด เพราะไม่ได้คำนึงว่าคะแนนที่เพิ่มต้องกระจายไปยัง 10 คน (ต้องคูณด้วย 10)`),
+         O(fmt(10*(m+d)-m)+' คะแนน',`ผิด เพราะลบค่าเฉลี่ยของ 9 คนโดยตรง แต่ต้องลบคะแนนรวมของ 9 คน (${9*m})`)]});}
+function gTax(){const A=pick([100,150,200])*1000,W=pick([100,150,200])*1000,B=A+W,r1=pick([5,10]),r2=pick([15,20]),Y=B+rnd(1,4)*50000,tax=W*r1/100+(Y-B)*r2/100;
+  return mk({id:'g-tax',skill:'ร้อยละและราคา',level:3,
+  chart:tbl(['เงินได้สุทธิ (บาท)','อัตราภาษี'],[[`ไม่เกิน ${fmt(A)}`,'0%'],[`${fmt(A)} – ${fmt(B)}`,r1+'%'],[`เกิน ${fmt(B)}`,r2+'%']]),
+  stem:`ภาษีแบบอัตราก้าวหน้า (คิดตามช่วงเงินได้) ผู้มีเงินได้สุทธิ ${fmt(Y)} บาท ต้องเสียภาษีรวมเท่าใด`,
+  right:O(fmt(tax)+' บาท',`ถูกต้อง ช่วงแรกยกเว้น ช่วงที่สอง ${fmt(W)} × ${r1}% = ${fmt(W*r1/100)} บาท ส่วนที่เกิน ${fmt(B)} คือ ${fmt(Y-B)} × ${r2}% = ${fmt((Y-B)*r2/100)} บาท รวม ${fmt(tax)} บาท`),
+  wrong:[O(fmt(Y*r2/100)+' บาท',`ผิด เพราะนำอัตราสูงสุดมาคิดกับเงินได้ทั้งหมด แต่ระบบก้าวหน้าใช้อัตราสูงเฉพาะส่วนที่เกินเท่านั้น`),
+         O(fmt((Y-A)*r2/100)+' บาท',`ผิด เพราะใช้อัตราสูงสุดกับเงินได้ทุกส่วนที่เกิน ${fmt(A)} ทั้งที่ช่วงกลางใช้อัตรา ${r1}%`),
+         O(fmt(W*r1/100)+' บาท',`ผิด เพราะคิดภาษีเฉพาะช่วงกลาง ลืมส่วนที่เกิน ${fmt(B)} ซึ่งต้องเสียอัตรา ${r2}%`)]});}
+function gBreakProfit(){const p=pick([150,200,250]),v=pick([80,100,120]),F=pick([200000,300000,400000]),q=pick([5000,8000,10000]),pf=q*(p-v)-F;if(pf<=0)return null;
+  return mk({id:'g-breakprofit',skill:'กำไรและต้นทุน',level:2,
+  stem:`ผลิตภัณฑ์ขายราคา ${fmt(p)} บาทต่อชิ้น ต้นทุนแปรผัน ${fmt(v)} บาทต่อชิ้น ต้นทุนคงที่รวม ${fmt(F)} บาท ถ้าขายได้ ${fmt(q)} ชิ้น จะได้กำไรสุทธิเท่าใด`,
+  right:O(fmt(pf)+' บาท',`ถูกต้อง กำไรส่วนเกินรวม = ${fmt(q)} × (${p} − ${v}) = ${fmt(q*(p-v))} บาท หักต้นทุนคงที่ ${fmt(F)} ได้ ${fmt(pf)} บาท`),
+  wrong:[O(fmt(q*p-F)+' บาท',`ผิด เพราะนำรายได้รวมหักเฉพาะต้นทุนคงที่ ลืมหักต้นทุนแปรผัน`),
+         O(fmt(q*(p-v))+' บาท',`ผิด ค่านี้คือกำไรส่วนเกินรวม ยังไม่ได้หักต้นทุนคงที่`),
+         O(fmt(q*v-F)+' บาท',`ผิด เพราะนำต้นทุนแปรผันรวมมาคิดเป็นรายได้`)]});}
+function gPercentPoint(){const a=pick([10,20,25,40]),b=a+pick([5,10,15]),d=b-a,x=d/a*100;
+  return mk({id:'g-percentpoint',skill:'ร้อยละและราคา',level:2,
+  stem:`ส่วนแบ่งตลาดของบริษัทแห่งหนึ่งเพิ่มจาก ${a}% เป็น ${b}% ข้อใดสรุปได้ถูกต้องที่สุด`,
+  right:O(`เพิ่มขึ้น ${d} เปอร์เซ็นต์พอยต์ หรือเพิ่มขึ้น ${fmt(x)}% เมื่อเทียบกับเดิม`,`ถูกต้อง ผลต่างโดยตรง = ${b} − ${a} = ${d} เปอร์เซ็นต์พอยต์ และอัตราเพิ่มเมื่อเทียบกับเดิม = ${d} ÷ ${a} × 100 = ${fmt(x)}%`),
+  wrong:[O(`เพิ่มขึ้น ${fmt(x)} เปอร์เซ็นต์พอยต์ เท่านั้น`,`ผิด เพราะสับสนระหว่างเปอร์เซ็นต์พอยต์กับร้อยละที่เพิ่มจากฐานเดิม`),
+         O(`เพิ่มขึ้น ${d}% เมื่อเทียบกับเดิม เท่านั้น`,`ผิด ${d} เป็นผลต่างของร้อยละสองค่า (เปอร์เซ็นต์พอยต์) ไม่ใช่อัตราเพิ่มจากฐานเดิม`),
+         O(`เพิ่มขึ้น ${fmt(d/b*100)}% เมื่อเทียบกับเดิม`,`ผิด เพราะใช้ค่าใหม่ (${b}%) เป็นฐาน แต่อัตราเพิ่มต้องเทียบกับค่าเดิม (${a}%)`)]});}
+function gHarmonic(){const [p1,p2,h]=pick([[20,30,24],[30,60,40],[40,60,48],[10,15,12]]),M=pick([1200,3000,6000]);
+  return mk({id:'g-harmonic',skill:'อัตราส่วน',level:3,
+  stem:`ผู้ซื้อลงทุนซื้อสินทรัพย์ชนิดเดียวกัน 2 ครั้ง ครั้งละ ${fmt(M)} บาทเท่ากัน ครั้งแรกซื้อที่ราคา ${p1} บาทต่อหน่วย ครั้งที่สองซื้อที่ราคา ${p2} บาทต่อหน่วย ราคาซื้อเฉลี่ยต่อหน่วยเป็นเท่าใด`,
+  right:O(fmt(h)+' บาท',`ถูกต้อง เงินรวม ${fmt(2*M)} บาท ได้ ${fmt(M/p1)} + ${fmt(M/p2)} = ${fmt(M/p1+M/p2)} หน่วย ราคาเฉลี่ย = ${fmt(2*M)} ÷ ${fmt(M/p1+M/p2)} = ${fmt(h)} บาท`),
+  wrong:[O(fmt((p1+p2)/2)+' บาท',`ผิด เพราะเฉลี่ยราคาตรงๆ แต่ซื้อที่ราคาต่ำได้จำนวนหน่วยมากกว่า`),
+         O(fmt(Math.sqrt(p1*p2))+' บาท',`ผิด ค่านี้คือค่าเฉลี่ยเรขาคณิต ซึ่งไม่ใช่ราคาเฉลี่ยจากการซื้อด้วยเงินเท่ากัน`),
+         O(fmt(p1*p2/(p1+p2))+' บาท',`ผิด ค่านี้เป็นเพียงครึ่งหนึ่งของราคาเฉลี่ยที่ถูกต้อง เพราะยังไม่ได้คูณด้วย 2`)]});}
+function gDeprec(){const n=pick([5,8,10]),t=pick([2,3,4]),dep=pick([20,30,40,50])*1000,S=pick([50,80,100])*1000,C=dep*n+S,bv=C-dep*t;
+  return mk({id:'g-deprec',skill:'การเงินเบื้องต้น',level:2,
+  stem:`บริษัทซื้อเครื่องจักรราคา ${fmt(C)} บาท อายุใช้งาน ${n} ปี มูลค่าซาก ${fmt(S)} บาท คิดค่าเสื่อมราคาแบบเส้นตรง มูลค่าตามบัญชีเมื่อสิ้นปีที่ ${t} เป็นเท่าใด`,
+  right:O(fmt(bv)+' บาท',`ถูกต้อง ค่าเสื่อมราคาต่อปี = (${fmt(C)} − ${fmt(S)}) ÷ ${n} = ${fmt(dep)} บาท สิ้นปีที่ ${t} สะสม ${fmt(dep*t)} บาท มูลค่าตามบัญชี = ${fmt(C)} − ${fmt(dep*t)} = ${fmt(bv)} บาท`),
+  wrong:[O(fmt(C-C/n*t)+' บาท',`ผิด เพราะคิดค่าเสื่อมจากราคาเต็ม โดยไม่หักมูลค่าซากก่อน`),
+         O(fmt(dep)+' บาท',`ผิด ค่านี้คือค่าเสื่อมราคาต่อปี ไม่ใช่มูลค่าตามบัญชี`),
+         O(fmt(dep*t)+' บาท',`ผิด ค่านี้คือค่าเสื่อมราคาสะสม ยังไม่ได้นำไปหักออกจากราคาซื้อ`)]});}
+function gQuick(){const cash=pick([100,150,200]),ar=pick([200,250,300]),inv=pick([300,400,500]),CL=pick([250,300,400,500]),q=(cash+ar)/CL;
+  return mk({id:'g-quick',skill:'การเงินเบื้องต้น',level:2,
+  chart:tbl(['รายการ','จำนวน (ล้านบาท)'],[['เงินสด',cash],['ลูกหนี้การค้า',ar],['สินค้าคงเหลือ',inv],['หนี้สินหมุนเวียน',CL]]),
+  stem:'อัตราส่วนเงินทุนหมุนเวียนเร็ว (Quick Ratio) ของบริษัทเป็นกี่เท่า (ถือว่าสินทรัพย์หมุนเวียนมีเฉพาะรายการในตาราง)',
+  right:O(fmt(q)+' เท่า',`ถูกต้อง Quick Ratio = (เงินสด + ลูกหนี้) ÷ หนี้สินหมุนเวียน = (${cash} + ${ar}) ÷ ${CL} = ${fmt(q)} เท่า โดยไม่นับสินค้าคงเหลือเพราะแปลงเป็นเงินสดได้ช้า`),
+  wrong:[O(fmt((cash+ar+inv)/CL)+' เท่า',`ผิด ค่านี้คืออัตราส่วนทุนหมุนเวียน (Current Ratio) ซึ่งรวมสินค้าคงเหลือ`),
+         O(fmt(cash/CL)+' เท่า',`ผิด ค่านี้คืออัตราส่วนเงินสด (Cash Ratio) ซึ่งนับเฉพาะเงินสด`),
+         O(fmt((ar+inv)/CL)+' เท่า',`ผิด เพราะนำสินค้าคงเหลือมารวมและตัดเงินสดออก ซึ่งตรงข้ามกับนิยามของ Quick Ratio`)]});}
+function gContribution(){const P=['A','B','C'].map(()=>({p:rnd(8,30)*10,v:0,u:rnd(2,10)*100}));P.forEach(x=>{x.v=x.p-rnd(2,Math.max(3,x.p/10-2))*10<=0?x.p/2:x.p-rnd(2,5)*10;if(x.v<=0)x.v=x.p/2;});
+  const m=P.map(x=>x.p-x.v),cm=P.map((x,i)=>m[i]*x.u),mx=Math.max(...cm),best=cm.indexOf(mx);
+  if(cm.filter(x=>x===mx).length>1||m.some(x=>x<=0)||best===m.indexOf(Math.max(...m)))return null;
+  const N=['A','B','C'];
+  return {id:'g-contribution',subj:'quant',grp:'g-contribution',skill:'กำไรและต้นทุน',level:3,src:'variant',ctx:'',
+    chart:tbl(['สินค้า','ราคาขาย (บาท/ชิ้น)','ต้นทุนแปรผัน (บาท/ชิ้น)','ปริมาณขาย (ชิ้น)'],P.map((x,i)=>[N[i],x.p,x.v,x.u])),
+    stem:'สินค้าใดให้กำไรส่วนเกินรวม (Contribution Margin) สูงที่สุด',
+    choices:N.map((n,i)=>`สินค้า ${n} (${fmt(cm[i])} บาท)`).concat(['ทั้งสามสินค้าให้ผลเท่ากัน']),ans:best,
+    why:N.map((n,i)=>(i===best?'ถูกต้อง ':'ผิด ')+`สินค้า ${n}: (${P[i].p} − ${P[i].v}) × ${fmt(P[i].u)} = ${fmt(cm[i])} บาท`+(i===best?' ซึ่งสูงที่สุด':` ซึ่งต่ำกว่าสินค้า ${N[best]} ที่ได้ ${fmt(mx)} บาท`)).concat(['ผิด เพราะกำไรส่วนเกินรวมของแต่ละสินค้าไม่เท่ากัน'])};}
+
+const GREG=[['g-price',2],['g-margin',1],['g-weighted',2],['g-compound',2],['g-break',3],['g-median',1],['g-ratio',1],['g-discount',2],['g-chartgrowth',3],['g-chartmean',1],['g-fx',3]].map(([id,lv],i)=>({id,lv,fn:GENS[i]}));
+[['g-gap',2,gGap],['g-share',2,gShare],['g-payback',3,gPayback],['g-cicompare',3,gCICompare],['g-cagr',3,gCagr],['g-fifo',3,gFifo],['g-variance',3,gVariance],['g-prob',3,gProb],['g-ev',2,gEV],['g-marginprice',3,gMarginPrice],['g-succdisc',2,gSuccDisc],['g-work',2,gWork],['g-avgadd',2,gAvgAdd],['g-tax',3,gTax],['g-breakprofit',2,gBreakProfit],['g-percentpoint',2,gPercentPoint],['g-harmonic',3,gHarmonic],['g-deprec',2,gDeprec],['g-quick',2,gQuick],['g-contribution',3,gContribution]].forEach(([id,lv,fn])=>GREG.push({id,lv,fn}));
+function makeFrom(reg){for(let t=0;t<60;t++){const q=reg.fn();if(q&&new Set(q.choices).size===4&&q.choices.every(c=>String(c).trim())&&!/NaN|undefined|Infinity/.test(JSON.stringify(q)))return q}return null}
+
 
 /* ---------- editor team: structural checks ---------- */
 function editorCheck(q){
@@ -574,7 +755,7 @@ const saveH=()=>{for(;;){try{localStorage.setItem(KEY,JSON.stringify(H));return}
 let SAMPLE=null;
 (async()=>{try{const r=await fetch('/api/generate');const j=await r.json();SAMPLE=j&&j.configured?{remote:true}:null}catch(e){SAMPLE=null}if(S&&S.view==='home')render()})();
 
-const S={view:'home',cfg:{subj:'quant',timed:false,mins:20,ai:true},run:null,prep:null,rtab:0,rfilter:'all',confirm:false,quit:false};
+const S={view:'home',cfg:{subj:'quant',timed:false,mins:20,ai:true,n:10,lv:'mix'},run:null,prep:null,rtab:0,rfilter:'all',confirm:false,quit:false};
 let timerId=null;
 
 /* ---------- building a set ---------- */
@@ -582,21 +763,29 @@ function rank(pool,n){
   const now=Date.now();
   return pool.map(x=>{const s=H.seen[x.id]||{n:0,t:0};return {x,k:s.n+(now-s.t<72*36e5?.5:0)+Math.random()*.4}}).sort((a,b)=>a.k-b.k).slice(0,n).map(o=>o.x);
 }
-function pickBase(subj,n){
+function targetCounts(n,lv){if(lv!=='mix'){const t={1:0,2:0,3:0};t[+lv]=n;return t}const c3=Math.round(n*.5),c1=Math.round(n*.1);return {1:c1,2:n-c3-c1,3:c3}}
+function choose(pool,n,lv){
+  const tc=targetCounts(n,lv),got=[],left=new Set(pool);
+  [3,2,1].forEach(l=>{rank(pool.filter(x=>x.lv===l),tc[l]).forEach(x=>{got.push(x);left.delete(x)})});
+  const need=n-got.length;
+  if(need>0){const want=lv==='mix'?3:+lv;
+    [...left].map(x=>({x,k:Math.abs(x.lv-want)*100+(H.seen[x.id]?H.seen[x.id].n:0)+Math.random()})).sort((a,b)=>a.k-b.k).slice(0,need).forEach(o=>got.push(o.x))}
+  return got;
+}
+function pickBase(subj,n,lv){
+  lv=lv||'mix';if(n<=0)return [];
   if(subj==='quant'){
-    const pool=GENS.map((_,i)=>({id:GENS[i].name,i}));
-    const ids=['gPrice','gMargin','gWeighted','gCompound','gBreak','gMedian','gRatio','gDiscount','gChartGrowth','gChartMean','gFx'];
-    const map={gPrice:'g-price',gMargin:'g-margin',gWeighted:'g-weighted',gCompound:'g-compound',gBreak:'g-break',gMedian:'g-median',gRatio:'g-ratio',gDiscount:'g-discount',gChartGrowth:'g-chartgrowth',gChartMean:'g-chartmean',gFx:'g-fx'};
-    const p=pool.map(o=>({id:map[o.id],i:o.i}));
-    return rank(p,n).map(o=>makeVariant(o.i)).filter(Boolean);
+    const ch=choose(GREG.map(r=>({id:r.id,lv:r.lv,r})),n,lv);
+    return shuffle(ch.map(o=>{const q=makeFrom(o.r);if(q)q.level=o.lv;return q}).filter(Boolean));
   }
-  const pool=BANK.filter(q=>q.subj===subj);
-  const chosen=rank(pool,n).map(reshuffle);
+  const pool=BANK.filter(q=>q.subj===subj).map(q=>({id:q.id,lv:q.level,q}));
+  const chosen=choose(pool,n,lv).map(o=>reshuffle(o.q));
   const groups=[];
   chosen.forEach(q=>{let g=groups.find(x=>x.k===q.grp);if(!g){g={k:q.grp,items:[]};groups.push(g)}g.items.push(q)});
   return shuffle(groups).flatMap(g=>g.items);
 }
-function aiPrompt(subj,n){
+const lvText=lv=>({'1':'ระดับง่าย','2':'ระดับปานกลาง','3':'ระดับยาก เทียบข้อสอบวัดความสามารถจริงที่ต้องคิดหลายขั้นตอน มีตัวเลือกลวงที่น่าสับสน','mix':'ผสมหลายระดับ เน้นข้อยาก (ราวครึ่งหนึ่ง) ที่ต้องคิดหลายขั้นตอน'}[String(lv)]||'');
+function aiPrompt(subj,n,lv){
   const base={
    quant:'สร้างโจทย์วิเคราะห์เชิงปริมาณทางธุรกิจ ระดับมัธยมปลาย ต้องคิดคำนวณด้วยมือได้ ใช้ตัวเลขกลมๆ มีคำตอบเดียวที่ถูกต้อง ให้คำนวณซ้ำสองรอบก่อนเลือกคำตอบ ห้ามต้องใช้รูปภาพประกอบ ถ้ามีตารางให้เขียนเป็นข้อความในโจทย์',
    qual:'สร้างโจทย์วิเคราะห์เชิงคุณภาพทางธุรกิจ โดยเขียนข้อความสั้นแนวข่าวธุรกิจหรือเศรษฐกิจ 90-140 คำ (เป็นสถานการณ์สมมติ ห้ามอ้างบริษัทหรือบุคคลจริง) ใส่ในช่อง ctx แล้วถามเรื่องการจับใจความ เชื่อมโยงข้อมูล หรือแยกข้อเท็จจริงกับความคิดเห็น ถ้าสร้างหลายข้อจากข้อความเดียว ให้ ctx เหมือนกันทุกตัวอักษร',
@@ -605,15 +794,15 @@ function aiPrompt(subj,n){
   const avoid=H.aiStems.slice(-8).map(s=>'- '+s).join('\n');
   return `${base}
 
-จำนวน ${n} ข้อ แต่ละข้อมี 4 ตัวเลือก มีข้อถูกเพียงข้อเดียว ตัวเลือกยาวใกล้เคียงกัน ห้ามใช้ "ทุกข้อ" หรือ "ไม่มีข้อใดถูก" ห้ามให้คำถามมีข้อมูลชี้นำคำตอบ
+จำนวน ${n} ข้อ ${lvText(lv)} แต่ละข้อมี 4 ตัวเลือก มีข้อถูกเพียงข้อเดียว ตัวเลือกยาวใกล้เคียงกัน ห้ามใช้ "ทุกข้อ" หรือ "ไม่มีข้อใดถูก" ห้ามให้คำถามมีข้อมูลชี้นำคำตอบ
 ในช่อง why ให้เขียนภาษาไทยอธิบายตัวเลือกแต่ละข้อตามลำดับเดียวกับ choices ข้อถูกขึ้นต้นด้วย "ถูกต้อง" ข้อผิดขึ้นต้นด้วย "ผิด" พร้อมเหตุผล
 ${avoid?'หลีกเลี่ยงโจทย์ที่คล้ายกับรายการนี้:\n'+avoid+'\n':''}
 ตอบเป็น JSON array เท่านั้น แต่ละรายการมีฟิลด์: skill (ชื่อทักษะภาษาไทยสั้นๆ), level (1 ง่าย 2 ปานกลาง 3 ยาก), ctx (ข้อความประกอบ หรือ ""), stem, choices (array 4 ข้อ), ans (ดัชนี 0-3 ของข้อถูก), why (array 4 ข้อความ)`;
 }
-async function genAI(subj,n){
+async function genAI(subj,n,lv){
   if(!SAMPLE||n<=0)return {items:[],dropped:0,failed:false};
   try{
-    const resp=await fetch('/api/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({subj,n,avoid:H.aiStems.slice(-8)})});
+    const resp=await fetch('/api/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({subj,n,lv,avoid:H.aiStems.slice(-8)})});
     if(!resp.ok)throw new Error('http '+resp.status);
     const raw=await resp.json();
     const arr=Array.isArray(raw)?raw:(Array.isArray(raw?.items)?raw.items:[]);
@@ -629,11 +818,11 @@ async function genAI(subj,n){
     return {items:g.flatMap(a=>a.items),dropped,failed:false};
   }catch(e){return {items:[],dropped:0,failed:true}}
 }
-async function buildSet(subj,useAI){
-  const want=useAI&&SAMPLE?5:0;
-  const ai=await genAI(subj,want);
-  const base=pickBase(subj,10-ai.items.length);
-  return {qs:[...base,...ai.items],ai:ai.items.length,dropped:ai.dropped,failed:ai.failed,asked:want};
+async function buildSet(subj,useAI,N,lv){
+  const k=useAI&&SAMPLE?(N>=10?5:Math.min(5,Math.floor(N/2))):0;
+  const ai=await genAI(subj,k,lv);
+  const base=pickBase(subj,N-ai.items.length,lv);
+  return {qs:[...base,...ai.items],ai:ai.items.length,dropped:ai.dropped,failed:ai.failed,asked:k};
 }
 
 /* ---------- run control ---------- */
@@ -642,7 +831,7 @@ async function startRun(){
   S.view='prep';S.quit=false;S.confirm=false;S.hist=0;S.tool='';S.calc=newCalc();toolsSig='';
   S.prep=TEAMS.map((t,i)=>({...t,state:i===0?'run':'wait',note:i===0?(c.ai&&SAMPLE?'กำลังเลือกข้อสอบจากคลัง และให้ทีมคิดโจทย์ใหม่':'กำลังเลือกข้อสอบจากคลัง'):''}));
   render();
-  const sets=await Promise.all(subjects.map(s=>buildSet(s,c.ai)));
+  const sets=await Promise.all(subjects.map(s=>buildSet(s,c.ai,c.subj==='all'?30:c.n,c.lv)));
   const all=sets.flatMap(s=>s.qs),bp=blueprint(all);
   const ai=sets.reduce((a,s)=>a+s.ai,0),dropped=sets.reduce((a,s)=>a+s.dropped,0),failed=sets.some(s=>s.failed);
   const notes=[
@@ -726,7 +915,9 @@ function vHome(){
    <div class="card"><div class="lbl">2. ตั้งค่าการทำข้อสอบ</div>
     ${all?`<p>${ic('clock')} จับเวลาวิชาละ 40 นาที ตามลำดับ เชิงปริมาณ → เชิงคุณภาพ → ภาษาอังกฤษ เมื่อหมดเวลาหรือกดส่งแล้ว จะกลับไปแก้วิชานั้นไม่ได้ และจะดูเฉลยได้เมื่อจบครบทั้ง 3 วิชา</p>`:
     `<div class="opts"><div class="seg" role="group" aria-label="จับเวลา"><button data-a="timed" data-v="0" aria-pressed="${!c.timed}">ไม่จับเวลา</button><button data-a="timed" data-v="1" aria-pressed="${c.timed}">จับเวลา</button></div>
-    ${c.timed?`<label>เวลา <select id="mins" data-a="mins">${[10,15,20,30,40].map(m=>`<option value="${m}" ${c.mins===m?'selected':''}>${m} นาที</option>`).join('')}</select></label>`:''}</div>`}
+    ${c.timed?`<label>เวลา <select id="mins" data-a="mins">${[10,15,20,30,40,60].map(m=>`<option value="${m}" ${c.mins===m?'selected':''}>${m} นาที</option>`).join('')}</select></label>`:''}</div>`}
+    ${all?`<p class="note" style="margin-top:12px">ข้อละ 10 คะแนน เต็มวิชาละ 300 คะแนน (30 ข้อ) ข้อสอบเชิงคุณภาพและภาษาอังกฤษในคลังยังมีไม่ครบ 30 ข้อ ระบบจึงใช้เท่าที่มี (บวกข้อ AI ถ้าเปิดใช้)</p>`:`<div class="opts" style="margin-top:16px"><b>จำนวนข้อ</b><div class="seg" role="group" aria-label="จำนวนข้อ">${[5,10,15,20,30].map(x=>`<button data-a="n" data-v="${x}" aria-pressed="${c.n===x}">${x}</button>`).join('')}</div></div>${c.subj==='quant'?'':`<p class="note" style="margin-top:6px">ในคลังมี ${BANK.filter(q=>q.subj===c.subj).length} ข้อ ถ้าเลือกเกินนี้ ระบบจะใช้เท่าที่มี (บวกข้อ AI ถ้าเปิดใช้)</p>`}`}
+    <div class="opts" style="margin-top:12px"><b>ความยาก</b><div class="seg" role="group" aria-label="ความยาก">${[['mix','ผสม (เน้นยาก)'],['1','ง่าย'],['2','ปานกลาง'],['3','ยาก']].map(([k,t])=>`<button data-a="lv" data-v="${k}" aria-pressed="${String(c.lv)===k}">${t}</button>`).join('')}</div></div>
     <div class="chk" style="margin-top:16px"><input type="checkbox" id="ai" data-a="ai" ${c.ai&&SAMPLE?'checked':''} ${SAMPLE?'':'disabled'}><label for="ai">ให้ทีมวิชาการคิดโจทย์ใหม่ ${all?'วิชาละ ':''}5 ข้อ ด้วย Gemini<br><span class="note">${SAMPLE?'ที่เหลือเป็นข้อจากคลังและข้อที่ปรับตัวเลขใหม่':'ยังไม่ได้เชื่อมต่อ Gemini ระบบจะใช้ข้อจากคลังและข้อที่ปรับตัวเลขใหม่'}</span></label></div>
     <div class="row2"><button class="btn pri start" data-a="start">${ic('play')}เริ่มทำข้อสอบ</button></div></div>
   </div><aside class="stack">
@@ -735,7 +926,7 @@ function vHome(){
   </aside></div>`;
 }
 function vPrep(){
-  return `<section class="prep card"><h2>กำลังจัดชุดข้อสอบ</h2><p class="note" style="margin-bottom:12px">${S.cfg.subj==='all'?'3 วิชา วิชาละ 10 ข้อ':SUBJ[S.cfg.subj].th+' 10 ข้อ'}</p>
+  return `<section class="prep card"><h2>กำลังจัดชุดข้อสอบ</h2><p class="note" style="margin-bottom:12px">${S.cfg.subj==='all'?'3 วิชา วิชาละสูงสุด 30 ข้อ':SUBJ[S.cfg.subj].th+' · '+S.cfg.n+' ข้อ'}</p>
   ${S.prep.map(p=>`<div class="prow ${p.state}"><span class="st">${p.state==='done'?ic('check'):''}</span><div><b>${p.n}</b><span>${esc(p.note||p.d)}</span></div></div>`).join('')}</section>`;
 }
 function palInner(st,R,i,un,fl){return `<div class="lbl">รายการข้อ</div><div class="grid">${st.qs.map((_,k)=>`<button class="gq ${st.ans[k]>=0?'ans':''} ${k===i?'cur':''} ${st.flag[k]?'flag':''}" data-a="go" data-v="${k}" aria-label="ข้อ ${k+1}${st.ans[k]>=0?' ตอบแล้ว':''}${st.flag[k]?' ปักธง':''}">${k+1}</button>`).join('')}</div>
@@ -766,6 +957,27 @@ function vBetween(){
   <p class="note" style="margin-top:12px">เวลาจะเริ่มนับเมื่อกดปุ่มด้านล่าง และเมื่อเริ่มแล้วจะกลับไปแก้วิชาก่อนหน้าไม่ได้</p>
   <div class="row2"><button class="btn pri" data-a="nextstage">เริ่มวิชา${SUBJ[next.subj].short}${ic('right')}</button></div></div></section>`;
 }
+function fullSummary(R){
+  const tot=R.stages.reduce((a,s)=>a+score(s)*10,0),mx=R.stages.reduce((a,s)=>a+s.qs.length*10,0);
+  const rows=R.stages.map(s=>{const p=score(s)*10,m=s.qs.length*10;return `<div class="sm"><div class="smh"><b>${SUBJ[s.subj].th}</b><span>${p}/${m} คะแนน</span></div><div class="bar rb"><i style="width:${m?p/m*100:0}%"></i></div></div>`}).join('');
+  return `<div class="card" style="margin-top:16px"><div class="lbl">สรุปคะแนน Full Mock Test (ข้อละ 10 คะแนน)</div>${rows}<p class="note" style="margin-top:10px">รวมทั้งหมด ${tot}/${mx} คะแนน</p></div>`;
+}
+function reportHtml(st){
+  const sk={};st.qs.forEach((q,i)=>{const a=sk[q.skill]||(sk[q.skill]={n:0,c:0});a.n++;if(st.ans[i]===q.ans)a.c++});
+  const list=Object.entries(sk).map(([k,v])=>({k,n:v.n,c:v.c,p:Math.round(v.c/v.n*100)})).sort((a,b)=>b.p-a.p||b.n-a.n);
+  const lvl=[1,2,3].map(l=>{const ix=st.qs.map((q,i)=>q.level===l?i:-1).filter(i=>i>=0),c=ix.filter(i=>st.ans[i]===st.qs[i].ans).length;return {l,n:ix.length,c,p:ix.length?Math.round(c/ix.length*100):0}}).filter(x=>x.n);
+  const strong=list.filter(x=>x.p>=70&&x.n>=2).slice(0,3);
+  const weak=list.filter(x=>x.p<50&&x.n>=2).sort((a,b)=>a.p-b.p||b.n-a.n).slice(0,3);
+  const row=(t,c,n,p)=>`<div class="rr"><span>${esc(t)} <small>(${c}/${n})</small></span><div class="bar rb"><i style="width:${p}%"></i></div><b>${p}%</b></div>`;
+  const li=a=>a.length?a.map(x=>`<li>${esc(x.k)} <small>${x.p}% (${x.c}/${x.n} ข้อ)</small></li>`).join(''):'<li class="note">ยังไม่พบรายการที่ชัดเจน (ต้องมีอย่างน้อย 2 ข้อต่อทักษะ)</li>';
+  const hard=lvl.find(x=>x.l===3),easy=lvl.find(x=>x.l===1||x.l===2);
+  const tip=weak.length?`ควรทบทวน "${esc(weak[0].k)}" ก่อน เพราะได้เพียง ${weak[0].p}%`:(hard&&easy&&easy.p-hard.p>=30?'ข้อยากยังเป็นจุดอ่อน ลองฝึกโจทย์หลายขั้นตอนเพิ่ม':'ผลค่อนข้างสม่ำเสมอ ลองเพิ่มระดับความยากเพื่อท้าทายตัวเอง');
+  return `<div class="card" style="margin-top:16px"><div class="lbl">${ic('target')} รายงานจุดแข็งและจุดอ่อน · ${SUBJ[st.subj].short}</div>
+   ${list.map(x=>row(x.k,x.c,x.n,x.p)).join('')}
+   <div class="lbl" style="margin-top:14px">ตามระดับความยาก</div>${lvl.map(x=>row('ระดับ'+LV[x.l],x.c,x.n,x.p)).join('')}
+   <div class="rs"><div><b>จุดแข็ง</b><ul>${li(strong)}</ul></div><div><b>จุดที่ควรทบทวน</b><ul>${li(weak)}</ul></div></div>
+   <p class="note" style="margin-top:8px">${tip}</p></div>`;
+}
 function vResult(){
   const R=S.run,st=R.stages[S.rtab],tot=R.stages.reduce((a,s)=>a+score(s),0),cnt=R.stages.reduce((a,s)=>a+s.qs.length,0);
   const sc=score(st),bp=blueprint(st.qs),sk=Object.keys(bp.sk);
@@ -774,10 +986,12 @@ function vResult(){
   const list=st.qs.map((q,i)=>({q,i})).filter(({q,i})=>S.rfilter==='all'||st.ans[i]!==q.ans);
   const stt=q=>H.stats[q.id];
   return `<section style="padding-top:24px">
-   <div class="card"><div class="score"><div><div class="lbl">${R.mode==='all'?'คะแนนรวม '+R.stages.length+' วิชา':'คะแนน'}${S.hist?' · ดูย้อนหลัง '+new Date(S.hist).toLocaleString('th-TH',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}):''}</div><div class="big">${R.mode==='all'?tot:sc}<small>/${R.mode==='all'?cnt:st.qs.length}</small></div></div>
-   <div><b>${SUBJ[st.subj].th}</b><br><span class="note">${R.mode==='all'?`วิชานี้ ${sc}/${st.qs.length} · `:''}ใช้เวลา ${mmss(st.used)}${st.auto?' (หมดเวลา)':''}</span></div></div>
+   <div class="card"><div class="score"><div><div class="lbl">${R.mode==='all'?'คะแนนรวม '+R.stages.length+' วิชา':'คะแนน'}${S.hist?' · ดูย้อนหลัง '+new Date(S.hist).toLocaleString('th-TH',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}):''}</div><div class="big">${R.mode==='all'?tot*10:sc}<small>/${R.mode==='all'?cnt*10:st.qs.length}</small></div></div>
+   <div><b>${SUBJ[st.subj].th}</b><br><span class="note">${R.mode==='all'?`วิชานี้ ${sc*10}/${st.qs.length*10} คะแนน · `:''}ใช้เวลา ${mmss(st.used)}${st.auto?' (หมดเวลา)':''}</span></div></div>
    <div class="row2">${S.hist?'':`<button class="btn pri" data-a="again">${ic('redo')}ทำชุดใหม่</button>`}<button class="btn" data-a="leave">${ic('home')}หน้าแรก</button></div></div>
-   ${R.mode==='all'?`<div class="tabs">${R.stages.map((s,i)=>`<button data-a="rtab" data-v="${i}" aria-pressed="${i===S.rtab}">${SUBJ[s.subj].short} ${score(s)}/${s.qs.length}</button>`).join('')}</div>`:''}
+   ${R.mode==='all'?fullSummary(R):''}
+   ${R.mode==='all'?`<div class="tabs">${R.stages.map((s,i)=>`<button data-a="rtab" data-v="${i}" aria-pressed="${i===S.rtab}">${SUBJ[s.subj].short} ${score(s)*10}/${s.qs.length*10}</button>`).join('')}</div>`:''}
+   ${reportHtml(st)}
    <div class="card" style="margin-top:16px"><div class="lbl">${ic('target')} สรุปตามทักษะ (ผังข้อสอบของชุดนี้)</div>
     <div class="scroll"><table class="tbl"><thead><tr><th>ทักษะ</th><th>ข้อ</th><th>ถูก</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>
     <p class="note" style="margin-top:10px">ระดับความยากของชุด: ง่าย ${bp.lv[1]} · ปานกลาง ${bp.lv[2]} · ยาก ${bp.lv[3]} ข้อ ค่าความยากจากสถิติจริงของแต่ละข้อ (สัดส่วนผู้ตอบถูก) จะนับจากประวัติของคุณเท่านั้น ส่วนอำนาจจำแนกต้องใช้ข้อมูลผู้สอบหลายคน จึงยังคำนวณไม่ได้ในแอปนี้</p></div>
@@ -1001,6 +1215,8 @@ document.addEventListener('click',e=>{
   const a=b.dataset.a,v=b.dataset.v,R=S.run,st=R&&R.stages[R.cur];
   switch(a){
     case'subj':S.cfg.subj=v;render();break;
+    case'n':S.cfg.n=+v;render();break;
+    case'lv':S.cfg.lv=v;render();break;
     case'timed':S.cfg.timed=v==='1';render();break;
     case'start':startRun();break;
     case'pick':st.ans[st.qi]=+v;render();break;
