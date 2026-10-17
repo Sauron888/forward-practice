@@ -221,14 +221,16 @@ body.exam .timer.warn{font-weight:700;border-width:2px}
 /* tools */
 .tx{background:#C3002F;border-color:#8F0022;color:#fff}
 .tx:hover{background:#A50027}
-.tp.calc{background:#202125;border:1px solid #0b0b0c;border-radius:14px 14px 24px 24px;color:#e9e9e9;padding:12px 12px 16px;box-shadow:0 14px 34px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,255,255,.08)}
+.tp.calc{width:min(300px,calc(100vw - 32px));background:linear-gradient(#2b2d31,#18191b);border:1px solid #000;border-radius:16px 16px 26px 26px;color:#e9e9e9;padding:12px 14px 18px;box-shadow:0 14px 34px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.1)}
 .tp.calc .th b{color:#cfcfd2}
-.tp.calc .cd{background:linear-gradient(#c4cfb3,#aebb9c);border:3px solid #0b0b0c;border-radius:6px;box-shadow:inset 0 3px 8px rgba(0,0,0,.35);color:#18200f}
+.tp.calc .solar{height:14px;margin:0 auto 8px;width:46%;border-radius:3px;background:repeating-linear-gradient(90deg,#3a2f26 0 14px,#241c16 14px 16px);border:1px solid #0b0b0c;box-shadow:inset 0 1px 2px rgba(255,255,255,.12)}
+.tp.calc .cd{background:linear-gradient(#cbd5bb,#b4c0a2);border:3px solid #0b0b0c;border-radius:6px;box-shadow:inset 0 3px 8px rgba(0,0,0,.35);color:#18200f}
 .tp.calc .ce{color:#4b5a3d}.tp.calc .cr{color:#18200f}
-.tp.calc .ky{background:linear-gradient(#fbfbf9,#d6d6d1);color:#15161a;border:1px solid #858589;border-bottom:3px solid #6e6e72;border-radius:7px;font-weight:600}
-.tp.calc .ky.op{background:linear-gradient(#5d6066,#3c3e43);color:#f3f3f3;border-color:#111;border-bottom-color:#050506}
-.tp.calc .ky.fn{background:linear-gradient(#e2545a,#b3222a);color:#fff;border-color:#6d1015;border-bottom-color:#4e0a0e;font-family:var(--f-body)}
-.tp.calc .ky.eq{background:linear-gradient(#f7b84e,#e08f1a);color:#1a1205;border-color:#8a5a0a;border-bottom-color:#6a4306}
+.tp.calc .ck{grid-template-columns:repeat(5,minmax(0,1fr));gap:7px}
+.tp.calc .ky{min-height:44px;background:linear-gradient(#f2f2f0,#c9cacc);color:#15161a;border:1px solid #6d6e72;border-bottom:3px solid #4d4e52;border-radius:8px;font-weight:700;font-size:17px}
+.tp.calc .ky.op{background:linear-gradient(#5a5d63,#37393e);color:#f3f3f3;border-color:#0c0c0d;border-bottom-color:#000;font-size:15px}
+.tp.calc .ky.fn{background:linear-gradient(#f0953a,#cf6a14);color:#fff;border-color:#7a3a05;border-bottom-color:#5c2a02;font-family:var(--f-body);font-size:15px}
+.tp.calc .ky.eq{background:linear-gradient(#5a5d63,#37393e);color:#ffd13f;border-color:#0c0c0d;border-bottom-color:#000;font-size:20px}
 .tp.calc .ky:active{transform:translateY(1px);border-bottom-width:2px}
 .tp.calc .note{color:#9b9ba1}
 .tp.padp{background:#FFFBEA;border-color:#E2D5A2;color:#2a2a26}
@@ -527,7 +529,95 @@ B('en-a1c','eng','ar1','อ่านบทความ',2,AR1,'In the last sente
  ['adaptable','ถูกต้อง flexible แปลว่า ยืดหยุ่น ปรับให้เข้ากับสถานการณ์ได้ ใกล้เคียงกับ adaptable'],
  [['rigid','ผิด rigid แปลว่า ตายตัว ตรงข้ามกับ flexible'],['expensive','ผิด expensive แปลว่า แพง ไม่เกี่ยวกับความหมาย'],['temporary','ผิด temporary แปลว่า ชั่วคราว ไม่ใช่ความหมายของ flexible']])
 ];
-const BANK=[...QUAL,...ENG];
+/* ---------- extra banks: scenario-driven qualitative + English (stable ids) ---------- */
+const QB=(id,g,sk,lv,ctx,stem,ok,okw,ws)=>B(id,'qual',g,sk,lv,ctx,stem,[ok,'ถูกต้อง '+okw],ws.map(w=>[w[0],'ผิด '+w[1]]));
+const GROW=[
+['บริษัทขนส่งแห่งหนึ่ง','รายได้จากบริการส่งพัสดุ',400,520,'การขยายคลังสินค้าในภาคเหนือ','ค่าน้ำมันที่สูงขึ้นอาจทำให้กำไรไม่เพิ่มตามรายได้'],
+['เครือร้านอาหารไทย','ยอดขายสาขาในห้างสรรพสินค้า',150,210,'เมนูใหม่สำหรับกลุ่มคนทำงาน','การแข่งขันจากร้านรูปแบบใหม่จะรุนแรงขึ้นในปีหน้า'],
+['ผู้ผลิตเครื่องใช้ไฟฟ้ารายหนึ่ง','ยอดส่งออกไปอาเซียน',800,920,'ค่าเงินบาทที่อ่อนลง','ความต้องการจากตลาดหลักน่าจะชะลอตัวลง'],
+['แพลตฟอร์มเรียนออนไลน์แห่งหนึ่ง','รายได้จากค่าสมาชิก',60,96,'หลักสูตรใหม่ด้านการเงินส่วนบุคคล','ผู้ใช้ใหม่จำนวนมากอาจยกเลิกสมาชิกหลังหมดโปรโมชัน']];
+const POL=[
+['กระทรวงพาณิชย์','ปรับขึ้นราคาค่าบริการขนส่งสาธารณะ',10,30,'ต้นทุนเชื้อเพลิงและค่าบำรุงรักษาเพิ่มขึ้น','ผู้โดยสารประจำ','ค่าใช้จ่ายรายเดือนจะเพิ่มขึ้น','นักเศรษฐศาสตร์ท่านหนึ่ง','ควรปรับปรุงคุณภาพบริการก่อนขึ้นราคา'],
+['การประปา','ปรับขึ้นอัตราค่าน้ำสำหรับภาคธุรกิจ',8,25,'ต้องลงทุนปรับปรุงท่อส่งน้ำที่เสื่อมสภาพ','สมาคมโรงแรม','ต้นทุนการดำเนินงานจะสูงขึ้น','ผู้เชี่ยวชาญด้านทรัพยากรน้ำ','การลงทุนควรมาจากงบประมาณมากกว่าผู้ใช้น้ำ'],
+['กรมสรรพสามิต','ปรับขึ้นอัตราภาษีเครื่องดื่มที่มีน้ำตาลสูง',20,15,'ต้องการลดการบริโภคน้ำตาลของประชาชน','ผู้ผลิตเครื่องดื่ม','ยอดขายมีแนวโน้มลดลง','นักโภชนาการท่านหนึ่ง','มาตรการนี้ได้ผลน้อยหากไม่มีการให้ความรู้ควบคู่กัน'],
+['ท่าอากาศยาน','ปรับขึ้นค่าธรรมเนียมที่จอดรถระยะยาว',12,200,'ที่จอดรถหนาแน่นในช่วงเทศกาล','ผู้เดินทางบ่อย','ค่าเดินทางต่อครั้งจะสูงขึ้น','ที่ปรึกษาด้านการขนส่ง','ควรเพิ่มระบบรถรับส่งแทนการขึ้นราคา']];
+const SUR=[
+['รูปแบบการทำงานที่ต้องการ',500,['ทำงานแบบผสม',46],['ทำงานที่สำนักงานเต็มเวลา',34],['ทำงานที่บ้านเต็มเวลา']],
+['ช่องทางชำระเงินที่ใช้บ่อยที่สุด',400,['โอนผ่านแอปธนาคาร',55],['เงินสด',27],['บัตรเครดิต']],
+['สื่อที่ใช้ติดตามข่าวธุรกิจ',200,['โซเชียลมีเดีย',48],['เว็บไซต์ข่าว',32],['โทรทัศน์']],
+['เหตุผลหลักที่เลือกซื้อสินค้าออนไลน์',600,['ราคาถูกกว่า',45],['สะดวกสบาย',35],['มีโปรโมชัน']]];
+function pct1(x){return fmt(x)}
+const XQ=[];
+GROW.forEach((c,i)=>{const [org,prod,a,b,cause,crit]=c,g='qg-gr-'+i,pc=(b-a)/a*100;
+  const ctx=`${org}รายงานว่า${prod}ในปีนี้เพิ่มขึ้นจาก ${a} ล้านบาท เป็น ${b} ล้านบาท ผู้บริหารระบุว่าผลลัพธ์นี้เกิดจาก${cause} ขณะที่นักวิเคราะห์ให้ความเห็นว่า${crit} อย่างไรก็ตาม บริษัทยังไม่เปิดเผยตัวเลขกำไรสุทธิ`;
+  XQ.push(QB(g+'-1',g,'เชื่อมโยงข้อมูล',2,ctx,`${prod}เพิ่มขึ้นร้อยละเท่าใด เมื่อเทียบกับปีก่อน`,pct1(pc)+'%',`ส่วนที่เพิ่ม = ${b} − ${a} = ${b-a} ล้านบาท หารด้วยยอดปีก่อน ${a} แล้วคูณ 100 = ${pct1(pc)}%`,
+   [[pct1((b-a)/b*100)+'%','เพราะนำส่วนที่เพิ่มไปหารด้วยยอดปีนี้ ต้องหารด้วยยอดปีก่อน'],[pct1(b/a*100)+'%','ค่านี้คือยอดปีนี้เทียบกับยอดปีก่อน ยังไม่ได้หักฐานเดิม 100%'],[(b-a)+'%','เพราะนำจำนวนเงินที่เพิ่ม (ล้านบาท) มาตอบเป็นร้อยละ ซึ่งหน่วยไม่ตรงกัน']]));
+  XQ.push(QB(g+'-2',g,'แยกข้อเท็จจริง/ความเห็น',2,ctx,'ข้อใดเป็นความคิดเห็น ไม่ใช่ข้อเท็จจริง',crit,'เป็นการคาดการณ์/ประเมินของนักวิเคราะห์ ซึ่งยังตรวจสอบเป็นจริงหรือเท็จโดยตรงไม่ได้',
+   [[`${prod}เพิ่มจาก ${a} เป็น ${b} ล้านบาท`,'เป็นตัวเลขที่ตรวจสอบได้ จึงเป็นข้อเท็จจริง'],['บริษัทยังไม่เปิดเผยตัวเลขกำไรสุทธิ','เป็นข้อมูลที่ตรวจสอบได้จากรายงานของบริษัท จึงเป็นข้อเท็จจริง'],[`${prod}ปีนี้สูงกว่าปีก่อน`,'เป็นข้อเท็จจริงที่เทียบจากตัวเลขสองปีได้']]));
+  XQ.push(QB(g+'-3',g,'จับใจความสำคัญ',1,ctx,'ข้อใดที่ข้อความนี้ไม่ได้ให้ข้อมูล','อัตรากำไรสุทธิของบริษัท','ข้อความระบุชัดว่ายังไม่เปิดเผยตัวเลขกำไรสุทธิ',
+   [[`ตัวเลข${prod}ของปีนี้`,`ข้อความระบุไว้ว่า ${b} ล้านบาท`],['สาเหตุตามที่ผู้บริหารระบุ',`ข้อความระบุไว้ว่าเกิดจาก${cause}`],['ความเห็นของนักวิเคราะห์','ข้อความระบุความเห็นไว้แล้ว']]));
+  XQ.push(QB(g+'-4',g,'เชื่อมโยงข้อมูล',3,ctx,'ข้อสรุปใดสมเหตุสมผลน้อยที่สุดตามข้อความ','กำไรสุทธิของบริษัทเพิ่มขึ้นในอัตราเท่ากับรายได้อย่างแน่นอน','ข้อความไม่มีข้อมูลกำไร จึงสรุปเช่นนี้ไม่ได้',
+   [[`${prod}ของบริษัทเติบโตเป็นบวก`,'สอดคล้องกับตัวเลขที่เพิ่มขึ้น'],['มีความเห็นเตือนถึงความเสี่ยงต่อธุรกิจในอนาคต','นักวิเคราะห์แสดงข้อกังวลไว้ในข้อความ'],['ผู้บริหารเชื่อว่าการเติบโตเกี่ยวข้องกับ'+cause,'ผู้บริหารระบุสาเหตุนี้ไว้โดยตรง']]));
+});
+POL.forEach((c,i)=>{const [ag,pol,p,base,rs,ga,ea,ex,cn]=c,g='qg-po-'+i,nv=base*(1+p/100);
+  const ctx=`${ag}ประกาศ${pol} ร้อยละ ${p} จากเดิม ${base} บาท โดยให้เหตุผลว่า${rs} ${ga}ระบุว่า${ea} ส่วน${ex}เห็นว่า${cn}`;
+  XQ.push(QB(g+'-1',g,'จับใจความสำคัญ',1,ctx,'หน่วยงานที่ประกาศนโยบายให้เหตุผลข้อใด',rs,'เป็นเหตุผลที่ข้อความระบุว่ามาจากหน่วยงานผู้ประกาศ',
+   [[ea,`นี่คือสิ่งที่${ga}ระบุ ไม่ใช่เหตุผลของผู้ประกาศนโยบาย`],[cn,`นี่คือความเห็นของ${ex}`],['ต้องการเพิ่มรายได้ให้หน่วยงานโดยไม่มีเหตุผลอื่น','ข้อความไม่ได้ระบุเหตุผลนี้']]));
+  XQ.push(QB(g+'-2',g,'แยกข้อเท็จจริง/ความเห็น',2,ctx,`ท่าทีของ${ex}ต่อนโยบายนี้คือข้อใด`,'มีข้อกังวลและเสนอแนวทางอื่น','ข้อความระบุว่าเห็นว่า'+cn,
+   [['สนับสนุนโดยไม่มีเงื่อนไข','ข้อความแสดงข้อกังวลและข้อเสนอ ไม่ใช่การสนับสนุนทั้งหมด'],['เป็นผู้ประกาศนโยบายเอง','ผู้ประกาศคือ'+ag],['ไม่แสดงความเห็นใดๆ','ข้อความระบุความเห็นไว้ชัดเจน']]));
+  XQ.push(QB(g+'-3',g,'เชื่อมโยงข้อมูล',2,ctx,'หลังการปรับตามนโยบาย ค่าใช้จ่ายใหม่เป็นเท่าใด',fmt(nv)+' บาท',`${base} × (1 + ${p/100}) = ${fmt(nv)} บาท`,
+   [[fmt(base+p)+' บาท',`เพราะนำ ${p} ซึ่งเป็นร้อยละมาบวกเป็นจำนวนบาท`],[fmt(base*p/100)+' บาท','ค่านี้คือส่วนที่เพิ่มขึ้นเท่านั้น ยังไม่รวมราคาเดิม'],[fmt(base*Math.pow(1+p/100,2))+' บาท','เพราะปรับขึ้นซ้ำสองครั้ง แต่นโยบายปรับเพียงครั้งเดียว']]));
+  XQ.push(QB(g+'-4',g,'แยกข้อเท็จจริง/ความเห็น',3,ctx,'ข้อใดเป็นข้อเท็จจริงตามข้อความ',`${ag}ประกาศ${pol} ร้อยละ ${p}`,'เป็นเหตุการณ์ที่เกิดขึ้นแล้วและตรวจสอบได้',
+   [[`${ga}ระบุว่า${ea}`,'ตามข้อความเป็นข้อมูลที่กลุ่มดังกล่าวระบุถึงผลที่ตามมา ซึ่งเป็นการคาดการณ์ ยังไม่ใช่ข้อเท็จจริงที่เกิดขึ้น'],[`${ex}เห็นว่า${cn}`,`เป็นความเห็นของ${ex}`],['นโยบายนี้เป็นประโยชน์ต่อทุกฝ่ายอย่างแน่นอน','ไม่มีข้อมูลสนับสนุน และมีผู้ที่กังวลต่อนโยบายนี้']]));
+});
+SUR.forEach((c,i)=>{const [tp,n,o1,o2,o3]=c,p1=o1[1],p2=o2[1],p3=100-p1-p2,g='qg-su-'+i,N=x=>fmt(n*x/100);
+  const ctx=`ผลสำรวจผู้ตอบ ${n} คน เรื่อง${tp} พบว่าร้อยละ ${p1} เลือก${o1[0]} ร้อยละ ${p2} เลือก${o2[0]} และที่เหลือเลือก${o3[0]}`;
+  XQ.push(QB(g+'-1',g,'เชื่อมโยงข้อมูล',1,ctx,`มีผู้เลือก${o2[0]}กี่คน`,N(p2)+' คน',`${n} × ${p2}/100 = ${N(p2)} คน`,
+   [[N(p1)+' คน',`ค่านี้คือจำนวนผู้เลือก${o1[0]}`],[N(p3)+' คน',`ค่านี้คือจำนวนผู้เลือก${o3[0]}`],[fmt(p2)+' คน','เพราะนำร้อยละมาตอบเป็นจำนวนคนโดยตรง']]));
+  XQ.push(QB(g+'-2',g,'เชื่อมโยงข้อมูล',2,ctx,`ร้อยละของผู้ที่เลือก${o3[0]}เป็นเท่าใด`,p3+'%',`100 − ${p1} − ${p2} = ${p3}%`,
+   [[(p1-p2)+'%','เพราะนำร้อยละสองกลุ่มมาลบกัน ซึ่งไม่ใช่ส่วนที่เหลือ'],[(100-p1)+'%',`ค่านี้รวมผู้เลือก${o2[0]}ด้วย`],[(p1+p2)+'%','ค่านี้คือผลรวมสองกลุ่มแรก']]));
+  XQ.push(QB(g+'-3',g,'จับใจความสำคัญ',2,ctx,'ข้อใดสรุปจากผลสำรวจได้ถูกต้อง',`${o1[0]}ได้รับเลือกมากที่สุด`,`ร้อยละ ${p1} สูงกว่าตัวเลือกอื่น`,
+   [[`${o3[0]}ได้รับเลือกมากกว่า${o2[0]}`,`${o3[0]}ได้ร้อยละ ${p3} ซึ่งน้อยกว่า ${p2}`],[`ผู้ตอบมากกว่าครึ่งเลือก${o2[0]}`,`มีเพียงร้อยละ ${p2} ซึ่งไม่ถึงครึ่ง`],[`ผู้ตอบทุกคนเลือก${o1[0]}`,'ยังมีผู้เลือกตัวเลือกอื่นอยู่ด้วย']]));
+  XQ.push(QB(g+'-4',g,'เชื่อมโยงข้อมูล',3,ctx,`มีผู้เลือก${o1[0]}หรือ${o3[0]} รวมกี่คน`,N(p1+p3)+' คน',`(${p1} + ${p3})% ของ ${n} = ${N(p1+p3)} คน`,
+   [[N(p1+p2)+' คน',`ค่านี้คือผู้เลือก${o1[0]}รวมกับ${o2[0]}`],[N(p2+p3)+' คน',`ค่านี้คือผู้เลือก${o2[0]}รวมกับ${o3[0]}`],[N(p1)+' คน',`ค่านี้เป็นเฉพาะผู้เลือก${o1[0]}`]]));
+});
+/* English: vocabulary + grammar table */
+const EB=(id,g,sk,lv,ctx,stem,ok,okw,ws)=>B(id,'eng',g,sk,lv,ctx,stem,[ok,'ถูกต้อง '+okw],ws.map(w=>[w[0],'ผิด '+w[1]]));
+const VT=[
+['The marketing team will ____ a new campaign next month.','launch','launch แปลว่า เปิดตัว ใช้กับแคมเปญหรือผลิตภัณฑ์ใหม่','lunch','lunch แปลว่า อาหารกลางวัน','launder','launder แปลว่า ฟอก (เงิน) หรือซักรีด','lurch','lurch แปลว่า เซ',1,'คำศัพท์ธุรกิจ'],
+['Customers who pay early will receive a 5% ____.','discount','discount แปลว่า ส่วนลด','discuss','discuss เป็นกริยา แปลว่า อภิปราย','distance','distance แปลว่า ระยะทาง','discover','discover แปลว่า ค้นพบ',1,'คำศัพท์ธุรกิจ'],
+['The new policy aims to ____ costs without reducing quality.','reduce','reduce แปลว่า ลดลง ใช้กับต้นทุนได้ตรงความหมาย','produce','produce แปลว่า ผลิต ไม่เหมาะกับการลดต้นทุน','reduct','reduct ไม่ใช่คำที่ใช้ในภาษาอังกฤษมาตรฐาน','reuse','reuse แปลว่า ใช้ซ้ำ',1,'คำศัพท์ธุรกิจ'],
+['She was ____ to sales manager after two years of excellent results.','promoted','promoted แปลว่า เลื่อนตำแหน่ง','promised','promised แปลว่า สัญญา','provoked','provoked แปลว่า ยั่วยุ','prompted','prompted แปลว่า กระตุ้นให้',2,'คำศัพท์ธุรกิจ'],
+['The company has a strong ____ in the Thai snack market.','presence','presence แปลว่า การมีบทบาทหรือส่วนแบ่งอยู่ในตลาด','presents','presents แปลว่า ของขวัญ หรือนำเสนอ','pretense','pretense แปลว่า การแสร้งทำ','presence of mind','เป็นสำนวนที่ไม่เข้ากับประโยค',2,'คำศัพท์ธุรกิจ'],
+['Our profit ____ by 8% compared with last year.','rose','rose แปลว่า เพิ่มขึ้น (อดีตของ rise) ใช้กับกำไรได้','raised','raised ต้องมีกรรมมารองรับ เช่น raised prices','arose','arose แปลว่า เกิดขึ้น (ปัญหา)','rouse','rouse แปลว่า ปลุก',3,'ไวยากรณ์ธุรกิจ'],
+['If the supplier ____ on time, we would not have missed the deadline.','had delivered','ประโยคเงื่อนไขอดีตใช้ if + past perfect (had + V3)','delivers','delivers เป็นปัจจุบัน ไม่ตรงกับเหตุการณ์ในอดีต','would deliver','would deliver ไม่ใช้ในส่วน if ของเงื่อนไขอดีต','delivering','delivering ไม่เป็นรูปกริยาที่ถูกต้องในโครงสร้างนี้',3,'ไวยากรณ์ธุรกิจ'],
+['The report, ____ was written by our analyst, contains useful data.','which','which ใช้อ้างถึงสิ่งของ (the report) ในประโยคขยาย','who','who ใช้กับบุคคล','whom','whom ใช้กับบุคคลที่เป็นกรรม','whose','whose แสดงความเป็นเจ้าของ',2,'ไวยากรณ์ธุรกิจ'],
+['Neither the manager nor the employees ____ aware of the change.','were','เมื่อใช้ neither...nor กริยาสอดคล้องกับประธานที่ใกล้ที่สุด (employees เป็นพหูพจน์)','was','was ใช้กับประธานเอกพจน์ แต่ประธานที่ใกล้ที่สุดคือ employees','is','is เป็นปัจจุบันเอกพจน์ ไม่ตรงกับ employees','be','be ไม่ใช้เดี่ยวๆ เป็นกริยาหลักในประโยคนี้',3,'ไวยากรณ์ธุรกิจ'],
+['Please ____ the attached file before the meeting.','review','review แปลว่า ตรวจทาน/ทบทวน','revenue','revenue แปลว่า รายได้ เป็นคำนาม','reverse','reverse แปลว่า ย้อนกลับ','revise to','รูปไม่ถูกต้องในโครงสร้างนี้',1,'คำศัพท์ธุรกิจ'],
+['The shop offers free delivery ____ orders over 1,000 baht.','on','on ใช้กับ orders over ... ตามสำนวน','in','in ไม่ใช้กับ orders ในสำนวนนี้','at','at ใช้กับจุดเวลาหรือสถานที่','for to','รูปไม่ถูกต้อง',1,'ไวยากรณ์ธุรกิจ'],
+['We are looking forward to ____ from you soon.','hearing','look forward to ตามด้วย V-ing (hearing)','hear','hear เป็นกริยารูปธรรมดา ตาม to ไม่ได้ในสำนวนนี้','heard','heard เป็นอดีต ใช้ไม่ได้หลัง to ในสำนวนนี้','be hearing to','รูปไม่ถูกต้อง',2,'ไวยากรณ์ธุรกิจ'],
+['The word "invoice" most nearly means:','a bill for goods or services','invoice คือใบแจ้งหนี้','a job application','job application คือใบสมัครงาน','a meeting schedule','meeting schedule คือกำหนดการประชุม','a company logo','logo คือเครื่องหมายของบริษัท',1,'คำศัพท์ธุรกิจ'],
+['The word "negotiate" most nearly means:','discuss to reach an agreement','negotiate แปลว่า เจรจาต่อรองเพื่อให้ได้ข้อตกลง','refuse to talk','refuse to talk แปลว่า ปฏิเสธที่จะคุย','cancel a contract','cancel a contract คือยกเลิกสัญญา','copy a document','copy a document คือทำสำเนา',2,'คำศัพท์ธุรกิจ'],
+['The word "overdue" in a payment notice means:','not paid by the due date','overdue คือเลยกำหนดชำระ','paid in advance','paid in advance คือชำระล่วงหน้า','paid in cash','paid in cash คือชำระด้วยเงินสด','refunded already','refunded คือคืนเงินแล้ว',2,'คำศัพท์ธุรกิจ'],
+['Our sales ____ sharply last quarter because of the new competitor.','fell','fell เป็นอดีตของ fall แปลว่า ลดลง','felt','felt เป็นอดีตของ feel แปลว่า รู้สึก','fill','fill แปลว่า เติม','fail','fail แปลว่า ล้มเหลว',2,'คำศัพท์ธุรกิจ'],
+['Which sentence is the most formal?','We would appreciate your prompt reply.','เป็นถ้อยคำสุภาพเป็นทางการที่เหมาะกับอีเมลธุรกิจ','Reply me fast, okay?','เป็นภาษาพูดและไม่สุภาพ','Hurry up and answer.','เป็นคำสั่งที่ไม่สุภาพ','Gimme your answer now.','เป็นภาษาไม่เป็นทางการมาก',2,'น้ำเสียงในอีเมล'],
+['The deadline has been ____ until next Monday, so we have extra time.','extended','extended แปลว่า ขยายเวลา','extinct','extinct แปลว่า สูญพันธุ์','extreme','extreme แปลว่า สุดขั้ว','exempted','exempted แปลว่า ได้รับการยกเว้น',2,'คำศัพท์ธุรกิจ'],
+['The firm decided to ____ the contract because the terms were unfair.','terminate','terminate แปลว่า ยุติ/บอกเลิก','terrify','terrify แปลว่า ทำให้หวาดกลัว','tolerate','tolerate แปลว่า อดทน','terminal','terminal เป็นคำนาม/คำคุณศัพท์',3,'คำศัพท์ธุรกิจ'],
+['By next June, the company ____ in this market for ten years.','will have operated','future perfect ใช้กับการกระทำที่จะครบช่วงเวลา ณ จุดอนาคต (by next June)','operates','operates เป็นปัจจุบัน ไม่บอกช่วงเวลาครบในอนาคต','has operate','has operate ผิดรูป ต้องเป็น operated','is operate','is operate ผิดรูปกริยา',3,'ไวยากรณ์ธุรกิจ'],
+['She gave a persuasive ____ that convinced the investors.','presentation','presentation แปลว่า การนำเสนอ','presented','presented เป็นกริยา ไม่ใช่คำนาม','presenter','presenter คือผู้นำเสนอ ไม่ใช่การนำเสนอเอง','present at','รูปไม่ถูกต้อง',2,'คำศัพท์ธุรกิจ'],
+['Despite the heavy rain, the event ____ as planned.','went ahead','went ahead แปลว่า ดำเนินต่อไปตามแผน','went off the plan','สำนวนไม่ถูกต้อง','went back at','สำนวนไม่ถูกต้อง','went up it','สำนวนไม่ถูกต้อง',3,'ไวยากรณ์ธุรกิจ'],
+['The two companies decided to ____ to cut shared costs.','merge','merge แปลว่า ควบรวมกิจการ','marge','marge ไม่ใช่คำมาตรฐาน','mourn','mourn แปลว่า ไว้อาลัย','merit','merit แปลว่า ข้อดี/คุณค่า',3,'คำศัพท์ธุรกิจ']];
+const XE=VT.map((r,i)=>EB('ev-'+i,'ev-'+i,r[10],r[9],'',r[0],r[1],r[2],[[r[3],r[4]],[r[5],r[6]],[r[7],r[8]]]));
+const IV=[
+['Alpha Print',4800,10,5,'12 June'],['Siam Foods',12000,7,3,'20 July'],['Delta Tech',9500,10,4,'5 August'],['Bright Logistics',6000,15,2,'30 September']];
+IV.forEach((c,i)=>{const [co,amt,dd,fee,dt]=c,g='ei-'+i,late=amt*(1+fee/100),disc=amt*0.98;
+  const ctx=`Subject: Payment Reminder\n\nDear ${co},\n\nThis is a reminder that invoice #${700+i*13} for ${amt.toLocaleString('en-US')} baht is due on ${dt}. Payments received more than ${dd} days after the due date will be charged a ${fee}% late fee on the total amount. If you have already paid, please ignore this message and send us the transfer slip for our records.\n\nKind regards,\nAccounts Department`;
+  XE.push(EB(g+'-1',g,'อ่านอีเมล',1,ctx,'What is the main purpose of this email?','To remind the customer about a payment','อีเมลแจ้งเตือนการชำระเงินตามใบแจ้งหนี้',[['To offer a new product','ไม่มีเนื้อหาเรื่องสินค้าใหม่'],['To cancel an order','ไม่ได้กล่าวถึงการยกเลิกคำสั่งซื้อ'],['To apply for a job','ไม่เกี่ยวกับการสมัครงาน']]));
+  XE.push(EB(g+'-2',g,'อ่านอีเมล',2,ctx,`How much must ${co} pay if the late fee is charged?`,(amt*(1+fee/100)).toLocaleString('en-US')+' baht',`ค่าปรับ ${fee}% ของ ${amt} = ${amt*fee/100} บาท รวมเป็น ${late}`,[[amt.toLocaleString('en-US')+' baht','นี่คือยอดเดิมก่อนบวกค่าปรับ'],[(amt*fee/100).toLocaleString('en-US')+' baht','นี่คือค่าปรับอย่างเดียว ไม่ใช่ยอดที่ต้องจ่ายทั้งหมด'],[(amt*(1-fee/100)).toLocaleString('en-US')+' baht','เพราะนำค่าปรับมาหักออกแทนที่จะบวกเพิ่ม']]));
+  XE.push(EB(g+'-3',g,'อ่านอีเมล',3,ctx,'What should the customer do if the payment has already been made?','Ignore the reminder and send the transfer slip','อีเมลระบุให้เพิกเฉยข้อความนี้และส่งหลักฐานการโอน',[['Pay the full amount again immediately','ไม่มีข้อความให้จ่ายซ้ำ'],['Call the police and report the supplier','ไม่มีการกล่าวถึง'],['Cancel the invoice without telling the sender','อีเมลไม่ได้ให้ลูกค้ายกเลิกใบแจ้งหนี้เอง']]));
+});
+
+const BANK=[...QUAL,...ENG,...XQ,...XE];
 /* ===== extra quantitative templates (harder; tables and two-series charts) ===== */
 const O=(v,why)=>({v,why});
 const tbl=(h,rows)=>`<table class="qt"><thead><tr>${h.map(x=>`<th>${esc(x)}</th>`).join('')}</tr></thead><tbody>${rows.map(r=>`<tr>${r.map(x=>`<td>${esc(x)}</td>`).join('')}</tr>`).join('')}</tbody></table>`;
@@ -890,7 +980,22 @@ function openHist(v){
   es.sort((a,b)=>ORDER.indexOf(a.s)-ORDER.indexOf(b.s));
   S.run={mode:es[0].m==='all'?'all':'single',sid:es[0].sid||0,cur:0,
     stages:es.map(a=>({subj:a.s,qs:a.det.qs,ans:a.det.ans,flag:a.det.ans.map(()=>false),qi:0,done:true,start:0,deadline:0,used:a.sec,auto:!!a.det.auto}))};
-  S.hist=es[0].d;S.view='result';S.rtab=0;S.rfilter='all';render();window.scrollTo(0,0);
+  S.histV=v;S.hist=es[0].d;S.view='result';S.rtab=0;S.rfilter='all';render();window.scrollTo(0,0);
+}
+
+function retake(){
+  const v=S.histV;if(!v)return;
+  let es;
+  if(v[0]==='s'){const sid=+v.slice(2);es=H.attempts.filter(a=>a.sid===sid&&a.m==='all'&&a.det)}
+  else es=[H.attempts[+v.slice(2)]].filter(a=>a&&a.det);
+  if(!es.length)return;
+  es.sort((a,b)=>ORDER.indexOf(a.s)-ORDER.indexOf(b.s));
+  const all=es[0].m==='all';
+  S.cfg.subj=all?'all':es[0].s;
+  S.hist=0;S.tool='';S.calc=newCalc();toolsSig='';
+  S.run={mode:all?'all':'single',sid:Date.now(),cur:0,
+    stages:es.map(a=>{const qs=a.det.qs.map(q=>({...q}));return {subj:a.s,qs,ans:qs.map(()=>-1),flag:qs.map(()=>false),qi:0,done:false,start:0,deadline:0,used:0,auto:false}})};
+  beginStage(0);
 }
 
 /* ---------- views ---------- */
@@ -921,7 +1026,7 @@ function vHome(){
     <div class="chk" style="margin-top:16px"><input type="checkbox" id="ai" data-a="ai" ${c.ai&&SAMPLE?'checked':''} ${SAMPLE?'':'disabled'}><label for="ai">ให้ทีมวิชาการคิดโจทย์ใหม่ ${all?'วิชาละ ':''}5 ข้อ ด้วย Gemini<br><span class="note">${SAMPLE?'ที่เหลือเป็นข้อจากคลังและข้อที่ปรับตัวเลขใหม่':'ยังไม่ได้เชื่อมต่อ Gemini ระบบจะใช้ข้อจากคลังและข้อที่ปรับตัวเลขใหม่'}</span></label></div>
     <div class="row2"><button class="btn pri start" data-a="start">${ic('play')}เริ่มทำข้อสอบ</button></div></div>
   </div><aside class="stack">
-   <div class="card"><div class="lbl">${ic('hist')} ประวัติการทำ</div>${(()=>{const rows=histRows();return rows.length?rows.map(r=>{const inner=`<span>${r.t}<small>${new Date(r.d).toLocaleString('th-TH',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})} · ใช้เวลา ${mmss(r.sec)}</small></span><b>${r.sc}/${r.tot}</b>`;return r.ok?`<button class="hrow" data-a="hist" data-v="${r.v}">${inner}</button>`:`<div class="hrow">${inner}</div>`}).join('')+`<p class="note" style="margin-top:10px">กดที่รายการเพื่อดูคำตอบของคุณและเฉลยรายข้อ ทำมาแล้ว ${n} ชุด</p>`:'<p class="note">ยังไม่มีประวัติ ทำชุดแรกเพื่อเริ่มบันทึกผล ระบบเก็บคำตอบและเฉลยไว้ให้เปิดดูย้อนหลัง ข้อมูลเก็บในเบราว์เซอร์นี้เท่านั้น</p>'})()}</div>
+   <div class="card"><div class="lbl">${ic('hist')} ประวัติการทำ</div>${(()=>{const rows=histRows();return rows.length?rows.map(r=>{const inner=`<span>${r.t}<small>${new Date(r.d).toLocaleString('th-TH',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})} · ใช้เวลา ${mmss(r.sec)}</small></span><b>${r.sc}/${r.tot}</b>`;return r.ok?`<button class="hrow" data-a="hist" data-v="${r.v}">${inner}</button>`:`<div class="hrow">${inner}</div>`}).join('')+`<p class="note" style="margin-top:10px">กดที่รายการเพื่อดูคำตอบและเฉลยรายข้อ หรือทำชุดเดิมซ้ำอีกครั้ง ทำมาแล้ว ${n} ชุด</p>`:'<p class="note">ยังไม่มีประวัติ ทำชุดแรกเพื่อเริ่มบันทึกผล ระบบเก็บคำตอบและเฉลยไว้ให้เปิดดูย้อนหลัง ข้อมูลเก็บในเบราว์เซอร์นี้เท่านั้น</p>'})()}</div>
    <div class="card"><div class="lbl">ทีมงานเบื้องหลัง</div>${TEAMS.map(t=>`<div class="team"><span class="ico">${ic(t.ic)}</span><div><b>${t.n}</b><span>${t.d}</span></div></div>`).join('')}</div>
   </aside></div>`;
 }
@@ -988,7 +1093,7 @@ function vResult(){
   return `<section style="padding-top:24px">
    <div class="card"><div class="score"><div><div class="lbl">${R.mode==='all'?'คะแนนรวม '+R.stages.length+' วิชา':'คะแนน'}${S.hist?' · ดูย้อนหลัง '+new Date(S.hist).toLocaleString('th-TH',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}):''}</div><div class="big">${R.mode==='all'?tot*10:sc}<small>/${R.mode==='all'?cnt*10:st.qs.length}</small></div></div>
    <div><b>${SUBJ[st.subj].th}</b><br><span class="note">${R.mode==='all'?`วิชานี้ ${sc*10}/${st.qs.length*10} คะแนน · `:''}ใช้เวลา ${mmss(st.used)}${st.auto?' (หมดเวลา)':''}</span></div></div>
-   <div class="row2">${S.hist?'':`<button class="btn pri" data-a="again">${ic('redo')}ทำชุดใหม่</button>`}<button class="btn" data-a="leave">${ic('home')}หน้าแรก</button></div></div>
+   <div class="row2">${S.hist?`<button class="btn pri" data-a="retake">${ic('redo')}ทำชุดนี้อีกครั้ง</button>`:`<button class="btn pri" data-a="again">${ic('redo')}ทำชุดใหม่</button>`}<button class="btn" data-a="leave">${ic('home')}หน้าแรก</button></div></div>
    ${R.mode==='all'?fullSummary(R):''}
    ${R.mode==='all'?`<div class="tabs">${R.stages.map((s,i)=>`<button data-a="rtab" data-v="${i}" aria-pressed="${i===S.rtab}">${SUBJ[s.subj].short} ${score(s)*10}/${s.qs.length*10}</button>`).join('')}</div>`:''}
    ${reportHtml(st)}
@@ -1020,10 +1125,11 @@ function render(){
 
 /* ---------- tools: calculator + scratchpad (quantitative only) ---------- */
 const CALC_OPS=['+','−','×','÷','^'];
-const CALC_KEYS=[['C','ล้าง','fn'],['⌫','ลบ','fn'],['(','(','op'],[')',')','op'],
- ['√','√','op'],['²','x²','op'],['^','xʸ','op'],['÷','÷','op'],
- ['7'],['8'],['9'],['×','×','op'],['4'],['5'],['6'],['−','−','op'],['1'],['2'],['3'],['+','+','op'],
- ['0'],['.'],['%','%','op'],['=','=','eq']];
+const CALC_KEYS=[['(','(','op'],[')',')','op'],['√','√','op'],['²','x²','op'],['^','xʸ','op'],
+ ['7'],['8'],['9'],['⌫','ลบ','fn'],['C','C','fn'],
+ ['4'],['5'],['6'],['×','×','op'],['÷','÷','op'],
+ ['1'],['2'],['3'],['+','+','op'],['−','−','op'],
+ ['0'],['00'],['.'],['%','%','op'],['=','=','eq']];
 const CALC_LBL={'C':'ล้างทั้งหมด','⌫':'ลบตัวสุดท้าย','√':'รากที่สอง','²':'ยกกำลังสอง','^':'ยกกำลัง','−':'ลบ','×':'คูณ','÷':'หาร','+':'บวก','=':'เท่ากับ','%':'เปอร์เซ็นต์','.':'จุดทศนิยม','(':'เปิดวงเล็บ',')':'ปิดวงเล็บ'};
 const newCalc=()=>({expr:'',eq:false,shown:'',num:0,val:'',err:false});
 S.tool='';S.calc=newCalc();S.toolPos=null;
@@ -1076,6 +1182,7 @@ function fmtNum(v){
 function rawNum(v){const s=String(Number(v.toPrecision(12)));return s[0]==='-'?'−'+s.slice(1):s}
 
 function calcKey(k){
+  if(k==='00'){calcKey('0');calcKey('0');return}
   const C=S.calc;C.err=false;
   const isDig=/^[0-9]$/.test(k),isOp=CALC_OPS.includes(k);
   if(k==='C'){Object.assign(C,newCalc())}
@@ -1118,7 +1225,7 @@ function paintCalc(){
 function calcHtml(){
   return `<section class="tp calc" id="calcp" role="dialog" aria-label="เครื่องคิดเลข" tabindex="-1">
    <div class="th"><b title="ลากเพื่อย้ายตำแหน่ง">เครื่องคิดเลข</b><button class="tx" data-t="close" aria-label="ปิดเครื่องคิดเลข">${ic('x')}</button></div>
-   <div class="cd"><div class="ce" id="cexp"></div><div class="cr" id="cres">0</div></div>
+   <div class="solar" aria-hidden="true"></div><div class="cd"><div class="ce" id="cexp"></div><div class="cr" id="cres">0</div></div>
    <div class="ck">${CALC_KEYS.map(k=>`<button class="ky ${k[2]||''}" data-k="${k[0]}" aria-label="${CALC_LBL[k[0]]||k[0]}">${k[1]||k[0]}</button>`).join('')}</div>
    <p class="note">พิมพ์ตัวเลขและเครื่องหมายจากคีย์บอร์ดได้ เช่น 200 + 10% = 220 และ 1000 × (1 + 5%)^2</p></section>`;
 }
@@ -1231,6 +1338,7 @@ document.addEventListener('click',e=>{
     case'nextstage':beginStage(R.cur+1);break;
     case'leave':S.view='home';S.run=null;S.hist=0;S.confirm=false;S.quit=false;render();window.scrollTo(0,0);break;
     case'again':startRun();break;
+    case'retake':retake();break;
     case'hist':openHist(v);break;
     case'rtab':S.rtab=+v;render();break;
     case'rfilter':S.rfilter=v;render();break;
