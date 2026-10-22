@@ -469,6 +469,55 @@ body[data-view="home"],body[data-view="landing"]{--ink:#2A0B12;--muted:#5E4D51;-
 .t-crew .team b{color:#fff}.t-crew .team span{color:#EADFE0}
 @media (max-width:640px){.crewgrid{grid-template-columns:minmax(0,1fr)}.t-crew .team:nth-child(2){border-top:1px solid rgba(255,255,255,.22)}}
 @media (max-width:520px){.t-set .opts{grid-template-columns:minmax(0,1fr)}.t-set .opts>label{grid-column:1}}
+
+/* v8: result / between / prep follow the bento system */
+body[data-view="result"],body[data-view="between"],body[data-view="prep"]{--ink:#2A0B12;--muted:#5E4D51;--line:#E3D6D0;--bg:#F3EEEA;--card:#FFFFFF;--accent-soft:#FDEBCB;--accent-text:#7A4A00;--btn:#F2A73C;--btn-ink:#2A0B12;color-scheme:light}
+.bento h2,.bento .sn b,.bento .t-set .opts>b,.bento .team b,.bento .hrow b,.bento .seg button,.bento .lnk{font-family:var(--f-head)}
+body[data-view="prep"] .top{display:none}
+body[data-view="prep"],body[data-view="between"],body[data-view="result"]{padding-top:0}
+body[data-view="prep"] #app.wrap{max-width:none;padding:0}
+body[data-view="result"] #app.wrap,body[data-view="between"] #app.wrap{max-width:1180px}
+body[data-view="result"] .top,body[data-view="between"] .top{background:transparent;border:0;color:var(--ink);position:static}
+body[data-view="result"] .brand,body[data-view="between"] .brand{color:#2A0B12;font-family:var(--f-head);font-weight:700;font-size:22px}
+body[data-view="result"] .brand .mark,body[data-view="between"] .brand .mark{background:var(--red);color:#fff;border-radius:9px;width:34px;height:34px}
+body[data-view="result"] .top .wrap,body[data-view="between"] .top .wrap{max-width:1180px}
+body[data-view="result"] .card,body[data-view="between"] .card{border:0;border-radius:22px;padding:24px;background:#fff;color:#2A0B12}
+body[data-view="result"] #app>section{display:flex;flex-direction:column;gap:14px;padding-top:8px}
+body[data-view="result"] #app>section>*{margin-top:0}
+body[data-view="result"] #app>section>.card:first-child{background:var(--red);color:#fff}
+body[data-view="result"] #app>section>.card:first-child .lbl,body[data-view="result"] #app>section>.card:first-child .note{color:#fff}
+body[data-view="result"] #app>section>.card:first-child .big{color:var(--gold);font-size:64px}
+body[data-view="result"] #app>section>.card:first-child .big small{color:#fff;opacity:.85}
+body[data-view="result"] #app>section>.card:first-child .btn:not(.pri){background:transparent;color:#fff;border:1.5px solid rgba(255,255,255,.7)}
+body[data-view="result"] .card .lbl{color:#2A0B12;font-family:var(--f-head);font-size:17px;font-weight:600}
+body[data-view="result"] .card .lbl .ic{color:var(--red)}
+body[data-view="result"] .rb i{background:var(--red)}
+body[data-view="result"] .bar{height:10px;border-radius:999px;background:#F1E7E1}
+body[data-view="result"] .bar i{border-radius:999px}
+body[data-view="result"] .tabs{margin-top:0}
+body[data-view="result"] .tabs button{border-radius:12px;border:0;background:#fff;color:#2A0B12;font-family:var(--f-head)}
+body[data-view="result"] .tabs button[aria-pressed="true"]{background:#2A0B12;color:#fff}
+body[data-view="result"] .rq{margin-top:0;border-radius:22px}
+body[data-view="result"] .ro{border-radius:14px}
+body[data-view="result"] .tag{border-radius:999px}
+body[data-view="result"] .btn,body[data-view="between"] .btn{border-radius:12px}
+body[data-view="between"] .mid{max-width:620px}
+body[data-view="between"] .mid h2{font-family:var(--f-head);font-weight:700}
+.prepb{min-height:100vh;min-height:100dvh;align-content:center}
+.p-head{grid-column:1/13;background:var(--red);color:#fff;display:flex;flex-direction:column;gap:10px;padding:28px}
+.p-head h2{font-size:clamp(26px,4vw,40px);font-weight:700;margin:6px 0 0;color:#fff}
+.p-head p{color:#fff}
+.p-step{grid-column:span 6;display:flex;flex-direction:column;gap:6px;min-height:150px;background:#fff;color:#2A0B12;transition:background-color .25s}
+.p-step b{font-family:var(--f-head);font-size:18px}
+.p-step .pd{font-size:14.5px;color:#5E4D51;line-height:1.55}
+.p-step .st{width:34px;height:34px;border-radius:50%;border:2px solid #2A0B12;display:grid;place-items:center;margin-bottom:8px}
+.p-step.wait{opacity:.6}
+.p-step.run{background:var(--gold)}
+.p-step.run .st{border-top-color:transparent;animation:spin 1s linear infinite}
+.p-step.run .pd{color:#2A0B12}
+.p-step.done .st{background:#2A0B12;color:#fff}
+@media (max-width:900px){.p-step{grid-column:1/7}.p-head{grid-column:1/7}.prepb{align-content:start}}
+@media (prefers-reduced-motion:reduce){.p-step.run .st{animation:none;border-top-color:#2A0B12}}
 </style>
 </head>
 <body>
@@ -1261,8 +1310,10 @@ function vLanding(){
   </div>`;
 }
 function vPrep(){
-  return `<section class="prep card"><h2>กำลังจัดชุดข้อสอบ</h2><p class="note" style="margin-bottom:12px">${S.cfg.subj==='all'?'3 วิชา วิชาละสูงสุด 30 ข้อ':SUBJ[S.cfg.subj].th+' · '+S.cfg.n+' ข้อ'}</p>
-  ${S.prep.map(p=>`<div class="prow ${p.state}"><span class="st">${p.state==='done'?ic('check'):''}</span><div><b>${p.n}</b><span>${esc(p.note||p.d)}</span></div></div>`).join('')}</section>`;
+  const lbl=S.cfg.subj==='all'?'3 วิชา วิชาละ 30 ข้อ':SUBJ[S.cfg.subj].th+' · '+S.cfg.n+' ข้อ';
+  return `<div class="bento prepb"><section class="t p-head"><div class="wm" style="font-size:28px"><span class="mark" style="width:38px;height:38px">${ic('fwd')}</span><b>Forward</b></div>
+   <h2>กำลังจัดชุดข้อสอบ</h2><p>${lbl}</p></section>
+  ${S.prep.map(p=>`<section class="t p-step ${p.state}"><span class="st">${p.state==='done'?ic('check'):''}</span><b>${p.n}</b><span class="pd">${esc(p.note||p.d)}</span></section>`).join('')}</div>`;
 }
 function palInner(st,R,i,un,fl){return `<div class="lbl">รายการข้อ</div><div class="grid">${st.qs.map((_,k)=>`<button class="gq ${st.ans[k]>=0?'ans':''} ${k===i?'cur':''} ${st.flag[k]?'flag':''}" data-a="go" data-v="${k}" aria-label="ข้อ ${k+1}${st.ans[k]>=0?' ตอบแล้ว':''}${st.flag[k]?' ปักธง':''}">${k+1}</button>`).join('')}</div>
    <div class="legend"><span>ดำ = ตอบแล้ว</span><span>จุดส้ม = ปักธง</span></div>
