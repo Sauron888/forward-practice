@@ -451,6 +451,24 @@ body[data-view="home"],body[data-view="landing"]{--ink:#2A0B12;--muted:#5E4D51;-
 .l-a{background:#2A0B12}.l-b{background:#7A0019}.l-d{background:#C3002F}
 .l-c{color:#2A0B12}
 .t-brand .lnk{color:#fff}
+
+/* v7: setup and crew tiles */
+.t-set .opts{display:grid;grid-template-columns:112px minmax(0,1fr);align-items:center;gap:8px 16px;margin-top:14px}
+.t-set .opts>b{font-weight:600}
+.t-set .opts>label{grid-column:2}
+.t-set .seg{justify-self:start;max-width:100%;flex-wrap:wrap}
+.t-set .chk{margin-top:18px}
+.t-set .btn.pri.start{width:100%}
+.t-crew{background:#2A0B12;color:#fff;border:0;padding:24px}
+.t-crew h2{color:#fff}
+.t-crew summary::after{content:none}
+.crewgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 28px}
+.t-crew .team{border-top:1px solid rgba(255,255,255,.22);padding-block:12px}
+.t-crew .team:nth-child(-n+2){border-top:0}
+.t-crew .team .ico{background:rgba(255,255,255,.12);color:var(--gold)}
+.t-crew .team b{color:#fff}.t-crew .team span{color:#EADFE0}
+@media (max-width:640px){.crewgrid{grid-template-columns:minmax(0,1fr)}.t-crew .team:nth-child(2){border-top:1px solid rgba(255,255,255,.22)}}
+@media (max-width:520px){.t-set .opts{grid-template-columns:minmax(0,1fr)}.t-set .opts>label{grid-column:1}}
 </style>
 </head>
 <body>
@@ -1213,14 +1231,14 @@ function vHome(){
     <button class="lnk" data-a="toland">เกี่ยวกับ Forward</button></section>
    <div class="subjgrp" role="radiogroup" aria-label="เลือกวิชา">${['quant','qual','eng','all'].map(k=>`<button class="t t-sub ${CLS[k]}" role="radio" aria-checked="${c.subj===k}" data-a="subj" data-v="${k}"><span class="bub" aria-hidden="true">${BUB[k]}</span><span class="sn"><b>${SUBJ[k].th}</b><span class="en">${SUBJ[k].en}</span><small>${SUBJ[k].desc}</small></span></button>`).join('')}</div>
    <section class="t t-set"><h2>ตั้งค่า</h2>${all?`<p>${ic('clock')} จับเวลาวิชาละ 40 นาที ตามลำดับ เชิงปริมาณ → เชิงคุณภาพ → ภาษาอังกฤษ เมื่อหมดเวลาหรือกดส่งแล้ว จะกลับไปแก้วิชานั้นไม่ได้ และจะดูเฉลยได้เมื่อจบครบทั้ง 3 วิชา</p>`:
-    `<div class="opts"><div class="seg" role="group" aria-label="จับเวลา"><button data-a="timed" data-v="0" aria-pressed="${!c.timed}">ไม่จับเวลา</button><button data-a="timed" data-v="1" aria-pressed="${c.timed}">จับเวลา</button></div>
+    `<div class="opts"><b>จับเวลา</b><div class="seg" role="group" aria-label="จับเวลา"><button data-a="timed" data-v="0" aria-pressed="${!c.timed}">ไม่จับเวลา</button><button data-a="timed" data-v="1" aria-pressed="${c.timed}">จับเวลา</button></div>
     ${c.timed?`<label>เวลา <select id="mins" data-a="mins">${[10,15,20,30,40,60].map(m=>`<option value="${m}" ${c.mins===m?'selected':''}>${m} นาที</option>`).join('')}</select></label>`:''}</div>`}
     ${all?`<p class="note" style="margin-top:12px">ข้อละ 10 คะแนน เต็มวิชาละ 300 คะแนน (30 ข้อ) แต่ละวิชามี 30 ข้อ รวม 90 ข้อ</p>`:`<div class="opts" style="margin-top:16px"><b>จำนวนข้อ</b><div class="seg" role="group" aria-label="จำนวนข้อ">${[5,10,15,20,30].map(x=>`<button data-a="n" data-v="${x}" aria-pressed="${c.n===x}">${x}</button>`).join('')}</div></div>${c.subj==='quant'?'':`<p class="note" style="margin-top:6px">ในคลังมี ${BANK.filter(q=>q.subj===c.subj).length} ข้อ ถ้าเลือกเกินนี้ ระบบจะใช้เท่าที่มี (บวกข้อ AI ถ้าเปิดใช้)</p>`}`}
     <div class="opts" style="margin-top:12px"><b>ความยาก</b><div class="seg" role="group" aria-label="ความยาก">${[['mix','ผสม (เน้นยาก)'],['1','ง่าย'],['2','ปานกลาง'],['3','ยาก']].map(([k,t])=>`<button data-a="lv" data-v="${k}" aria-pressed="${String(c.lv)===k}">${t}</button>`).join('')}</div></div>
     <div class="chk" style="margin-top:16px"><input type="checkbox" id="ai" data-a="ai" ${c.ai&&SAMPLE?'checked':''} ${SAMPLE?'':'disabled'}><label for="ai">ให้ทีมวิชาการคิดโจทย์ใหม่ ${all?'วิชาละ ':''}5 ข้อ ด้วย Gemini<br><span class="note">${SAMPLE?'ที่เหลือเป็นข้อจากคลังและข้อที่ปรับตัวเลขใหม่':'ยังไม่ได้เชื่อมต่อ Gemini ระบบจะใช้ข้อจากคลังและข้อที่ปรับตัวเลขใหม่'}</span></label></div>
     <div class="row2"><button class="btn pri start" data-a="start">${ic('play')}เริ่มทำข้อสอบ</button></div></section>
    <section class="t t-hist"><h2>ประวัติการทำ<small>${n} ชุด</small></h2>${(()=>{const rows=histRows();return rows.length?rows.map(r=>{const inner=`<span>${r.t}<small>${new Date(r.d).toLocaleString('th-TH',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})} · ใช้เวลา ${mmss(r.sec)}</small></span><b>${r.sc}/${r.tot}</b>`;return r.ok?`<button class="hrow" data-a="hist" data-v="${r.v}">${inner}</button>`:`<div class="hrow">${inner}</div>`}).join('')+`<p class="note">กดที่รายการเพื่อดูคำตอบและเฉลยรายข้อ หรือทำชุดเดิมซ้ำอีกครั้ง ทำมาแล้ว ${n} ชุด</p>`:'<p class="note">ยังไม่มีประวัติ ทำชุดแรกเพื่อเริ่มบันทึกผล ระบบเก็บคำตอบและเฉลยไว้ให้เปิดดูย้อนหลัง ข้อมูลเก็บในเบราว์เซอร์นี้เท่านั้น</p>'})()}</section>
-   <details class="t t-crew"><summary>ทีมงานเบื้องหลัง</summary>${TEAMS.map(t=>`<div class="team"><span class="ico">${ic(t.ic)}</span><div><b>${t.n}</b><span>${t.d}</span></div></div>`).join('')}</details>
+   <section class="t t-crew"><h2>ทีมงานเบื้องหลัง</h2><div class="crewgrid">${TEAMS.map(t=>`<div class="team"><span class="ico">${ic(t.ic)}</span><div><b>${t.n}</b><span>${t.d}</span></div></div>`).join('')}</div></section>
   </div>`;
 }
 function vLanding(){
