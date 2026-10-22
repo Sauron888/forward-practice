@@ -6,7 +6,7 @@
 <style>:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
 <title>ฝึกสอบ Forward</title>
 <meta name="claude:viewport-fit-sides" content="cover">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500&family=IBM+Plex+Sans+Thai:wght@500;600;700&family=Noto+Sans+Thai:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Prompt:wght@500;600;700&family=Noto+Serif+Thai:wght@500;600&family=IBM+Plex+Mono:wght@500&family=Noto+Serif+Thai:wght@500;600;700&family=IBM+Plex+Sans+Thai:wght@500;600;700&family=Noto+Sans+Thai:wght@400;500;600&display=swap">
 <style>
 /* Layout: top bar + one working column; quiz = question card with a sticky question palette beside it */
 :root{
@@ -258,6 +258,199 @@ body.exam .timer.warn{font-weight:700;border-width:2px}
 .rs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-top:14px;font-size:14.5px}
 .rs ul{margin:6px 0 0;padding-left:18px}
 @media (max-width:560px){.rs{grid-template-columns:minmax(0,1fr)}}
+/* ===== Forward v3 theme: ledger + exam paper ===== */
+:root{--f-head:'Noto Serif Thai','IBM Plex Sans Thai',Georgia,serif;--red-deep:#8E0021;--btn-edge:#C9801A}
+body{font-family:var(--f-body)}
+h1,h2,h3{font-weight:700;letter-spacing:0}
+/* top bar: Thammasat red band, yellow edge */
+.top{background:var(--red);border-bottom:3px solid var(--gold);color:#fff}
+.brand{color:#fff;font-weight:700;letter-spacing:.01em}
+.brand .mark{background:var(--gold);color:var(--red);border-radius:3px;width:28px;height:28px}
+.top .step{color:#fff;border-color:rgba(255,255,255,.45);border-radius:3px}
+.top .step.cur{background:var(--gold);border-color:var(--gold);color:#3A0A14}
+.top .step.done{background:rgba(255,255,255,.16)}
+.top .timer{background:#fff;color:#14203A;border-color:#fff;border-radius:3px}
+.top .btn{background:#fff;color:#14203A;border-color:#fff}
+body.exam .top{background:#fff;color:#000;border-bottom:2px solid #000}
+body.exam .brand{color:#000}
+body.exam .brand .mark{background:#000;color:#fff}
+body.exam .top .step{color:#444;border-color:#8C8C8C}
+body.exam .top .step.cur{background:#fff;color:#000;border-color:#000;font-weight:700}
+body.exam .top .step.done{background:#EDEDED}
+body.exam .top .timer{background:#fff;color:#000;border-color:#8C8C8C}
+body.exam .top .btn{background:#fff;color:#000;border-color:#8C8C8C}
+/* ledger cards: flat, ruled, no uniform bubble */
+.card{border:1px solid var(--line);border-top:3px solid var(--ink);border-radius:2px;background:var(--card)}
+.hero h1{font-size:clamp(28px,4.4vw,40px);line-height:1.3}
+.hero p{max-width:52ch}
+.lbl{font-family:var(--f-head);font-size:16px;font-weight:700;letter-spacing:0;text-transform:none;color:var(--ink);margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.lbl .ic{color:var(--red)}
+.subjects{gap:0;border:1px solid var(--line)}
+.subj{border:0;border-radius:0;border-bottom:1px solid var(--line);border-right:1px solid var(--line);background:transparent;position:relative;transition:background-color .15s}
+.subj:hover{background:var(--accent-soft)}
+.subj .ico{background:none;width:auto;height:auto;color:var(--red);border-radius:0}
+.subj[aria-checked="true"]{background:#FFE9A8;border-color:var(--line)}
+.subj[aria-checked="true"]::before{content:"";position:absolute;left:0;top:0;bottom:0;width:5px;background:var(--red)}
+.subj[aria-checked="true"] .ico{background:none;color:var(--red)}
+.seg{border-radius:4px}.seg button{transition:background-color .12s}
+select{border-radius:4px}
+.team .ico{background:none;color:var(--red);width:26px}
+.team{border-top:1px dashed var(--line)}
+.hrow{border-radius:2px;transition:border-color .12s,background-color .12s}
+button.hrow:hover{background:var(--accent-soft)}
+/* buttons: tactile, slightly squared */
+.btn{border-radius:6px;transition:transform .08s,box-shadow .08s,filter .12s}
+.btn.pri{box-shadow:0 3px 0 var(--btn-edge)}
+.btn.pri.start{box-shadow:0 3px 0 var(--red-deep)}
+.btn.pri:active{transform:translateY(3px);box-shadow:0 0 0 transparent}
+.btn.sm{border-radius:4px}
+.tb{border-radius:8px}
+/* result */
+.big{font-family:var(--f-head);font-weight:700}
+.bar{height:6px;border-radius:0}.bar i{border-radius:0;transition:width .5s cubic-bezier(.2,.7,.2,1)}
+.tabs button{border-radius:3px}
+.rq{border-radius:2px}
+.ro{border-radius:3px}
+.tag{border-radius:3px}
+/* exam paper: serif stem, squared options, crisp feedback on press */
+body.exam .qcard{border-top:3px solid #000}
+body.exam .stem{font-family:'Noto Serif Thai','Noto Sans Thai',serif;font-weight:500;font-size:19px;line-height:1.75}
+body.exam .ctx{font-family:'Noto Serif Thai','Noto Sans Thai',serif;border-left:3px solid #000;border-radius:0;background:#F4F4F4}
+.opt{border-radius:4px;transition:background-color .12s,border-color .12s}
+.opt .ltr{font-family:var(--f-body);transition:background-color .12s,color .12s}
+.opt:active{transform:scale(.995)}
+.qno{font-family:var(--f-head)}
+.chip{border-radius:2px}
+.gq{border-radius:3px;font-family:var(--f-body);transition:background-color .12s}
+.gq.cur{outline-offset:2px}
+.confirm{border-radius:3px}
+.tp{border-radius:10px}
+.prow .st{transition:background-color .2s,border-color .2s}
+body.exam .btn.pri,body.exam .btn.pri.start{box-shadow:0 3px 0 #555}
+.grid{gap:6px}.gq{aspect-ratio:auto;min-height:0;min-width:0;height:40px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}.btn.pri:active{transform:none}}
+/* ===== redesign v4: Thammasat rail + answer-sheet subject list ===== */
+:root{--red-deep:#8F0022;--f-head:'Prompt','IBM Plex Sans Thai','Noto Sans Thai',system-ui,sans-serif;--r:6px}
+h1,h2,h3,.big,.brand,.qno{letter-spacing:-.005em}
+.lbl{text-transform:none;letter-spacing:0;font-size:14px;color:var(--muted);font-weight:600}
+.card{border-radius:var(--r)}
+.btn,.seg,.opt,.hrow,select,.tab,.gq,.ky,.tb{border-radius:var(--r)}
+.btn.pri{box-shadow:0 2px 0 rgba(0,0,0,.22)}
+.btn:active{transform:translateY(1px);box-shadow:none}
+.top{border-top:4px solid var(--red);border-bottom:1px solid var(--line)}
+body.exam .top{border-top-color:#000}
+.brand{font-weight:600;font-size:19px}
+.brand .mark{border-radius:5px;background:var(--red);color:#fff}
+body.exam .brand .mark{background:#000}
+.opt .ltr{transition:background-color .12s,border-color .12s}
+.opt{transition:border-color .12s,background-color .12s}
+/* ===== bento v5 ===== */
+:root{--ink:#2A0B12;--muted:#6B5A5E;--line:#E3D6D0;--bg:#F3EEEA;--card:#FFFFFF;--maroon:#7A0019}
+body[data-view="home"] .top,body[data-view="landing"] .top{display:none}
+body[data-view="home"],body[data-view="landing"]{padding-block:0}
+body[data-view="home"] #app.wrap,body[data-view="landing"] #app.wrap{max-width:none;padding:0}
+.bento{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:14px;max-width:1180px;margin:0 auto;padding:24px max(16px,env(safe-area-inset-left,0px)) 56px}
+.t{background:var(--card);color:var(--ink);border-radius:22px;padding:24px;min-width:0;border:0;text-align:left;position:relative}
+.t h2{font-size:20px;font-weight:600;margin-bottom:12px}
+.t-brand{grid-column:1/5;grid-row:1/3;background:var(--red);color:#fff;display:flex;flex-direction:column;gap:16px;justify-content:space-between}
+.wm{display:flex;align-items:center;gap:12px;font-family:var(--f-head);font-weight:700;font-size:42px;line-height:1;color:var(--gold)}
+.wm .mark{width:46px;height:46px;border-radius:12px;background:var(--gold);color:var(--red);display:grid;place-items:center}
+.wm .mark svg{width:26px;height:26px;stroke-width:2.4}
+.rtag{max-width:26ch;font-size:16px}
+.lnk{align-self:flex-start;background:transparent;border:1.5px solid rgba(255,255,255,.7);color:#fff;border-radius:999px;padding:8px 16px;min-height:40px}
+.lnk:hover{background:rgba(255,255,255,.14)}
+.subjgrp{display:contents}
+.t-sub{display:flex;flex-direction:column;gap:6px;cursor:pointer;min-height:176px;transition:transform .14s,box-shadow .14s}
+.t-sub:hover{transform:translateY(-2px)}
+.s-quant{grid-column:5/9;background:var(--gold)}
+.s-qual{grid-column:9/13;background:var(--accent)}
+.s-eng{grid-column:5/9;background:#fff}
+.s-all{grid-column:9/13;background:var(--maroon);color:#fff}
+.t-sub[aria-checked="true"]{box-shadow:inset 0 0 0 3px var(--ink)}
+.s-all[aria-checked="true"]{box-shadow:inset 0 0 0 3px var(--gold)}
+.bub{width:36px;height:36px;border-radius:50%;border:2px solid currentColor;display:grid;place-items:center;font-family:var(--f-head);font-weight:600;flex:none;transition:background-color .14s,color .14s}
+.t-sub[aria-checked="true"] .bub{background:var(--ink);border-color:var(--ink);color:#fff}
+.s-all[aria-checked="true"] .bub{background:var(--gold);border-color:var(--gold);color:var(--maroon)}
+.sn{display:flex;flex-direction:column;gap:3px;margin-top:auto}
+.sn b{font-size:17px;line-height:1.4}
+.t-sub .en{font-size:12.5px;opacity:.8}
+.t-sub small{font-size:13.5px;opacity:.9;line-height:1.5}
+.t-set{grid-column:1/9;grid-row:3}
+.t-set .row2{margin-top:24px}
+.t-hist{grid-column:9/13;grid-row:3/5;background:#fff}
+.t-hist h2{display:flex;justify-content:space-between;align-items:baseline}
+.t-hist h2 small{font-family:var(--f-body);font-weight:400;font-size:13px;color:var(--muted)}
+.t-crew{grid-column:1/9;grid-row:4;background:var(--accent-soft)}
+.t-crew summary{cursor:pointer;font-weight:600;min-height:32px}
+.btn.pri.start{min-height:52px;padding-inline:28px;font-size:17px;border-radius:14px}
+.t .seg,.t select,.t .btn{border-radius:12px}
+@media (max-width:900px){
+ .bento{grid-template-columns:repeat(6,minmax(0,1fr));padding-top:14px}
+ .t-brand{grid-column:1/7;grid-row:auto;gap:12px}
+ .t-sub{grid-column:span 3 !important;min-height:150px;padding:18px}
+ .t-set,.t-hist,.t-crew{grid-column:1/7;grid-row:auto}
+}
+@media (max-width:520px){.t-sub{grid-column:1/7 !important;min-height:0}.wm{font-size:34px}.t{padding:20px;border-radius:18px}}
+/* landing */
+.land .t{animation:tile-in .5s cubic-bezier(.2,.7,.2,1) both}
+.land .t:nth-child(2){animation-delay:.06s}.land .t:nth-child(3){animation-delay:.12s}.land .t:nth-child(4){animation-delay:.18s}.land .t:nth-child(5){animation-delay:.24s}.land .t:nth-child(6){animation-delay:.3s}.land .t:nth-child(7){animation-delay:.36s}
+@keyframes tile-in{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.l-hero{grid-column:1/8;grid-row:1/3;background:var(--red);color:#fff;display:flex;flex-direction:column;gap:20px;padding:32px}
+.l-hero h1{font-size:clamp(30px,4.6vw,52px);font-weight:700;line-height:1.2;color:#fff;max-width:14ch}
+.l-hero p{max-width:44ch;font-size:17px}
+.l-hero .go{align-self:flex-start;margin-top:auto;background:var(--gold);color:var(--ink);border:0;font-weight:600;font-size:17px;min-height:54px;padding:0 26px;border-radius:14px;display:inline-flex;align-items:center;gap:10px}
+.l-hero .go:hover{filter:brightness(1.05)}
+.l-sample{grid-column:8/13;grid-row:1/3;background:#fff;display:flex;flex-direction:column;gap:12px}
+.l-sample .cap{font-size:13.5px;color:var(--muted)}
+.mini{border:2px solid #000;border-radius:12px;padding:16px;background:#fff;color:#000;display:flex;flex-direction:column;gap:10px}
+.mini .q{font-weight:500;line-height:1.6}
+.mini .o{display:flex;gap:10px;align-items:center;border:1.5px solid #8C8C8C;border-radius:8px;padding:8px 10px;font-size:14.5px}
+.mini .o i{width:22px;height:22px;border-radius:50%;border:1.5px solid #000;display:grid;place-items:center;font-style:normal;font-size:12px;font-weight:600;flex:none}
+.mini .o.on{border:2px solid #000}.mini .o.on i{background:#000;color:#fff}
+.mini svg{width:100%;height:auto}
+.l-a{grid-column:1/5;background:var(--gold)}
+.l-b{grid-column:5/9;background:#fff}
+.l-c{grid-column:9/13;background:var(--accent)}
+.l-d{grid-column:1/7;background:var(--maroon);color:#fff}
+.l-e{grid-column:7/13;background:var(--accent-soft)}
+.l-a .k,.l-b .k,.l-c .k,.l-d .k,.l-e .k{font-family:var(--f-head);font-weight:700;font-size:34px;line-height:1.15;margin-bottom:8px}
+.t p{line-height:1.6}
+.foot{grid-column:1/13;color:var(--muted);font-size:13.5px;padding:4px 6px}
+@media (max-width:900px){
+ .l-hero,.l-sample{grid-column:1/7;grid-row:auto}
+ .l-a,.l-c,.l-b{grid-column:span 3}.l-d,.l-e{grid-column:1/7}.foot{grid-column:1/7}
+}
+@media (max-width:520px){.l-a,.l-b,.l-c{grid-column:1/7}.l-hero{padding:24px}}
+@media (prefers-reduced-motion:reduce){.land .t{animation:none}.t-sub,.bub{transition:none}.t-sub:hover{transform:none}}
+
+/* results: flatter, ruled */
+.big{font-family:var(--f-head);font-weight:600}
+.rq{border-radius:var(--r)}
+
+
+/* v6: fixed light theme on landing/home, new tile colors */
+body[data-view="home"],body[data-view="landing"]{--ink:#2A0B12;--muted:#5E4D51;--line:#E3D6D0;--bg:#F3EEEA;--card:#FFFFFF;--accent-soft:#FDEBCB;--accent-text:#8A5300;--btn:#F2A73C;--btn-ink:#2A0B12;color-scheme:light}
+.t{color:#2A0B12}
+.t-brand,.s-all,.l-hero,.l-a,.l-b,.l-d,.s-quant{color:#fff}
+.s-quant{background:#2A0B12}
+.s-qual{background:#F2A73C;color:#2A0B12}
+.s-eng{background:#FFD13F;color:#2A0B12}
+.t-sub{box-shadow:none}
+.t-sub[aria-checked="true"],.s-all[aria-checked="true"]{box-shadow:0 0 0 3px #fff,0 0 0 6px #2A0B12}
+.s-quant[aria-checked="true"] .bub,.s-all[aria-checked="true"] .bub{background:#fff;border-color:#fff;color:#2A0B12}
+.t-hist{background:#FBE4E8}
+.t-set{background:#fff}
+.t-crew{background:#fff;border:1.5px solid var(--line);padding:16px 24px}
+.t-crew[open]{padding-bottom:20px}
+.t-crew summary{display:flex;justify-content:space-between;align-items:center;list-style:none;font-size:16px}
+.t-crew summary::-webkit-details-marker{display:none}
+.t-crew summary::after{content:"แสดง";font-weight:400;font-size:13.5px;color:var(--muted)}
+.t-crew[open] summary::after{content:"ซ่อน"}
+.t-set .btn.pri.start{background:#00A1DF;border-color:#00A1DF;color:#0A1A22;box-shadow:0 2px 0 rgba(0,0,0,.2)}
+.l-hero .go{background:#00A1DF;color:#0A1A22}
+.l-a{background:#2A0B12}.l-b{background:#7A0019}.l-d{background:#C3002F}
+.l-c{color:#2A0B12}
+.t-brand .lnk{color:#fff}
 </style>
 </head>
 <body>
@@ -284,6 +477,7 @@ body.exam .timer.warn{font-weight:700;border-width:2px}
 <symbol id="i-redo" viewBox="0 0 24 24"><path d="M20 11a8 8 0 0 0-14-4L4 9M4 4v5h5M4 13a8 8 0 0 0 14 4l2-2M20 20v-5h-5"/></symbol>
 <symbol id="i-grid" viewBox="0 0 24 24"><rect x="4" y="4" width="6" height="6" rx="1"/><rect x="14" y="4" width="6" height="6" rx="1"/><rect x="4" y="14" width="6" height="6" rx="1"/><rect x="14" y="14" width="6" height="6" rx="1"/></symbol>
 <symbol id="i-home" viewBox="0 0 24 24"><path d="M4 11l8-7 8 7v9H4v-9zM10 20v-6h4v6"/></symbol>
+<symbol id="i-fwd" viewBox="0 0 24 24"><path d="M4 5l7 7-7 7M12 5l7 7-7 7"/></symbol>
 <symbol id="i-pen" viewBox="0 0 24 24"><path d="M5 19h14M7 15l9-9 3 3-9 9H7v-3z"/></symbol>
 </defs>
 </svg>
@@ -843,9 +1037,9 @@ const saveH=()=>{for(;;){try{localStorage.setItem(KEY,JSON.stringify(H));return}
 
 /* sample (Claude) capability */
 let SAMPLE=null;
-(async()=>{try{const r=await fetch('/api/generate');const j=await r.json();SAMPLE=j&&j.configured?{remote:true}:null}catch(e){SAMPLE=null}if(S&&S.view==='home')render()})();
+(async()=>{try{const r=await fetch('/api/generate');const j=await r.json();SAMPLE=j&&j.configured?{remote:true}:null}catch(e){SAMPLE=null}if(S&&(S.view==='home'||S.view==='landing'))render()})();
 
-const S={view:'home',cfg:{subj:'quant',timed:false,mins:20,ai:true,n:10,lv:'mix'},run:null,prep:null,rtab:0,rfilter:'all',confirm:false,quit:false};
+const S={view:'landing',cfg:{subj:'quant',timed:false,mins:20,ai:true,n:10,lv:'mix'},run:null,prep:null,rtab:0,rfilter:'all',confirm:false,quit:false};
 let timerId=null;
 
 /* ---------- building a set ---------- */
@@ -1001,7 +1195,7 @@ function retake(){
 /* ---------- views ---------- */
 function topbar(){
   const R=S.run,v=S.view;
-  let h=`<div class="brand"><span class="mark">${ic('pen')}</span>ฝึกสอบ Forward</div>`;
+  let h=`<div class="brand"><span class="mark">${ic('fwd')}</span>Forward</div>`;
   if(v==='quiz'){
     const st=R.stages[R.cur];
     if(R.mode==='all')h+=`<div class="stepper">${R.stages.map((s,i)=>`<span class="step ${i===R.cur?'cur':''} ${s.done?'done':''}">${s.done?ic('lock'):''}${SUBJ[s.subj].short}</span>`).join('')}</div>`;
@@ -1011,24 +1205,42 @@ function topbar(){
   return h;
 }
 function vHome(){
-  const c=S.cfg,all=c.subj==='all',n=H.attempts.length,rec=H.attempts.slice(-5).reverse();
-  const fmtD=t=>new Date(t).toLocaleDateString('th-TH',{day:'numeric',month:'short'});
-  return `<section class="hero"><h1>ฝึกทำข้อสอบ Forward</h1><p>ชุดละ 10 ข้อ ทำเสร็จแล้วดูเฉลยพร้อมเหตุผลของทุกตัวเลือก ระบบเลือกข้อที่คุณทำมาน้อยที่สุดก่อน</p></section>
-  <div class="home"><div class="stack">
-   <div class="card"><div class="lbl">1. เลือกวิชา</div>
-    <div class="subjects" role="radiogroup" aria-label="เลือกวิชา">${['quant','qual','eng','all'].map(k=>`<button class="subj" role="radio" aria-checked="${c.subj===k}" data-a="subj" data-v="${k}"><span class="row"><span class="ico">${ic(SUBJ[k].icon)}</span><b>${SUBJ[k].th}</b></span><span class="en">${SUBJ[k].en}</span><small>${SUBJ[k].desc}</small></button>`).join('')}</div></div>
-   <div class="card"><div class="lbl">2. ตั้งค่าการทำข้อสอบ</div>
-    ${all?`<p>${ic('clock')} จับเวลาวิชาละ 40 นาที ตามลำดับ เชิงปริมาณ → เชิงคุณภาพ → ภาษาอังกฤษ เมื่อหมดเวลาหรือกดส่งแล้ว จะกลับไปแก้วิชานั้นไม่ได้ และจะดูเฉลยได้เมื่อจบครบทั้ง 3 วิชา</p>`:
+  const c=S.cfg,all=c.subj==='all',n=H.attempts.length;
+  const BUB={quant:'ก',qual:'ข',eng:'ค',all:'ง'},CLS={quant:'s-quant',qual:'s-qual',eng:'s-eng',all:'s-all'};
+  return `<div class="bento">
+   <section class="t t-brand"><div class="wm"><span class="mark">${ic('fwd')}</span><b>Forward</b></div>
+    <p class="rtag">ซ้อมสอบเข้า Forward ธรรมศาสตร์ ทีละวิชา หรือจำลองสอบครบ 3 วิชา</p>
+    <button class="lnk" data-a="toland">เกี่ยวกับ Forward</button></section>
+   <div class="subjgrp" role="radiogroup" aria-label="เลือกวิชา">${['quant','qual','eng','all'].map(k=>`<button class="t t-sub ${CLS[k]}" role="radio" aria-checked="${c.subj===k}" data-a="subj" data-v="${k}"><span class="bub" aria-hidden="true">${BUB[k]}</span><span class="sn"><b>${SUBJ[k].th}</b><span class="en">${SUBJ[k].en}</span><small>${SUBJ[k].desc}</small></span></button>`).join('')}</div>
+   <section class="t t-set"><h2>ตั้งค่า</h2>${all?`<p>${ic('clock')} จับเวลาวิชาละ 40 นาที ตามลำดับ เชิงปริมาณ → เชิงคุณภาพ → ภาษาอังกฤษ เมื่อหมดเวลาหรือกดส่งแล้ว จะกลับไปแก้วิชานั้นไม่ได้ และจะดูเฉลยได้เมื่อจบครบทั้ง 3 วิชา</p>`:
     `<div class="opts"><div class="seg" role="group" aria-label="จับเวลา"><button data-a="timed" data-v="0" aria-pressed="${!c.timed}">ไม่จับเวลา</button><button data-a="timed" data-v="1" aria-pressed="${c.timed}">จับเวลา</button></div>
     ${c.timed?`<label>เวลา <select id="mins" data-a="mins">${[10,15,20,30,40,60].map(m=>`<option value="${m}" ${c.mins===m?'selected':''}>${m} นาที</option>`).join('')}</select></label>`:''}</div>`}
-    ${all?`<p class="note" style="margin-top:12px">ข้อละ 10 คะแนน เต็มวิชาละ 300 คะแนน (30 ข้อ) ข้อสอบเชิงคุณภาพและภาษาอังกฤษในคลังยังมีไม่ครบ 30 ข้อ ระบบจึงใช้เท่าที่มี (บวกข้อ AI ถ้าเปิดใช้)</p>`:`<div class="opts" style="margin-top:16px"><b>จำนวนข้อ</b><div class="seg" role="group" aria-label="จำนวนข้อ">${[5,10,15,20,30].map(x=>`<button data-a="n" data-v="${x}" aria-pressed="${c.n===x}">${x}</button>`).join('')}</div></div>${c.subj==='quant'?'':`<p class="note" style="margin-top:6px">ในคลังมี ${BANK.filter(q=>q.subj===c.subj).length} ข้อ ถ้าเลือกเกินนี้ ระบบจะใช้เท่าที่มี (บวกข้อ AI ถ้าเปิดใช้)</p>`}`}
+    ${all?`<p class="note" style="margin-top:12px">ข้อละ 10 คะแนน เต็มวิชาละ 300 คะแนน (30 ข้อ) แต่ละวิชามี 30 ข้อ รวม 90 ข้อ</p>`:`<div class="opts" style="margin-top:16px"><b>จำนวนข้อ</b><div class="seg" role="group" aria-label="จำนวนข้อ">${[5,10,15,20,30].map(x=>`<button data-a="n" data-v="${x}" aria-pressed="${c.n===x}">${x}</button>`).join('')}</div></div>${c.subj==='quant'?'':`<p class="note" style="margin-top:6px">ในคลังมี ${BANK.filter(q=>q.subj===c.subj).length} ข้อ ถ้าเลือกเกินนี้ ระบบจะใช้เท่าที่มี (บวกข้อ AI ถ้าเปิดใช้)</p>`}`}
     <div class="opts" style="margin-top:12px"><b>ความยาก</b><div class="seg" role="group" aria-label="ความยาก">${[['mix','ผสม (เน้นยาก)'],['1','ง่าย'],['2','ปานกลาง'],['3','ยาก']].map(([k,t])=>`<button data-a="lv" data-v="${k}" aria-pressed="${String(c.lv)===k}">${t}</button>`).join('')}</div></div>
     <div class="chk" style="margin-top:16px"><input type="checkbox" id="ai" data-a="ai" ${c.ai&&SAMPLE?'checked':''} ${SAMPLE?'':'disabled'}><label for="ai">ให้ทีมวิชาการคิดโจทย์ใหม่ ${all?'วิชาละ ':''}5 ข้อ ด้วย Gemini<br><span class="note">${SAMPLE?'ที่เหลือเป็นข้อจากคลังและข้อที่ปรับตัวเลขใหม่':'ยังไม่ได้เชื่อมต่อ Gemini ระบบจะใช้ข้อจากคลังและข้อที่ปรับตัวเลขใหม่'}</span></label></div>
-    <div class="row2"><button class="btn pri start" data-a="start">${ic('play')}เริ่มทำข้อสอบ</button></div></div>
-  </div><aside class="stack">
-   <div class="card"><div class="lbl">${ic('hist')} ประวัติการทำ</div>${(()=>{const rows=histRows();return rows.length?rows.map(r=>{const inner=`<span>${r.t}<small>${new Date(r.d).toLocaleString('th-TH',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})} · ใช้เวลา ${mmss(r.sec)}</small></span><b>${r.sc}/${r.tot}</b>`;return r.ok?`<button class="hrow" data-a="hist" data-v="${r.v}">${inner}</button>`:`<div class="hrow">${inner}</div>`}).join('')+`<p class="note" style="margin-top:10px">กดที่รายการเพื่อดูคำตอบและเฉลยรายข้อ หรือทำชุดเดิมซ้ำอีกครั้ง ทำมาแล้ว ${n} ชุด</p>`:'<p class="note">ยังไม่มีประวัติ ทำชุดแรกเพื่อเริ่มบันทึกผล ระบบเก็บคำตอบและเฉลยไว้ให้เปิดดูย้อนหลัง ข้อมูลเก็บในเบราว์เซอร์นี้เท่านั้น</p>'})()}</div>
-   <div class="card"><div class="lbl">ทีมงานเบื้องหลัง</div>${TEAMS.map(t=>`<div class="team"><span class="ico">${ic(t.ic)}</span><div><b>${t.n}</b><span>${t.d}</span></div></div>`).join('')}</div>
-  </aside></div>`;
+    <div class="row2"><button class="btn pri start" data-a="start">${ic('play')}เริ่มทำข้อสอบ</button></div></section>
+   <section class="t t-hist"><h2>ประวัติการทำ<small>${n} ชุด</small></h2>${(()=>{const rows=histRows();return rows.length?rows.map(r=>{const inner=`<span>${r.t}<small>${new Date(r.d).toLocaleString('th-TH',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})} · ใช้เวลา ${mmss(r.sec)}</small></span><b>${r.sc}/${r.tot}</b>`;return r.ok?`<button class="hrow" data-a="hist" data-v="${r.v}">${inner}</button>`:`<div class="hrow">${inner}</div>`}).join('')+`<p class="note">กดที่รายการเพื่อดูคำตอบและเฉลยรายข้อ หรือทำชุดเดิมซ้ำอีกครั้ง ทำมาแล้ว ${n} ชุด</p>`:'<p class="note">ยังไม่มีประวัติ ทำชุดแรกเพื่อเริ่มบันทึกผล ระบบเก็บคำตอบและเฉลยไว้ให้เปิดดูย้อนหลัง ข้อมูลเก็บในเบราว์เซอร์นี้เท่านั้น</p>'})()}</section>
+   <details class="t t-crew"><summary>ทีมงานเบื้องหลัง</summary>${TEAMS.map(t=>`<div class="team"><span class="ico">${ic(t.ic)}</span><div><b>${t.n}</b><span>${t.d}</span></div></div>`).join('')}</details>
+  </div>`;
+}
+function vLanding(){
+  const nq=BANK.filter(q=>q.subj==='qual').length,ne=BANK.filter(q=>q.subj==='eng').length;
+  return `<div class="bento land">
+   <section class="t l-hero"><div class="wm" style="font-size:28px"><span class="mark" style="width:38px;height:38px">${ic('fwd')}</span><b>Forward</b></div>
+    <h1>ซ้อมสอบ Forward ให้เหมือนวันสอบจริง</h1>
+    <p>ข้อสอบเชิงปริมาณ เชิงคุณภาพ และภาษาอังกฤษธุรกิจ ทำเสร็จแล้วรู้ทันทีว่าผิดเพราะอะไร และควรทบทวนเรื่องไหน</p>
+    <button class="go" data-a="enter">เข้าห้องฝึกสอบ${ic('right')}</button></section>
+   <section class="t l-sample" aria-label="ตัวอย่างหน้าทำข้อสอบ"><div class="cap">หน้าทำข้อสอบเป็นขาวดำล้วน มีสีเฉพาะแผนภูมิ</div>
+    <div class="mini"><div class="q">ยอดขายไตรมาสใดเพิ่มขึ้นเป็นร้อยละสูงที่สุด</div>
+     <svg viewBox="0 0 220 70" role="img" aria-label="แผนภูมิแท่งตัวอย่าง"><line x1="8" x2="212" y1="62" y2="62" stroke="#444"/><rect x="24" y="30" width="30" height="32" fill="#F2A73C"/><rect x="78" y="42" width="30" height="20" fill="#F2A73C"/><rect x="132" y="12" width="30" height="50" fill="#F2A73C"/><rect x="186" y="18" width="22" height="44" fill="#F2A73C"/></svg>
+     <div class="o"><i>ก</i>ไตรมาส 1</div><div class="o on"><i>ข</i>ไตรมาส 2</div><div class="o"><i>ค</i>ไตรมาส 3</div></div></section>
+   <section class="t l-a"><div class="k">3 วิชา</div><p>เชิงปริมาณ เชิงคุณภาพ และภาษาอังกฤษธุรกิจ เลือกทำทีละวิชา จะจับเวลาหรือไม่ก็ได้</p></section>
+   <section class="t l-b"><div class="k">เฉลยทุกตัวเลือก</div><p>บอกเหตุผลว่าตัวเลือกไหนถูก ตัวเลือกไหนผิด และผิดเพราะคิดพลาดตรงไหน</p></section>
+   <section class="t l-c"><div class="k">คลัง ${31+nq+ne} รายการ</div><p>เชิงปริมาณ 31 แบบที่สุ่มตัวเลขใหม่ทุกครั้ง เชิงคุณภาพ ${nq} ข้อ ภาษาอังกฤษ ${ne} ข้อ และให้ AI คิดข้อใหม่ได้</p></section>
+   <section class="t l-d"><div class="k">Full Mock Test</div><p>สอบครบ 3 วิชา วิชาละ 30 ข้อ 40 นาที เมื่อหมดเวลาจะกลับไปแก้ไม่ได้ ได้คะแนนเต็มวิชาละ 300 พร้อมรายงานจุดแข็งและจุดอ่อน</p></section>
+   <section class="t l-e"><div class="k">เครื่องมือช่วยคิด</div><p>เครื่องคิดเลขและสมุดทดแยกรายข้อ ในวิชาเชิงปริมาณ และทำชุดเดิมซ้ำจากประวัติได้ทุกเมื่อ</p></section>
+   <p class="foot">ข้อสอบชุดนี้เป็นชุดฝึกที่จัดทำขึ้นเอง ไม่ใช่ข้อสอบจริงของมหาวิทยาลัย</p>
+  </div>`;
 }
 function vPrep(){
   return `<section class="prep card"><h2>กำลังจัดชุดข้อสอบ</h2><p class="note" style="margin-bottom:12px">${S.cfg.subj==='all'?'3 วิชา วิชาละสูงสุด 30 ข้อ':SUBJ[S.cfg.subj].th+' · '+S.cfg.n+' ข้อ'}</p>
@@ -1113,8 +1325,9 @@ function vResult(){
 }
 function render(){
   clearInterval(timerId);
+  document.body.dataset.view=S.view;
   $('#topbar').innerHTML=topbar();
-  $('#app').innerHTML=({home:vHome,prep:vPrep,quiz:vQuiz,between:vBetween,result:vResult})[S.view]();
+  $('#app').innerHTML=({landing:vLanding,home:vHome,prep:vPrep,quiz:vQuiz,between:vBetween,result:vResult})[S.view]();
   if(S.view==='quiz'){const st=S.run.stages[S.run.cur];
     const tick=()=>{const el=$('#tv'),box=$('#timer');if(!el)return;
       if(st.deadline){const left=(st.deadline-Date.now())/1000;if(left<=0){clearInterval(timerId);finishStage(true);return}el.textContent=mmss(left);box.classList.toggle('warn',left<300)}
@@ -1336,6 +1549,8 @@ document.addEventListener('click',e=>{
     case'cancel':S.confirm=false;S.quit=false;render();break;
     case'submit':finishStage(false);break;
     case'nextstage':beginStage(R.cur+1);break;
+    case'enter':S.view='home';render();window.scrollTo(0,0);break;
+    case'toland':S.view='landing';render();window.scrollTo(0,0);break;
     case'leave':S.view='home';S.run=null;S.hist=0;S.confirm=false;S.quit=false;render();window.scrollTo(0,0);break;
     case'again':startRun();break;
     case'retake':retake();break;
