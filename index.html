@@ -119,7 +119,7 @@ select{font:inherit;color:var(--ink);background:var(--card);border:1px solid var
 .chip{font-size:12.5px;padding:2px 10px;border-radius:999px;background:var(--bg);border:1px solid var(--line);color:var(--muted);line-height:1.6}
 .chip.ai{background:var(--accent-soft);border-color:transparent;color:var(--accent-text)}
 .qno{font-family:var(--f-head);font-weight:700;font-size:15px;color:var(--accent-text);margin-right:4px}
-.ctx{background:var(--bg);border-left:3px solid var(--line);border-radius:6px;padding:12px 16px;margin-bottom:16px;white-space:pre-line;font-size:15.5px}
+.ctx{background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:12px 16px;margin-bottom:16px;white-space:pre-line;font-size:15.5px}
 .stem{font-size:18px;font-weight:500;margin-bottom:16px;line-height:1.65}
 .chart{margin:0 0 16px;max-width:540px}
 .chart svg{width:100%;height:auto;display:block}
@@ -179,9 +179,9 @@ button.hrow:hover{border-color:var(--muted)}
 /* tools: calculator + scratchpad (quantitative only) */
 body.hastools{padding-block:0 104px}
 .tl{position:fixed;z-index:30;right:max(16px,env(safe-area-inset-right,0px));bottom:calc(16px + env(safe-area-inset-bottom,0px));display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
-.tb{display:inline-flex;align-items:center;gap:8px;min-height:46px;padding:8px 16px;border-radius:999px;border:1px solid var(--line);background:var(--card);box-shadow:0 4px 14px rgba(20,32,58,.16);font-weight:500}
+.tb{display:inline-flex;align-items:center;gap:8px;min-height:46px;padding:8px 16px;border-radius:999px;border:1px solid var(--line);background:var(--card);box-shadow:0 4px 14px rgba(0,0,0,.16);font-weight:500}
 .tb[aria-pressed="true"]{background:var(--btn);border-color:var(--btn);color:var(--btn-ink);font-weight:600}
-.tp{position:fixed;z-index:30;right:max(16px,env(safe-area-inset-right,0px));bottom:calc(76px + env(safe-area-inset-bottom,0px));width:min(320px,calc(100vw - 32px));max-height:calc(100vh - 110px);max-height:calc(100dvh - 110px);overflow-y:auto;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px;box-shadow:0 12px 32px rgba(20,32,58,.22)}
+.tp{position:fixed;z-index:30;right:max(16px,env(safe-area-inset-right,0px));bottom:calc(76px + env(safe-area-inset-bottom,0px));width:min(320px,calc(100vw - 32px));max-height:calc(100vh - 110px);max-height:calc(100dvh - 110px);overflow-y:auto;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px;box-shadow:0 12px 32px rgba(0,0,0,.22)}
 .tp:focus-visible{outline:none;border-color:var(--accent)}
 .th{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px}
 .th b{font-family:var(--f-head);font-size:15px;line-height:1.4}
@@ -202,7 +202,7 @@ body.hastools{padding-block:0 104px}
 .th button{cursor:pointer}
 .tp button,.tb{-webkit-tap-highlight-color:transparent}
 @media (max-width:860px){body.toolopen{padding-block:0 470px}}
-.pad{display:block;width:100%;min-height:240px;resize:vertical;border:1px solid var(--line);border-radius:10px;background-color:var(--card);color:var(--ink);font:16px/28px var(--f-body);padding:0 12px;background-image:repeating-linear-gradient(to bottom,transparent 0,transparent 27px,var(--line) 27px,var(--line) 28px);background-attachment:local}
+.pad{display:block;width:100%;min-height:240px;resize:vertical;border:1px solid var(--line);border-radius:10px;background-color:var(--card);color:var(--ink);font:16px/28px var(--f-body);padding:0 12px;background-image:linear-gradient(to bottom,transparent 27px,var(--line) 27px);background-size:100% 28px;background-attachment:local}
 
 /* ===== draft 3: exam mode, tool restyle, mobile ===== */
 .ch-bar{fill:#F2A73C}.ch-bar2{fill:var(--ink);opacity:.78}
@@ -223,21 +223,35 @@ body.exam .timer.warn{font-weight:700;border-width:2px}
 .tx:hover{background:#A50027}
 .tp.calc{width:min(300px,calc(100vw - 32px));background:linear-gradient(#2b2d31,#18191b);border:1px solid #000;border-radius:16px 16px 26px 26px;color:#e9e9e9;padding:12px 14px 18px;box-shadow:0 14px 34px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.1)}
 .tp.calc .th b{color:#cfcfd2}
-.tp.calc .solar{height:14px;margin:0 auto 8px;width:46%;border-radius:3px;background:repeating-linear-gradient(90deg,#3a2f26 0 14px,#241c16 14px 16px);border:1px solid #0b0b0c;box-shadow:inset 0 1px 2px rgba(255,255,255,.12)}
+.tp.calc .solar{height:14px;margin:0 auto 8px;width:46%;border-radius:3px;background:#2b221c;border:1px solid #0b0b0c}
 .tp.calc .cd{background:linear-gradient(#cbd5bb,#b4c0a2);border:3px solid #0b0b0c;border-radius:6px;box-shadow:inset 0 3px 8px rgba(0,0,0,.35);color:#18200f}
 .tp.calc .ce{color:#4b5a3d}.tp.calc .cr{color:#18200f}
-.tp.calc .ck{grid-template-columns:repeat(5,minmax(0,1fr));gap:7px}
-.tp.calc .ky{min-height:44px;background:linear-gradient(#f2f2f0,#c9cacc);color:#15161a;border:1px solid #6d6e72;border-bottom:3px solid #4d4e52;border-radius:8px;font-weight:700;font-size:17px}
-.tp.calc .ky.op{background:linear-gradient(#5a5d63,#37393e);color:#f3f3f3;border-color:#0c0c0d;border-bottom-color:#000;font-size:15px}
+.tp.calc .ck{grid-template-columns:repeat(5,minmax(0,1fr));gap:7px}.tp.calc .ky.tall{grid-row:span 2;min-height:0}.tp.calc{width:min(320px,calc(100vw - 32px))}.tp.calc .ck i{display:block}.tp.calc .ky.fk{background:linear-gradient(#2a2b2e,#101112);color:#f5f5f5;font-size:15px}.tp.calc .ky.dg{background:linear-gradient(#988e87,#776e68);color:#fff;font-size:19px;border-bottom-color:#3d3733}.tp.calc .ky.sm{min-height:26px;font-size:12px}.tp.calc .ky.ac{background:linear-gradient(#e2591c,#b73c09);color:#fff;font-size:13px;line-height:1.05;border-color:#7a2a05;border-bottom-color:#5c1f02}.tp.calc .ky.ac small{display:block;font-size:9px;font-weight:600}
+.tp.calc .ky{min-height:44px;background:linear-gradient(#4a4c51,#2e3034);color:#f5f5f5;border:1px solid #0c0c0d;border-bottom:3px solid #000;border-radius:8px;font-weight:700;font-size:17px}
+.tp.calc .ky.op{background:linear-gradient(#8a8c91,#62646a);color:#f3f3f3;border-color:#0c0c0d;border-bottom-color:#000;font-size:15px}
+.tp.calc .ky.mk{background:linear-gradient(#6c7078,#4a4d54);color:#f3f3f3;font-size:13px;min-height:34px}
 .tp.calc .ky.fn{background:linear-gradient(#f0953a,#cf6a14);color:#fff;border-color:#7a3a05;border-bottom-color:#5c2a02;font-family:var(--f-body);font-size:15px}
 .tp.calc .ky.eq{background:linear-gradient(#5a5d63,#37393e);color:#ffd13f;border-color:#0c0c0d;border-bottom-color:#000;font-size:20px}
 .tp.calc .ky:active{transform:translateY(1px);border-bottom-width:2px}
+
+.tp.calc{width:min(300px,calc(100vw - 32px));background:#171717;border:1px solid #000;border-radius:14px 14px 22px 22px;box-shadow:0 14px 34px rgba(0,0,0,.45),inset 0 0 0 4px #3a342d}
+.tp.calc .brand{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 2px 8px;color:#f2f2f2}
+.tp.calc .brand b{font:800 15px/1 var(--f-body);letter-spacing:.04em}.tp.calc .brand em{font:700 11px/1 var(--f-body);font-style:normal;letter-spacing:.04em}
+.tp.calc .brand .solar{flex:0 0 76px;height:16px;margin:0;border-radius:2px;background:linear-gradient(90deg,#8a6a4a 0 50%,#2a2118 50%);border:1px solid #000}
+.tp.calc .ck{grid-template-columns:repeat(5,minmax(0,1fr));gap:7px;margin-top:2px}
+.tp.calc .ck>span{display:block}
+.tp.calc .ky{min-height:42px;font-size:15px;border-radius:7px;font-weight:700;color:#f5f5f5}
+.tp.calc .ky.k{background:linear-gradient(#262626,#0d0d0d);border-color:#000;border-bottom:3px solid #000}
+.tp.calc .ky.n{background:linear-gradient(#948579,#7a6d63);border-color:#4d443d;border-bottom:3px solid #4d443d;font-size:20px}
+.tp.calc .ky.cc{background:linear-gradient(#e0581c,#bb3f0a);border-color:#6d2402;border-bottom:3px solid #6d2402;font-size:11px;line-height:1.1}
+.tp.calc .ky.sm{min-height:28px;font-size:12px;border-radius:6px}
+.tp.calc .ky.tall{grid-row:span 2;min-height:0;font-size:22px}
 .tp.calc .note{color:#9b9ba1}
 .tp.padp{background:#FFFBEA;border-color:#E2D5A2;color:#2a2a26}
 .tp.padp .th b{color:#2a2a26}
 .tp.padp .note{color:#76725f}
 .tp.padp .btn.sm{background:#FFFDF3;border-color:#E2D5A2;color:#2a2a26}
-.tp.padp .pad{background-color:#FFFBEA;color:#222;border-color:#E2D5A2;background-image:repeating-linear-gradient(to bottom,transparent 0,transparent 27px,#E7DCAE 27px,#E7DCAE 28px)}
+.tp.padp .pad{background-color:#FFFBEA;color:#222;border-color:#E2D5A2;background-image:linear-gradient(to bottom,transparent 27px,#E7DCAE 27px);background-size:100% 28px}
 .palp .lbl{display:none}
 .tb.palb{display:none}
 @media (max-width:860px){
@@ -290,7 +304,7 @@ body.exam .top .btn{background:#fff;color:#000;border-color:#8C8C8C}
 .subj:hover{background:var(--accent-soft)}
 .subj .ico{background:none;width:auto;height:auto;color:var(--red);border-radius:0}
 .subj[aria-checked="true"]{background:#FFE9A8;border-color:var(--line)}
-.subj[aria-checked="true"]::before{content:"";position:absolute;left:0;top:0;bottom:0;width:5px;background:var(--red)}
+
 .subj[aria-checked="true"] .ico{background:none;color:var(--red)}
 .seg{border-radius:4px}.seg button{transition:background-color .12s}
 select{border-radius:4px}
@@ -315,7 +329,7 @@ button.hrow:hover{background:var(--accent-soft)}
 /* exam paper: serif stem, squared options, crisp feedback on press */
 body.exam .qcard{border-top:3px solid #000}
 body.exam .stem{font-family:'Noto Serif Thai','Noto Sans Thai',serif;font-weight:500;font-size:19px;line-height:1.75}
-body.exam .ctx{font-family:'Noto Serif Thai','Noto Sans Thai',serif;border-left:3px solid #000;border-radius:0;background:#F4F4F4}
+body.exam .ctx{font-family:'Noto Serif Thai','Noto Sans Thai',serif;border:1.5px solid #000;border-radius:0;background:#F4F4F4}
 .opt{border-radius:4px;transition:background-color .12s,border-color .12s}
 .opt .ltr{font-family:var(--f-body);transition:background-color .12s,color .12s}
 .opt:active{transform:scale(.995)}
@@ -511,13 +525,79 @@ body[data-view="between"] .mid h2{font-family:var(--f-head);font-weight:700}
 .p-step b{font-family:var(--f-head);font-size:18px}
 .p-step .pd{font-size:14.5px;color:#5E4D51;line-height:1.55}
 .p-step .st{width:34px;height:34px;border-radius:50%;border:2px solid #2A0B12;display:grid;place-items:center;margin-bottom:8px}
-.p-step.wait{opacity:.6}
+.p-step.wait{background:#F8F3F1;box-shadow:inset 0 0 0 1.5px #DCCDC6}
 .p-step.run{background:var(--gold)}
 .p-step.run .st{border-top-color:transparent;animation:spin 1s linear infinite}
 .p-step.run .pd{color:#2A0B12}
 .p-step.done .st{background:#2A0B12;color:#fff}
 @media (max-width:900px){.p-step{grid-column:1/7}.p-head{grid-column:1/7}.prepb{align-content:start}}
 @media (prefers-reduced-motion:reduce){.p-step.run .st{animation:none;border-top-color:#2A0B12}}
+
+/* v9: browser surfaces themed from the palette (impeccable craft floor) */
+::selection{background:#FFD13F;color:#2A0B12}
+body.exam ::selection{background:#000;color:#fff}
+html{scrollbar-color:#C9B8B0 transparent;caret-color:#C3002F}
+body.exam{caret-color:#000}
+input,select,textarea,button{accent-color:#C3002F}
+body.exam input,body.exam select,body.exam textarea{accent-color:#000}
+a{text-underline-offset:.2em}
+.big,.timer,.gq,.rr b,.smh span,.hrow b,.tbl td{font-variant-numeric:tabular-nums}
+.ctx,.stem{max-width:70ch}
+/* v10: theme switcher + night mode */
+.themebtn{position:fixed;z-index:40;left:max(16px,env(safe-area-inset-left,0px));bottom:calc(16px + env(safe-area-inset-bottom,0px));width:48px;height:48px;border-radius:50%;border:1px solid var(--line);background:var(--card);color:var(--ink);display:grid;place-items:center;box-shadow:0 4px 14px rgba(0,0,0,.18)}
+.themebtn svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.themepanel{position:fixed;z-index:40;left:max(16px,env(safe-area-inset-left,0px));bottom:calc(76px + env(safe-area-inset-bottom,0px));width:min(280px,calc(100vw - 32px));background:var(--card);color:var(--ink);border:1px solid var(--line);border-radius:16px;padding:14px;box-shadow:0 12px 32px rgba(0,0,0,.28)}
+.themepanel h2{font-size:16px;font-weight:600;margin:0 0 8px;font-family:var(--f-head)}
+.th-o{display:flex;align-items:center;gap:12px;width:100%;text-align:left;border:1px solid var(--line);background:transparent;color:inherit;border-radius:12px;padding:10px 12px;margin-top:8px;min-height:52px}
+.th-o svg{width:22px;height:22px;flex:none;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.th-o b{display:block;font-family:var(--f-head);font-size:15px;line-height:1.3}
+.th-o small{display:block;font-size:12.5px;opacity:.8;line-height:1.4}
+.th-o[aria-checked="true"]{background:var(--ink);color:var(--card);border-color:var(--ink)}
+.themepanel[hidden]{display:none}
+body.hastools .themebtn{bottom:calc(16px + env(safe-area-inset-bottom,0px))}
+/* night: home, landing, prep, between, result */
+:root[data-eff="dark"] body[data-view="home"],:root[data-eff="dark"] body[data-view="landing"],:root[data-eff="dark"] body[data-view="prep"],:root[data-eff="dark"] body[data-view="between"],:root[data-eff="dark"] body[data-view="result"]{--ink:#F4ECEE;--muted:#C6B6BA;--line:#4D2D36;--bg:#17090D;--card:#241217;--accent-soft:#3A2410;--accent-text:#F2A73C;color-scheme:dark}
+:root[data-eff="dark"] .t-set,:root[data-eff="dark"] .t-hist,:root[data-eff="dark"] .p-step,:root[data-eff="dark"] .l-e{background:#241217;color:#F4ECEE}
+:root[data-eff="dark"] .t-hist{background:#2E161C}
+:root[data-eff="dark"] .l-e{background:#2E1A12}
+:root[data-eff="dark"] .s-quant,:root[data-eff="dark"] .l-a{background:#3A1620}
+:root[data-eff="dark"] .t-sub[aria-checked="true"],:root[data-eff="dark"] .s-all[aria-checked="true"]{box-shadow:0 0 0 3px #17090D,0 0 0 6px #F4ECEE}
+:root[data-eff="dark"] .t-sub[aria-checked="true"] .bub{background:#F4ECEE;border-color:#F4ECEE;color:#2A0B12}
+:root[data-eff="dark"] .t-set .seg button{background:transparent}
+:root[data-eff="dark"] .t-set .seg button[aria-pressed="true"]{background:var(--btn);color:#2A0B12}
+:root[data-eff="dark"] .p-step .pd,:root[data-eff="dark"] .t-hist .note,:root[data-eff="dark"] .t-set .note{color:#C6B6BA}
+:root[data-eff="dark"] .p-step.run{background:var(--gold);color:#2A0B12}
+:root[data-eff="dark"] .p-step.run .pd{color:#2A0B12}
+:root[data-eff="dark"] .p-step.wait{background:#1D0F13;box-shadow:inset 0 0 0 1.5px #4D2D36}
+:root[data-eff="dark"] .p-step .st{border-color:currentColor}
+:root[data-eff="dark"] .p-step.done .st{background:#F4ECEE;color:#2A0B12}
+:root[data-eff="dark"] body[data-view="result"] .card,:root[data-eff="dark"] body[data-view="between"] .card{background:#241217;color:#F4ECEE}
+:root[data-eff="dark"] body[data-view="result"] #app>section>.card:first-child{background:var(--red);color:#fff}
+:root[data-eff="dark"] body[data-view="result"] .card .lbl{color:#F4ECEE}
+:root[data-eff="dark"] body[data-view="result"] #app>section>.card:first-child .lbl{color:#fff}
+:root[data-eff="dark"] body[data-view="result"] .bar{background:#3A2028}
+:root[data-eff="dark"] body[data-view="result"] .tabs button{background:#241217;color:#F4ECEE}
+:root[data-eff="dark"] body[data-view="result"] .tabs button[aria-pressed="true"]{background:#F4ECEE;color:#2A0B12}
+:root[data-eff="dark"] body[data-view="result"] .brand,:root[data-eff="dark"] body[data-view="between"] .brand{color:#F4ECEE}
+:root[data-eff="dark"] .hrow{background:transparent}
+:root[data-eff="dark"] .team .ico{background:rgba(255,255,255,.1)}
+/* night: exam paper stays black and white */
+:root[data-eff="dark"] body.exam{--bg:#000;--card:#000;--ink:#fff;--muted:#C8C8C8;--line:#7A7A7A;--accent:#fff;--accent-text:#fff;--accent-ink:#000;--accent-soft:#1E1E1E;--gold:#fff;--btn:#fff;--btn-ink:#000;--warn:#fff;--warn-soft:#1E1E1E;color-scheme:dark}
+:root[data-eff="dark"] body.exam .top{background:#000;color:#fff;border-bottom:2px solid #fff;border-top-color:#fff}
+:root[data-eff="dark"] body.exam .brand{color:#fff}
+:root[data-eff="dark"] body.exam .brand .mark{background:#fff;color:#000}
+:root[data-eff="dark"] body.exam .top .step{color:#C8C8C8;border-color:#7A7A7A}
+:root[data-eff="dark"] body.exam .top .step.cur{background:#000;color:#fff;border-color:#fff}
+:root[data-eff="dark"] body.exam .top .step.done{background:#222}
+:root[data-eff="dark"] body.exam .top .timer,:root[data-eff="dark"] body.exam .top .btn{background:#000;color:#fff;border-color:#7A7A7A}
+:root[data-eff="dark"] body.exam .chip.ai{background:#fff;color:#000;border-color:#fff}
+:root[data-eff="dark"] body.exam .qcard{border-top-color:#fff}
+:root[data-eff="dark"] body.exam .ctx{border-color:#fff;background:#111}
+:root[data-eff="dark"] body.exam .btn.pri,:root[data-eff="dark"] body.exam .btn.pri.start{box-shadow:0 3px 0 #777}
+:root[data-eff="dark"] body.exam ::selection{background:#fff;color:#000}
+:root[data-eff="dark"] body.exam{caret-color:#fff}
+:root[data-eff="dark"] body.exam input,:root[data-eff="dark"] body.exam select{accent-color:#fff}
+:root[data-eff="dark"] .ch-t{fill:#C8C8C8}
 </style>
 </head>
 <body>
@@ -1316,7 +1396,7 @@ function vPrep(){
   ${S.prep.map(p=>`<section class="t p-step ${p.state}"><span class="st">${p.state==='done'?ic('check'):''}</span><b>${p.n}</b><span class="pd">${esc(p.note||p.d)}</span></section>`).join('')}</div>`;
 }
 function palInner(st,R,i,un,fl){return `<div class="lbl">รายการข้อ</div><div class="grid">${st.qs.map((_,k)=>`<button class="gq ${st.ans[k]>=0?'ans':''} ${k===i?'cur':''} ${st.flag[k]?'flag':''}" data-a="go" data-v="${k}" aria-label="ข้อ ${k+1}${st.ans[k]>=0?' ตอบแล้ว':''}${st.flag[k]?' ปักธง':''}">${k+1}</button>`).join('')}</div>
-   <div class="legend"><span>ดำ = ตอบแล้ว</span><span>จุดส้ม = ปักธง</span></div>
+   <div class="legend"><span>ทึบ = ตอบแล้ว</span><span>จุดส้ม = ปักธง</span></div>
    <button class="btn pri" style="width:100%" data-a="ask">ส่ง${R.mode==='all'?'วิชานี้':'ข้อสอบ'}</button>
    ${S.confirm?`<div class="confirm" role="alertdialog" aria-label="ยืนยันการส่ง"><b>ส่งเลยไหม</b><br>ยังไม่ได้ตอบ ${un} ข้อ · ปักธง ${fl} ข้อ${R.mode==='all'?`<br>ส่งแล้วจะกลับมาแก้วิชานี้ไม่ได้`:''}<div class="row"><button class="btn sm" data-a="cancel">กลับไปตรวจ</button><button class="btn sm pri" data-a="submit">ส่งเลย</button></div></div>`:''}
    ${S.quit?`<div class="confirm" role="alertdialog" aria-label="ยืนยันการออก"><b>ออกจากข้อสอบ</b><br>คำตอบในชุดนี้จะไม่ถูกบันทึก${R.mode==='all'?' และเริ่มใหม่ต้องจัดชุดใหม่ทั้งหมด':''}<div class="row"><button class="btn sm" data-a="cancel">ทำต่อ</button><button class="btn sm pri" data-a="leave">ออก</button></div></div>`:''}
@@ -1407,12 +1487,14 @@ function render(){
 
 /* ---------- tools: calculator + scratchpad (quantitative only) ---------- */
 const CALC_OPS=['+','−','×','÷','^'];
-const CALC_KEYS=[['(','(','op'],[')',')','op'],['√','√','op'],['²','x²','op'],['^','xʸ','op'],
- ['7'],['8'],['9'],['⌫','ลบ','fn'],['C','C','fn'],
- ['4'],['5'],['6'],['×','×','op'],['÷','÷','op'],
- ['1'],['2'],['3'],['+','+','op'],['−','−','op'],
- ['0'],['00'],['.'],['%','%','op'],['=','=','eq']];
-const CALC_LBL={'C':'ล้างทั้งหมด','⌫':'ลบตัวสุดท้าย','√':'รากที่สอง','²':'ยกกำลังสอง','^':'ยกกำลัง','−':'ลบ','×':'คูณ','÷':'หาร','+':'บวก','=':'เท่ากับ','%':'เปอร์เซ็นต์','.':'จุดทศนิยม','(':'เปิดวงเล็บ',')':'ปิดวงเล็บ'};
+const CALC_KEYS=[['',' ','gap'],['',' ','gap'],['',' ','gap'],['MU','MU','fk sm'],['OFF','OFF','fk sm off'],
+ ['MC','MC','fk'],['MR','MR','fk'],['M-','M−','fk'],['M+','M+','fk'],['÷','÷','fk'],
+ ['√','√','fk'],['7','7','dg'],['8','8','dg'],['9','9','dg'],['×','×','fk'],
+ ['%','%','fk'],['4','4','dg'],['5','5','dg'],['6','6','dg'],['−','−','fk'],
+ ['±','+/−','fk'],['1','1','dg'],['2','2','dg'],['3','3','dg'],['+','+','fk tall'],
+ ['AC','C/AC<small>ON</small>','ac'],['0','0','dg'],['.','•','dg'],['=','=','fk']];
+const CALC_LBL={'OFF':'ปิดเครื่องคิดเลข','AC':'ล้างทั้งหมด','±':'เปลี่ยนเครื่องหมาย','MU':'มาร์กอัป (ราคาขายจากต้นทุนและกำไร %)','MC':'ล้างความจำ','MR':'เรียกความจำ','M-':'ลบออกจากความจำ','M+':'บวกเข้าความจำ','C':'ล้างทั้งหมด','⌫':'ลบตัวสุดท้าย','√':'รากที่สอง','²':'ยกกำลังสอง','^':'ยกกำลัง','−':'ลบ','×':'คูณ','÷':'หาร','+':'บวก','=':'เท่ากับ','%':'เปอร์เซ็นต์','.':'จุดทศนิยม','(':'เปิดวงเล็บ',')':'ปิดวงเล็บ'};
+let CMEM=0;
 const newCalc=()=>({expr:'',eq:false,shown:'',num:0,val:'',err:false});
 S.tool='';S.calc=newCalc();S.toolPos=null;
 let toolsSig='';
@@ -1422,6 +1504,9 @@ function calcEval(src){
   try{
     let s=String(src).replace(/\s+/g,'').replace(/[+\-−×÷*\/^]+$/,'');
     if(!s)return{ok:true,empty:true,v:0};
+    if(s.includes('μ')){const m=s.split('μ');if(m.length!==2||m[1]==='')return{ok:false};
+      const c=calcEval(m[0]),g=calcEval(m[1]);if(!c.ok||c.empty||!g.ok||g.empty||g.v>=100)return{ok:false};
+      return{ok:true,v:c.v/(1-g.v/100)}}
     let d=0;for(const ch of s){if(ch==='(')d++;else if(ch===')'){d--;if(d<0)return{ok:false}}}
     s+=')'.repeat(d);
     const t=[],re=/(\d+\.?\d*(?:e[+-]?\d+)?|\.\d+(?:e[+-]?\d+)?)|([+\-−×÷*\/^()%²√])/iy;
@@ -1459,15 +1544,30 @@ function calcEval(src){
 function fmtNum(v){
   const r=Number(v.toPrecision(12));if(r===0)return'0';
   const a=Math.abs(r);if(a>=1e15||a<1e-9)return String(r).replace('e+','e');
-  return r.toLocaleString('en-US',{maximumFractionDigits:10});
+  return r.toLocaleString('en-US',{maximumFractionDigits:10}).replace('-','−');
 }
 function rawNum(v){const s=String(Number(v.toPrecision(12)));return s[0]==='-'?'−'+s.slice(1):s}
 
 function calcKey(k){
   if(k==='00'){calcKey('0');calcKey('0');return}
   const C=S.calc;C.err=false;
+  if(k==='MC'){CMEM=0;paintCalc();return}
+  if(k==='MR'){C.expr=rawNum(CMEM);C.eq=false;paintCalc();return}
+  if(k==='M+'||k==='M-'){let v=C.eq?C.num:(()=>{const r=calcEval(C.expr);return r.ok&&!r.empty?r.v:0})();CMEM+=k==='M+'?v:-v;C.expr=C.eq?C.expr:C.expr;paintCalc();return}
   const isDig=/^[0-9]$/.test(k),isOp=CALC_OPS.includes(k);
-  if(k==='C'){Object.assign(C,newCalc())}
+  if(k==='OFF'){setTool('','calc');return}
+  if(k==='C'||k==='AC'){const ch=C.eq?null:C.expr.match(/[0-9.]+$/);if(ch)C.expr=C.expr.slice(0,-ch[0].length);else Object.assign(C,newCalc())}
+  else if(k==='±'){
+    if(C.eq){C.expr=rawNum(-C.num);C.eq=false}
+    else{const e=C.expr,m=e.match(/^(.*?)(−?)([0-9.]+)$/);
+      if(m){const pre=m[1],neg=m[2],num=m[3],opb=pre===''||/[×÷^(+μ]$/.test(pre);
+        if(neg&&opb)C.expr=pre+num;
+        else if(neg)C.expr=pre+'+'+num;
+        else if(pre.slice(-1)==='+')C.expr=pre.slice(0,-1)+'−'+num;
+        else C.expr=pre+'−'+num}}
+  }else if(k==='MU'){
+    if(C.eq){C.expr=C.val;C.eq=false}
+    if(/[0-9)]$/.test(C.expr)&&!C.expr.includes('μ'))C.expr+='μ'}
   else if(k==='⌫'){
     if(C.eq)Object.assign(C,newCalc());
     else C.expr=C.expr.endsWith('√(')?C.expr.slice(0,-2):C.expr.slice(0,-1);
@@ -1489,27 +1589,28 @@ function calcKey(k){
     else if(k==='('){C.expr=e+'('}
     else if(k===')'){if(open>0&&last!==''&&last!=='('&&!CALC_OPS.includes(last))C.expr=e+')'}
     else if(k==='%'||k==='²'){if(/[0-9)%²]$/.test(e))C.expr=e+k}
-    else if(k==='√'){C.expr=e+'√('}
+    else if(k==='√'){const m=e.match(/^(.*?)([0-9.]+)$/);
+      if(m&&!/[0-9.]$/.test(m[1])&&m[2]!=='.')C.expr=m[1]+'√('+m[2]+')';else C.expr=e+'√('}
   }
   paintCalc();
 }
 function paintCalc(){
   const a=$('#cexp'),b=$('#cres');if(!a||!b)return;
-  const C=S.calc;
+  const C=S.calc;const mi=$('#cmi');if(mi)mi.style.visibility=CMEM?'visible':'hidden';
   if(C.eq){a.textContent=C.shown+' =';b.textContent=fmtNum(C.num)}
   else{
-    b.textContent=C.expr||'0';
+    b.textContent=(C.expr||'0').replace('μ',' MU ');
     if(C.err)a.textContent='คำนวณไม่ได้ ตรวจสอบนิพจน์อีกครั้ง';
-    else{const r=calcEval(C.expr);a.textContent=(C.expr&&r.ok&&!r.empty&&!/^−?[0-9.]*$/.test(C.expr))?'= '+fmtNum(r.v):''}
+    else{const r=calcEval(C.expr);a.textContent=(C.expr&&r.ok&&!r.empty&&!/^−?[0-9.]*μ?$/.test(C.expr))?'= '+fmtNum(r.v):''}
   }
   b.scrollLeft=b.scrollWidth;
 }
 function calcHtml(){
   return `<section class="tp calc" id="calcp" role="dialog" aria-label="เครื่องคิดเลข" tabindex="-1">
    <div class="th"><b title="ลากเพื่อย้ายตำแหน่ง">เครื่องคิดเลข</b><button class="tx" data-t="close" aria-label="ปิดเครื่องคิดเลข">${ic('x')}</button></div>
-   <div class="solar" aria-hidden="true"></div><div class="cd"><div class="ce" id="cexp"></div><div class="cr" id="cres">0</div></div>
-   <div class="ck">${CALC_KEYS.map(k=>`<button class="ky ${k[2]||''}" data-k="${k[0]}" aria-label="${CALC_LBL[k[0]]||k[0]}">${k[1]||k[0]}</button>`).join('')}</div>
-   <p class="note">พิมพ์ตัวเลขและเครื่องหมายจากคีย์บอร์ดได้ เช่น 200 + 10% = 220 และ 1000 × (1 + 5%)^2</p></section>`;
+   <div class="brand" aria-hidden="true"><b>CASIO</b><i class="solar"></i><em>MX-8B</em></div><div class="cd"><div class="ce"><span id="cmi" style="visibility:hidden;font-weight:700;margin-right:8px">M</span><span id="cexp"></span></div><div class="cr" id="cres">0</div></div>
+   <div class="ck">${CALC_KEYS.map(k=>`${k[2]==='gap'?'<span aria-hidden="true"></span>':`<button class="ky ${k[2]||''}" data-k="${k[0]}" aria-label="${CALC_LBL[k[0]]||k[0]}">${k[1]||k[0]}</button>`}`).join('')}</div>
+   <p class="note">พิมพ์ตัวเลขและเครื่องหมายจากคีย์บอร์ดได้ เช่น 200 + 10% = 220</p></section>`;
 }
 function padHtml(st){
   const txt=(st.notes&&st.notes[st.qi])||'';
@@ -1641,6 +1742,37 @@ document.addEventListener('keydown',e=>{
   else if(e.key==='ArrowLeft'&&st.qi>0){st.qi--;render();window.scrollTo(0,0)}
 });
 render();
+/* ---------- theme: Day / Night / Auto ---------- */
+(function(){
+  const K='forward-theme',root=document.documentElement,mq=window.matchMedia?matchMedia('(prefers-color-scheme: dark)'):null;
+  let mode='auto';try{const v=localStorage.getItem(K);if(v==='day'||v==='night'||v==='auto')mode=v}catch(e){}
+  const I={day:'<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6l1.4 1.4M17 17l1.4 1.4M5.6 18.4L7 17M17 7l1.4-1.4"/></svg>',
+    night:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg>',
+    auto:'<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M12 4a8 8 0 0 1 0 16z" fill="currentColor"/></svg>'};
+  const OPT=[['day','Day mode','โหมดกลางวัน'],['night','Night mode','โหมดกลางคืน'],['auto','Auto','ตามตั้งค่าเครื่อง']];
+  const eff=()=>(mode==='night'||(mode==='auto'&&mq&&mq.matches))?'dark':'light';
+  const wrap=document.createElement('div');wrap.id='themeui';
+  document.body.appendChild(wrap);
+  let open=false;
+  function paint(){
+    const cur=OPT.find(o=>o[0]===mode);
+    wrap.innerHTML=`<button class="themebtn" aria-haspopup="true" aria-expanded="${open}" aria-label="ธีมหน้าจอ: ${cur[1]}" title="ธีมหน้าจอ">${I[eff()==='dark'?'night':'day']}</button>
+    <div class="themepanel" role="radiogroup" aria-label="ธีมหน้าจอ" ${open?'':'hidden'}><h2>ธีมหน้าจอ</h2>${OPT.map(o=>`<button class="th-o" role="radio" aria-checked="${mode===o[0]}" data-m="${o[0]}">${I[o[0]]}<span><b>${o[1]}</b><small>${o[2]}</small></span></button>`).join('')}</div>`;
+  }
+  function apply(){
+    if(mode==='day')root.dataset.theme='light';else if(mode==='night')root.dataset.theme='dark';else delete root.dataset.theme;
+    root.dataset.eff=eff();paint();
+  }
+  wrap.addEventListener('click',e=>{
+    const o=e.target.closest('.th-o');
+    if(o){mode=o.dataset.m;try{localStorage.setItem(K,mode)}catch(_){}open=false;apply();return}
+    if(e.target.closest('.themebtn')){open=!open;paint();if(open){const f=wrap.querySelector('.th-o[aria-checked="true"]');f&&f.focus()}}
+  });
+  document.addEventListener('click',e=>{if(open&&!e.composedPath().includes(wrap)){open=false;paint()}});
+  document.addEventListener('keydown',e=>{if(e.key==='Escape'&&open){open=false;paint();const b=wrap.querySelector('.themebtn');b&&b.focus()}});
+  if(mq&&mq.addEventListener)mq.addEventListener('change',()=>{if(mode==='auto')apply()});
+  apply();
+})();
 </script>
 
 </body>
